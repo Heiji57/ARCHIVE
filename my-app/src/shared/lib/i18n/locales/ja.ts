@@ -1,12 +1,16 @@
 import type { Dict } from "../keys";
 
 export const ja: Dict = {
+  "nav.dashboard": "ダッシュボード",
   "nav.calendar": "カレンダー",
   "nav.todos": "ToDo",
   "nav.retrospectives": "振り返り",
   "nav.settings": "設定",
   "nav.brand": "A.R.C.H.I.V.E",
 
+  "subheader.dashboard.eyebrow": "ワークスペース",
+  "subheader.dashboard.title": "ダッシュボード",
+  "subheader.dashboard.subtitle": "今日の流れと今週の進捗をひと目で。",
   "subheader.calendar.eyebrow": "プランニング・キャンバス",
   "subheader.calendar.title": "今日のカレンダー",
   "subheader.calendar.subtitle":
@@ -23,6 +27,27 @@ export const ja: Dict = {
   "subheader.settings.title": "設定",
   "subheader.settings.subtitle":
     "GitHub 連携範囲と自動振り返りサマリーを調整します。",
+
+  "dashboard.range.today": "今日",
+  "dashboard.range.week": "週",
+  "dashboard.range.month": "月",
+  "dashboard.writeRetro": "振り返りを書く",
+  "dashboard.stat.doneToday": "今日の完了",
+  "dashboard.stat.doneWeek": "今週の完了",
+  "dashboard.stat.doneMonth": "今月の完了",
+  "dashboard.stat.completionRate": "完了率",
+  "dashboard.stat.retroCount": "作成した振り返り",
+  "dashboard.unit.count": "件",
+  "dashboard.count": "{n}件",
+  "dashboard.rings.completion": "完了率",
+  "dashboard.rings.inProgress": "進行中",
+  "dashboard.rings.notDone": "未完了",
+  "dashboard.weekly.title": "週間完了推移",
+  "dashboard.tags.title": "タグ分布",
+  "dashboard.tags.empty": "まだタグがありません",
+  "dashboard.timeline.title": "今日のタイムライン",
+  "dashboard.timeline.done": "{done} / {total} 完了",
+  "dashboard.timeline.empty": "今日の予定はありません",
 
   "sync.connected": "GitHub 接続済み",
   "sync.disconnected": "GitHub 未接続",
@@ -85,10 +110,23 @@ export const ja: Dict = {
   "todo.recurrence.label.weekly": "毎週",
   "todo.recurrence.label.interval": "{n}{unit}ごと",
   "todo.recurrence.deleteTitle": "繰り返しタスクを削除",
+  "todo.recurrence.timeTitle": "繰り返しタスクの時間を変更",
+  "todo.recurrence.fieldTitle": "この変更を適用する範囲",
   "todo.recurrence.scope.this": "この予定のみ",
   "todo.recurrence.scope.following": "この予定以降すべて",
   "todo.recurrence.scope.all": "すべての繰り返し予定",
   "todo.recurrence.scope.cancel": "キャンセル",
+  "todo.tag.title": "タグ",
+  "todo.tag.placeholder": "タグを追加...",
+  "todo.tag.add": "タグを追加",
+  "todo.tag.remove": "タグ「{tag}」を削除",
+  "todo.tag.limit": "最大{max}個まで",
+  "todo.tag.recent": "最近使用",
+  "todo.tag.searchResults": "検索結果",
+  "todo.tag.createNew": "「{tag}」を新規作成",
+  "todo.tag.noResults": "一致するタグなし",
+  "todo.tag.chipOff": "タグ",
+  "todo.tag.done": "完了",
 
   "calendar.view.day": "日",
   "calendar.view.week": "週",
@@ -101,6 +139,8 @@ export const ja: Dict = {
   "calendar.legend.done": "完了",
   "calendar.today": "TODAY",
   "calendar.taskDetail.title": "タスク詳細",
+  "calendar.taskDetail.tab.content": "内容",
+  "calendar.taskDetail.tab.schedule": "予定",
   "calendar.taskDetail.close": "閉じる",
   "calendar.empty.day": "—",
   "calendar.dropHint": "ここにドロップ",
@@ -131,9 +171,6 @@ export const ja: Dict = {
   "calendar.taskDetail.date": "日付",
   "calendar.taskDetail.description": "説明",
   "calendar.taskDetail.descPlaceholder": "背景や参考リンクを記録してください。",
-  "calendar.taskDetail.aiRetro": "AI 自動振り返り",
-  "calendar.taskDetail.aiRetroDesc": "このタスクを振り返りに紐付けると、毎週日曜日に自動で週次サマリーが生成されます。",
-  "calendar.taskDetail.goToRetro": "振り返りエディターへ",
   "calendar.taskDetail.time": "時間帯",
   "calendar.taskDetail.startTime": "開始",
   "calendar.taskDetail.endTime": "終了",
@@ -338,10 +375,9 @@ export const ja: Dict = {
   "settings.github.pushTargetNone": "選択なし",
   "settings.github.pushTargetHint":
     "振り返りの Markdown をこのリポジトリに push します。",
-  "settings.github.reconnectBanner": "GitHub 接続のアップデートが必要です",
-  "settings.github.reconnectBannerMsg":
-    "git bash などのローカルツールでのコミットを正確に表示するには、権限の更新が必要です。",
-  "settings.github.reconnect": "GitHub を再接続",
+  "settings.github.reconnectBanner":
+    "一部のコミット作成者が正しく表示されないことがあります。",
+  "settings.github.reconnect": "メール認証を更新",
   "settings.section.region": "地域とタイムゾーン",
   "settings.region.title": "国 / タイムゾーン",
   "settings.region.apply": "国の変更を適用",
@@ -379,6 +415,10 @@ export const ja: Dict = {
   "settings.todoRange.unit.week": "{n}週",
   "settings.todoRange.unit.month": "{n}か月",
   "settings.todoRange.unit.year": "{n}年",
+  "settings.section.writing": "ライティング",
+  "settings.writing.spellCheck": "スペルチェックの下線",
+  "settings.writing.spellCheckHint":
+    "エディタでスペルミスの単語にブラウザの赤い下線を表示します。",
   "settings.section.templates": "振り返りテンプレート",
   "settings.templates.title": "Retro Templates",
   "settings.templates.description":
@@ -412,6 +452,7 @@ export const ja: Dict = {
   "settings.group.preferences.hint": "言語・自動サマリー・通知の動作を調整します。",
   "settings.group.templates.hint":
     "振り返りタイプごとの初期構造を定義し、使用するテンプレートを選択します。",
+  "settings.group.writing.hint": "エディタの書き方の動作を調整します。",
 
   "settings.section.calendar": "カレンダー",
   "settings.calendar.connected": "接続済み",

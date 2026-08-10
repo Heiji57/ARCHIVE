@@ -26,6 +26,9 @@ import { AccountTypeForm, AuthShell } from "@/widgets/auth";
 
 // 페이지 단위 코드 스플리팅 — 로그인 사용자의 초기 번들에서 랜딩/auth 페이지를,
 // 미로그인 방문자의 초기 번들에서 앱 페이지를 제외한다 (named export → lazy 어댑터).
+const DashboardPage = lazy(() =>
+  import("@/pages/dashboard/ui/DashboardPage").then((m) => ({ default: m.DashboardPage })),
+);
 const CalendarPage = lazy(() =>
   import("@/pages/calendar/ui/CalendarPage").then((m) => ({ default: m.CalendarPage })),
 );
@@ -275,8 +278,9 @@ function AppContent({
 
   const pages = useMemo(
     () => ({
-      calendar: <CalendarPage onNavigate={onNavigate} />,
-      todos: <TodosPage onNavigate={onNavigate} />,
+      dashboard: <DashboardPage onNavigate={onNavigate} />,
+      calendar: <CalendarPage />,
+      todos: <TodosPage />,
       retrospectives: <RetrospectivesPage retroParams={retroParams} onRetroNavigate={onRetroNavigate} />,
       settings: <SettingsPage />,
     }),

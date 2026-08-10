@@ -1,12 +1,16 @@
 import type { Dict } from "../keys";
 
 export const en: Dict = {
+  "nav.dashboard": "Dashboard",
   "nav.calendar": "Calendar",
   "nav.todos": "To-Dos",
   "nav.retrospectives": "Retrospectives",
   "nav.settings": "Settings",
   "nav.brand": "A.R.C.H.I.V.E",
 
+  "subheader.dashboard.eyebrow": "Workspace",
+  "subheader.dashboard.title": "Dashboard",
+  "subheader.dashboard.subtitle": "Today's flow and this week's progress at a glance.",
   "subheader.calendar.eyebrow": "Workspace",
   "subheader.calendar.title": "Calendar",
   "subheader.calendar.subtitle":
@@ -23,6 +27,27 @@ export const en: Dict = {
   "subheader.settings.title": "Settings",
   "subheader.settings.subtitle":
     "Integrations, preferences, templates and sessions.",
+
+  "dashboard.range.today": "Today",
+  "dashboard.range.week": "Week",
+  "dashboard.range.month": "Month",
+  "dashboard.writeRetro": "Write retro",
+  "dashboard.stat.doneToday": "Done today",
+  "dashboard.stat.doneWeek": "Done this week",
+  "dashboard.stat.doneMonth": "Done this month",
+  "dashboard.stat.completionRate": "Completion",
+  "dashboard.stat.retroCount": "Retros written",
+  "dashboard.unit.count": "",
+  "dashboard.count": "{n}",
+  "dashboard.rings.completion": "Completion",
+  "dashboard.rings.inProgress": "In progress",
+  "dashboard.rings.notDone": "Not done",
+  "dashboard.weekly.title": "Weekly completions",
+  "dashboard.tags.title": "Tag distribution",
+  "dashboard.tags.empty": "No tags yet",
+  "dashboard.timeline.title": "Today's timeline",
+  "dashboard.timeline.done": "{done} / {total} done",
+  "dashboard.timeline.empty": "Nothing scheduled today",
 
   "sync.connected": "GitHub connected",
   "sync.disconnected": "GitHub not connected",
@@ -86,10 +111,23 @@ export const en: Dict = {
   "todo.recurrence.label.weekly": "Weekly",
   "todo.recurrence.label.interval": "Every {n} {unit}",
   "todo.recurrence.deleteTitle": "Delete recurring task",
+  "todo.recurrence.timeTitle": "Change recurring task time",
+  "todo.recurrence.fieldTitle": "Apply this change to",
   "todo.recurrence.scope.this": "This occurrence only",
   "todo.recurrence.scope.following": "This and following occurrences",
   "todo.recurrence.scope.all": "All occurrences",
   "todo.recurrence.scope.cancel": "Cancel",
+  "todo.tag.title": "Tags",
+  "todo.tag.placeholder": "Add a tag...",
+  "todo.tag.add": "Add tag",
+  "todo.tag.remove": "Remove tag {tag}",
+  "todo.tag.limit": "Up to {max} tags",
+  "todo.tag.recent": "Recently used",
+  "todo.tag.searchResults": "Search results",
+  "todo.tag.createNew": "Create “{tag}”",
+  "todo.tag.noResults": "No matching tags",
+  "todo.tag.chipOff": "Tags",
+  "todo.tag.done": "Done",
 
   "calendar.view.week": "Week",
   "calendar.view.day": "Day",
@@ -102,6 +140,8 @@ export const en: Dict = {
   "calendar.legend.done": "Done",
   "calendar.today": "TODAY",
   "calendar.taskDetail.title": "Task Detail",
+  "calendar.taskDetail.tab.content": "Content",
+  "calendar.taskDetail.tab.schedule": "Schedule",
   "calendar.taskDetail.close": "Close",
   "calendar.empty.day": "—",
   "calendar.dropHint": "Drop here",
@@ -132,9 +172,6 @@ export const en: Dict = {
   "calendar.taskDetail.date": "Date",
   "calendar.taskDetail.description": "Description",
   "calendar.taskDetail.descPlaceholder": "Jot down context or reference links.",
-  "calendar.taskDetail.aiRetro": "AI Auto-Retrospective",
-  "calendar.taskDetail.aiRetroDesc": "Link this task to a retrospective and a weekly summary will be generated automatically each Sunday.",
-  "calendar.taskDetail.goToRetro": "Open retrospective editor",
   "calendar.taskDetail.time": "Time",
   "calendar.taskDetail.startTime": "Start",
   "calendar.taskDetail.endTime": "End",
@@ -342,10 +379,9 @@ export const en: Dict = {
   "settings.github.pushTargetNone": "None",
   "settings.github.pushTargetHint":
     "Retrospective markdown will be pushed to this repository.",
-  "settings.github.reconnectBanner": "GitHub connection update required",
-  "settings.github.reconnectBannerMsg":
-    "A permission update is needed to accurately display commits made via git bash or local tools.",
-  "settings.github.reconnect": "Reconnect GitHub",
+  "settings.github.reconnectBanner":
+    "Some commit authors may not display correctly.",
+  "settings.github.reconnect": "Update email verification",
   "settings.section.region": "Region & Timezone",
   "settings.region.title": "Country / Timezone",
   "settings.region.apply": "Apply country change",
@@ -383,6 +419,10 @@ export const en: Dict = {
   "settings.todoRange.unit.week": "{n}w",
   "settings.todoRange.unit.month": "{n}mo",
   "settings.todoRange.unit.year": "{n}y",
+  "settings.section.writing": "Writing",
+  "settings.writing.spellCheck": "Spell check underlines",
+  "settings.writing.spellCheckHint":
+    "Show the browser's red underline for misspelled words in the editor.",
   "settings.section.templates": "Retro Templates",
   "settings.templates.title": "Retro Templates",
   "settings.templates.description":
@@ -417,6 +457,7 @@ export const en: Dict = {
     "Adjust language, auto-summary, and notification behavior.",
   "settings.group.templates.hint":
     "Define the default structure per retrospective type and pick which to use.",
+  "settings.group.writing.hint": "Adjust editor writing behavior.",
 
   "settings.section.calendar": "Calendar",
   "settings.calendar.connected": "Connected",
