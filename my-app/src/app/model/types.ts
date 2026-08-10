@@ -22,7 +22,7 @@ import type { RecurrenceRule, RecurrenceScope, TaskStatus, Todo } from "@/entiti
 import type { OAuthProvider, User } from "@/entities/user/model/types";
 import type { AppSettings, Locale } from "@/app/model/settings";
 
-export type AppRoute = "calendar" | "todos" | "retrospectives" | "settings";
+export type AppRoute = "dashboard" | "calendar" | "todos" | "retrospectives" | "settings";
 
 /**
  * 전역 검색 등에서 특정 대상으로 "이동 + 포커스"를 요청하는 일회성 인텐트.
@@ -58,6 +58,13 @@ export interface AppState extends PersistedAppState {
   github: GitHubState;
   /** Google Calendar 연동도 서버 소스 기반이라 영속화하지 않는다. */
   calendar: CalendarState;
+  /**
+   * todoQueue 의 debounce 된 PATCH 가 반복 시리즈의 가상 인스턴스를 실체화(materialize)해
+   * 서버가 새 id 를 발급했을 때의 1회성 알림(transient·비영속). CalendarDashboard/TodoBoard
+   * 가 selectedId 가 이 localId 와 일치하면 newId 로 따라간 뒤 clearTodoIdReplacement() 로
+   * 비운다 — 안 그러면 상세 패널이 열린 채로 선택된 항목을 못 찾아 빈 화면이 된다.
+   */
+  lastTodoIdReplacement: { localId: string; newId: string } | null;
 }
 
 export interface PushNotificationOptions {
@@ -91,6 +98,8 @@ export interface ArchiveAppContextValue {
       pushToCalendar?: boolean | null;
       /** 반복 규칙. 지정 시 서버에 반복 시리즈 베이스로 생성된다 (api.yaml TodoCreateRequest). */
       recurrenceRule?: RecurrenceRule | null;
+      /** 태그 목록(각 1~20자, 최대 10개). 생략 = 빈 배열. */
+      tags?: string[];
     },
     onCreated?: (id: string) => void,
   ) => void;
@@ -103,7 +112,7 @@ export interface ArchiveAppContextValue {
   toggleTodoCalendarLink: (id: string) => void;
   updateTodo: (
     id: string,
-    patch: Partial<Pick<Todo, "title" | "status" | "description" | "dateKey">>,
+    patch: Partial<Pick<Todo, "title" | "status" | "description" | "dateKey" | "tags">>,
   ) => void;
   moveTodo: (id: string, dateKey: string) => void;
   /**
@@ -138,15 +147,50 @@ export interface ArchiveAppContextValue {
   convertTodoToRecurring: (id: string, rule: RecurrenceRule) => Promise<Todo | null>;
   /**
    * 할 일의 시작/종료 시각 설정 (일간 타임라인 블록·드래그 재배치용).
-   * null 을 주면 해당 시각을 비운다("HH:mm" 형식).
-   * NOTE: api.yaml Todo 스키마에 시간 필드가 없어 서버로 전송하지 않고 로컬 상태만 갱신한다
-   *   (계약 간극 — 영속화하려면 백엔드에 start_time/end_time 추가 필요. CLAUDE.md §8).
+   * null 을 주면 해당 시각을 비운다("HH:mm" 형식). 디바운스 큐를 통해 PATCH 되며,
+   * 반복 시리즈 항목이면 recurrenceScope 생략 시 서버 기본값 "this"로 동작해
+   * 해당 회차의 예외 row 만 실체화한다(이후 회차는 영향 없음).
+   * 반복 시리즈 전체(이 회차부터 이후)의 시간을 바꾸려면 updateTodoTimeRecurrence 를 쓴다.
    */
   setTodoTime: (
     id: string,
     startTime: string | null,
     endTime: string | null,
   ) => void;
+  /**
+   * 반복 시리즈의 이 회차부터 이후 전체에 적용할 시작/종료 시각을 바꾼다
+   * (recurrence_scope: "following" 고정 — 서버가 새 시리즈로 분리).
+   * setTodoTime과 달리 디바운스 큐를 거치지 않고 즉시 전송한다(updateTodoRecurrence와 동일 패턴).
+   *
+   * PATCH 응답은 새로 분리된 시리즈의 base row 원본 형태로 온다 — 호출부(TodoBoard/
+   * CalendarDashboard)가 반환된 새 base 의 id 로 현재 보이는 범위를 재조회하고, 그 안에서
+   * seriesId 가 일치하는 항목을 찾아 선택을 옮겨야 한다. 실패/데모 모드는 null.
+   */
+  updateTodoTimeRecurrence: (
+    id: string,
+    startTime: string | null,
+    endTime: string | null,
+  ) => Promise<Todo | null>;
+  /**
+   * 반복 시리즈의 이 회차부터 이후 전체에 적용할 제목/설명/태그를 바꾼다
+   * (recurrence_scope: "following" 고정 — 서버가 새 시리즈로 분리).
+   * updateTodo 와 달리 디바운스 큐를 거치지 않고 즉시 전송한다
+   * (updateTodoRecurrence/updateTodoTimeRecurrence와 동일 패턴).
+   *
+   * PATCH 응답은 새로 분리된 시리즈의 base row 원본 형태로 온다 — 호출부(TodoBoard/
+   * CalendarDashboard)가 반환된 새 base 의 id 로 현재 보이는 범위를 재조회하고, 그 안에서
+   * seriesId 가 일치하는 항목을 찾아 선택을 옮겨야 한다. 실패/데모 모드는 null.
+   */
+  updateTodoFollowing: (
+    id: string,
+    patch: Partial<Pick<Todo, "title" | "description" | "tags">>,
+  ) => Promise<Todo | null>;
+  /**
+   * state.lastTodoIdReplacement 를 소비한 뒤 비운다. 반복 가상 인스턴스 편집 중
+   * 서버가 새 id 를 발급했을 때, 이를 따라간 위젯(CalendarDashboard/TodoBoard)이
+   * 처리 직후 호출해 1회성 신호를 정리한다.
+   */
+  clearTodoIdReplacement: () => void;
   /**
    * AI 요약(isSummary=true) 항목은 title 패치를 무시하고(서버 미저장, FE 합성 라벨)
    * content 패치만 PATCH /summaries/{id}(contentMarkdown)로 디바운스 저장한다.
@@ -316,6 +360,8 @@ export interface ArchiveAppContextValue {
   setNotificationRetention: (days: number) => void;
   /** 할 일 보드 "전체" 보기 기간(일). FE 전용 — localStorage 에만 저장. */
   setTodoBoardRange: (days: number) => void;
+  /** 리치 에디터 맞춤법 검사 표시 여부. FE 전용 — localStorage 에만 저장. */
+  setSpellCheck: (value: boolean) => void;
   setAccountType: (accountType: import("@/app/model/settings").AccountType) => void;
   /**
    * monthly/annual 요약 생성 전 데이터 밀도 점검.

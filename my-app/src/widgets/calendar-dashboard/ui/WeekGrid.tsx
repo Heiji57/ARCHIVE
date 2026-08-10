@@ -1,5 +1,6 @@
 import { memo, useRef, useState } from "react";
 import type { Todo } from "@/entities/todo/model/types";
+import { TagDots } from "@/entities/todo/ui/TagDots";
 import { useDraggable } from "@/shared/lib/dnd";
 import { addDays, startOfISOWeek, toDateKey } from "@/shared/lib/date";
 import { useTranslation } from "@/shared/lib/i18n";
@@ -28,6 +29,11 @@ const WeekChip = memo(function WeekChipImpl({ todo, onSelect }: WeekChipProps) {
         <p className="week-chip-time">{todo.startTime.slice(0, 5)}</p>
       ) : null}
       <p className="week-chip-title">{todo.title}</p>
+      {todo.tags.length > 0 ? (
+        <p className="week-chip-tags">
+          <TagDots tags={todo.tags} />
+        </p>
+      ) : null}
     </button>
   );
 });

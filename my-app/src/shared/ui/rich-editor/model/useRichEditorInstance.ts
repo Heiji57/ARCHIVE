@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Link } from "@tiptap/extension-link";
@@ -25,14 +25,31 @@ interface Options {
   onChange?: (markdown: string) => void;
   /** false 면 읽기 전용 모드 (슬래시 메뉴·드래그 선택 비활성화). 기본 true. */
   editable?: boolean;
+  /** 브라우저 맞춤법 검사(빨간 밑줄) 표시 여부. 기본 true. */
+  spellCheck?: boolean;
 }
 
 /**
  * TipTap 에디터 인스턴스 생성 + 외부 value 동기화.
  * (확장 등록·콘텐츠 변환 등 에디터 설정 로직을 컴포넌트에서 분리)
  */
-export function useRichEditorInstance({ value, placeholder, onChange, editable = true }: Options) {
+export function useRichEditorInstance({
+  value,
+  placeholder,
+  onChange,
+  editable = true,
+  spellCheck = true,
+}: Options) {
+  // Tiptap 은 deps=[] 일 때 매 렌더마다 options 를 이전 값과 얕게 비교해 바뀐 것만
+  // setOptions 로 반영한다(object 는 참조 비교) — 매 렌더 새 객체를 넘기면 값이
+  // 안 바뀌어도 매번 재적용되므로, spellCheck 가 실제로 바뀔 때만 참조가 바뀌게 memo.
+  const editorProps = useMemo(
+    () => ({ attributes: { spellcheck: String(spellCheck) } }),
+    [spellCheck],
+  );
+
   const editor = useEditor({
+    editorProps,
     extensions: [
       StarterKit.configure({
         heading: { levels: [1, 2, 3, 4, 5] },

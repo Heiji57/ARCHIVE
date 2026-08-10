@@ -50,6 +50,7 @@
 @import "./widgets/todo-board.css";
 @import "./widgets/disconnect-banner.css";
 @import "./widgets/dnd.css";
+@import "./widgets/dashboard.css";
 @import "./widgets/landing.css";
 
 /* 7. Legacy aliases (apple-* back-compat) */

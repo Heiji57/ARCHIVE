@@ -13,6 +13,8 @@ export interface TemplateEditorPanelProps {
   displayName: string
   onUpdate: (patch: Partial<Pick<RetroTemplate, "name" | "content">>) => void
   onReset: () => void
+  /** 브라우저 맞춤법 검사(빨간 밑줄) 표시 여부. 기본 true. */
+  spellCheck?: boolean
 }
 
 export function TemplateEditorPanel({
@@ -20,6 +22,7 @@ export function TemplateEditorPanel({
   displayName,
   onUpdate,
   onReset,
+  spellCheck = true,
 }: TemplateEditorPanelProps) {
   const { t } = useTranslation()
 
@@ -89,6 +92,7 @@ export function TemplateEditorPanel({
             value={template.content}
             placeholder={t("settings.templates.contentPlaceholder")}
             onChange={(md) => onUpdate({ content: md })}
+            spellCheck={spellCheck}
           />
         </Suspense>
       </EditorErrorBoundary>

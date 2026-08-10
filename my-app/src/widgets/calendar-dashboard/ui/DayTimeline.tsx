@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Todo } from "@/entities/todo/model/types";
 import { StatusIcon } from "@/entities/todo/ui/StatusIcon";
+import { TagDots } from "@/entities/todo/ui/TagDots";
 import { useTranslation } from "@/shared/lib/i18n";
 import {
   HOUR_PX,
@@ -491,6 +492,7 @@ export function DayTimeline({
               >
                 <StatusIcon status={todo.status} size={12} />
                 <span className="day-allday-chip-title">{todo.title}</span>
+                <TagDots tags={todo.tags} />
               </button>
             ))
           ) : (
@@ -580,6 +582,7 @@ export function DayTimeline({
                   <div className="day-block-head">
                     <StatusIcon status={b.todo.status} size={12} />
                     <span className="day-block-title">{b.todo.title}</span>
+                    <TagDots tags={b.todo.tags} />
                   </div>
                   {!compact ? (
                     <span className="day-block-time">

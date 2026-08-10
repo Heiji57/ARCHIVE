@@ -24,6 +24,12 @@ export interface AppSettings {
   accountType: AccountType;
   /** true once the user has seen and confirmed/skipped the account type screen */
   accountTypeDetermined: boolean;
+  /**
+   * 리치 에디터(회고록 본문 등)의 브라우저 맞춤법 검사(빨간 밑줄) 표시 여부.
+   * api.yaml /settings 계약에 없는 FE 전용 로컬 선호도 — todoBoardRangeDays 와 동일하게
+   * 서버로 동기화하지 않고 localStorage 에만 저장한다.
+   */
+  spellCheck: boolean;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -36,6 +42,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   calendarAutoDeleteTodo: false,
   accountType: "user",
   accountTypeDetermined: false,
+  spellCheck: true,
 };
 
 export const SUPPORTED_LOCALES: Array<{ code: Locale; label: string; native: string }> = [

@@ -921,6 +921,104 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/todos/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 대시보드 통계 조회
+         * @description 지정 범위의 Todo 상태 카운트·완료율·태그 분포 + 항상 이번 ISO주 7일 trend + 전체 이력 기반 회고 개수(retro_count)를 한 번에 반환한다. FE 대시보드 전용.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description 집계 범위. today = 오늘, week = 이번 ISO주(월~일), month = 이번 달. */
+                    range?: "today" | "week" | "month";
+                    /**
+                     * @description IANA timezone (예: Asia/Seoul). 로컬 day 경계 계산에 사용. 생략 시 사용자 계정 timezone 자동 사용.
+                     * @example Asia/Seoul
+                     */
+                    tz?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 통계 조회 성공 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiResponseEmpty"] & {
+                            data?: components["schemas"]["TodoStatsResponse"];
+                        };
+                    };
+                };
+                401: components["responses"]["Unauthorized_401"];
+                422: components["responses"]["ValidationError_422"];
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/todos/tags/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 태그 자동완성 검색
+         * @description 이 사용자가 지금까지 쓴 전체 태그 이력(현재 FE에 로드된 범위와 무관)에서 `q` 접두(prefix) 매칭되는 태그명을 사용 빈도 내림차순(동률 시 가나다순)으로 반환한다. Postgres FTS(to_tsvector/to_tsquery, simple config) 기반. 태그 입력 UI의 자동완성 "검색 결과" 섹션 전용.
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @example 업 */
+                    q: string;
+                    limit?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 검색 성공 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiResponseEmpty"] & {
+                            data?: components["schemas"]["TagSearchResponse"];
+                        };
+                    };
+                };
+                401: components["responses"]["Unauthorized_401"];
+                422: components["responses"]["ValidationError_422"];
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/todos/{todo_id}": {
         parameters: {
             query?: never;
@@ -4070,7 +4168,12 @@ export interface components {
             /** @description null(생략) = user_settings.calendarAutoPushTodo 기본값 적용, true/false = 개별 지정(생성 시 Google Calendar push 여부). */
             push_to_calendar?: boolean | null;
             /** @description 반복 규칙. null 이면 단건 todo. */
-            recurrence_rule?: components["schemas"]["RecurrenceRule"] | null;
+            recurrence_rule?: components["schemas"]["RecurrenceRule"];
+            /**
+             * @description 태그 목록 (각 1~20자, 최대 10개, 중복 제거됨). 생략 시 빈 배열.
+             * @default []
+             */
+            tags: string[];
         };
         TodoUpdateRequest: {
             title?: string | null;
@@ -4097,6 +4200,8 @@ export interface components {
             recurrence_scope: "this" | "following";
             /** @description `recurrence_scope: following` 일 때 새 시리즈에 적용할 규칙. 생략 시 기존 규칙 유지. 대상 todo 가 비반복 단독 항목(series_id 없음, 어떤 시리즈에도 속하지 않음)이면 `recurrence_scope` 값과 무관하게 이 규칙으로 반복 시리즈 base 로 전환된다 (이 회차 자체가 새 시리즈의 첫 회차가 됨). 이미 다른 시리즈의 예외 row 에는 무시된다 — 그 경우는 가상 인스턴스(`{base_id}::{slot_date}`)를 `recurrence_scope: following` 으로 수정해야 한다. */
             recurrence_rule?: components["schemas"]["RecurrenceRule"] | null;
+            /** @description omit = unchanged, null = 빈 배열과 동일하게 처리(전체 삭제), array = 전체 교체. 각 1~20자, 최대 10개, 중복 제거됨. */
+            tags?: string[] | null;
         };
         TodoResponse: {
             id: string;
@@ -4139,7 +4244,9 @@ export interface components {
             /** @description 예외 row가 커버하는 원래 슬롯 날짜(YYYY-MM-DD). 시리즈 멤버십 키. */
             original_date_key?: string | null;
             /** @description 반복 베이스 row에만 존재. 예외/일반 todo 는 null. */
-            recurrence_rule?: components["schemas"]["RecurrenceRule"] | null;
+            recurrence_rule?: components["schemas"]["RecurrenceRule"];
+            /** @description 태그 목록 (0~10개, 각 1~20자). 없으면 빈 배열. */
+            tags: string[];
         };
         RecurrenceRule: {
             /**
@@ -4151,6 +4258,35 @@ export interface components {
             interval: number;
             /** @description 반복 종료 날짜(포함, 로컬 날짜 YYYY-MM-DD). null 이면 무기한. */
             until?: string | null;
+        };
+        WeeklyTrendDay: {
+            /** @description YYYY-MM-DD (로컬 날짜). */
+            date_key: string;
+            done_count: number;
+        };
+        TagCount: {
+            tag: string;
+            count: number;
+        };
+        TagSearchResponse: {
+            /** @description `q` 접두 매칭되는 태그명, 사용 빈도 내림차순(동률 시 가나다순). 최대 `limit`개. */
+            tags: string[];
+        };
+        TodoStatsResponse: {
+            /** @enum {string} */
+            range: "today" | "week" | "month";
+            total: number;
+            done_count: number;
+            in_progress_count: number;
+            not_start_count: number;
+            /** @description 사용자가 여태까지 작성한 회고(journal_entries) 전체 개수. range 와 무관한 전체 이력(all-time) 집계. 대시보드 통계 카드용. */
+            retro_count: number;
+            /** @description 0~100 정수 (반올림). done_count / total × 100. total=0 이면 0. */
+            completion_rate: number;
+            /** @description 항상 이번 ISO주 월~일 7칸 (range 와 무관). 완료(completed_at) 기준. */
+            weekly_trend: components["schemas"]["WeeklyTrendDay"][];
+            /** @description range 범위 내 태그별 todo 수, 내림차순. tag=null 인 항목 제외. */
+            tag_distribution: components["schemas"]["TagCount"][];
         };
         ApiResponseTodo: components["schemas"]["ApiResponseEmpty"] & {
             data?: components["schemas"]["TodoResponse"];

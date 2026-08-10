@@ -2,6 +2,7 @@ import { DEFAULT_SETTINGS } from "@/app/model/settings";
 import type { PersistedAppState } from "@/app/model/types";
 import { DEFAULT_ACTIVE_TEMPLATE_IDS, DEFAULT_TEMPLATES } from "@/entities/template";
 import { addDays, toDateKey } from "@/shared/lib/date";
+import { readSpellCheckPref } from "@/shared/lib/spellCheckPrefs";
 import { readTodoBoardRange } from "@/shared/lib/todoRangePrefs";
 
 const baseDate = new Date(2023, 9, 25, 12);
@@ -15,6 +16,7 @@ export const seedState: PersistedAppState = {
     {
       id: "todo-1",
       title: "API 명세서 작성",
+      tags: ["업무"],
       completed: true,
       dateKey: "2023-10-25",
       createdAt: baseDate.toISOString(),
@@ -31,6 +33,7 @@ export const seedState: PersistedAppState = {
     {
       id: "todo-2",
       title: "Redis 캐싱 적용",
+      tags: ["사이드"],
       completed: false,
       dateKey: "2023-10-26",
       createdAt: addDays(baseDate, 1).toISOString(),
@@ -47,6 +50,7 @@ export const seedState: PersistedAppState = {
     {
       id: "todo-3",
       title: "팀 주간 회의",
+      tags: ["업무"],
       completed: true,
       dateKey: "2023-10-26",
       createdAt: addDays(baseDate, 1).toISOString(),
@@ -63,6 +67,7 @@ export const seedState: PersistedAppState = {
     {
       id: "todo-4",
       title: "Next.js 라우팅 설정",
+      tags: ["학습"],
       completed: false,
       dateKey: "2023-10-27",
       createdAt: addDays(baseDate, 2).toISOString(),
@@ -79,6 +84,7 @@ export const seedState: PersistedAppState = {
     {
       id: "todo-5",
       title: "GitHub OAuth 연동",
+      tags: ["사이드"],
       completed: false,
       dateKey: "2023-10-27",
       createdAt: addDays(baseDate, 2).toISOString(),
@@ -172,6 +178,7 @@ export const seedState: PersistedAppState = {
   settings: {
     ...DEFAULT_SETTINGS,
     todoBoardRangeDays: readTodoBoardRange(DEFAULT_SETTINGS.todoBoardRangeDays),
+    spellCheck: readSpellCheckPref(DEFAULT_SETTINGS.spellCheck),
   },
   pendingSummary: null,
   currentUser: null,

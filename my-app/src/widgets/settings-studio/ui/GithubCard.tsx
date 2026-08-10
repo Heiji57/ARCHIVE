@@ -3,6 +3,7 @@ import {
   Eye,
   EyeOff,
   FolderGit2,
+  Info,
   Link2,
   Link2Off,
   Lock,
@@ -140,54 +141,51 @@ export function GithubCard() {
             </p>
           ) : null}
 
-          {/* 재연결 안내 배너 (hasVerifiedEmails = false 인 구 scope 사용자) */}
+          {/* 이메일 인증 안내 (hasVerifiedEmails = false 인 구 scope 사용자) */}
           {!hasVerifiedEmails ? (
             <div
               style={{
-                margin: "0 0 14px",
-                padding: "10px 14px",
-                background: "var(--color-warn-subtle, rgba(234,179,8,.1))",
-                border: "1px solid var(--color-warn, #ca8a04)",
-                borderRadius: "var(--r-sm)",
                 display: "flex",
-                alignItems: "flex-start",
-                gap: 10,
+                alignItems: "center",
+                gap: 8,
+                margin: "0 0 14px",
               }}
             >
-              <span style={{ fontSize: 16, lineHeight: 1 }}>🔄</span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p
-                  style={{
-                    margin: "0 0 2px",
-                    fontSize: 12,
-                    fontWeight: 600,
-                    color: "var(--color-warn-text, #854d0e)",
-                  }}
-                >
+              <Info
+                size={14}
+                style={{ color: "var(--color-warn)", flexShrink: 0 }}
+              />
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: 12,
+                  color: "var(--color-body-muted)",
+                  lineHeight: 1.5,
+                }}
+              >
+                <span style={{ color: "var(--color-ink)", fontWeight: 500 }}>
                   {t("settings.github.reconnectBanner")}
-                </p>
-                <p
-                  style={{
-                    margin: "0 0 8px",
-                    fontSize: 12,
-                    color: "var(--color-body-muted)",
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {t("settings.github.reconnectBannerMsg")}
-                </p>
+                </span>{" "}
                 <button
                   type="button"
-                  className="btn btn-primary"
-                  style={{ fontSize: 12, padding: "4px 10px" }}
                   onClick={() => void handleConnectAccount()}
                   disabled={connecting}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    padding: 0,
+                    font: "inherit",
+                    color: "var(--color-primary)",
+                    textDecoration: "underline",
+                    textUnderlineOffset: 2,
+                    cursor: connecting ? "default" : "pointer",
+                  }}
                 >
                   {connecting
                     ? t("settings.github.connecting")
                     : t("settings.github.reconnect")}
                 </button>
-              </div>
+              </p>
             </div>
           ) : null}
 

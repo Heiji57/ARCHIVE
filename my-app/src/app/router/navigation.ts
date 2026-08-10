@@ -1,6 +1,7 @@
 import type { AppRoute } from "@/app/model/types";
 
 const ROUTE_PATHS: Record<AppRoute, string> = {
+  dashboard: "/dashboard",
   calendar: "/",
   todos: "/todos",
   retrospectives: "/retrospectives",
@@ -8,6 +9,7 @@ const ROUTE_PATHS: Record<AppRoute, string> = {
 };
 
 const PATH_PREFIX_TO_ROUTE: Array<[string, AppRoute]> = [
+  ["/dashboard", "dashboard"],
   ["/todos", "todos"],
   ["/retrospectives", "retrospectives"],
   ["/settings", "settings"],

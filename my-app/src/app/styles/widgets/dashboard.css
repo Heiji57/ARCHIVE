@@ -1,0 +1,346 @@
+/* ============================================================
+   A.R.C.H.I.V.E — Dashboard overview
+   앱 토큰(Linear 다크) 상속. 그림자 대신 서피스 리프트 + 헤어라인.
+   ============================================================ */
+
+.dash-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-lg);
+}
+
+/* ── Toolbar (회고 쓰기 · range toggle) ──────────────────────── */
+.dash-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--s-md);
+  flex-wrap: wrap;
+}
+
+.dash-toolbar-right {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-sm);
+}
+.dash-write-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Grid ────────────────────────────────────────────────────── */
+.dash-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 480px) 1fr;
+  gap: var(--s-lg);
+  align-items: start;
+}
+.dash-left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-md);
+  min-width: 0;
+}
+.dash-right {
+  min-width: 0;
+}
+
+/* ── Shared card / section ───────────────────────────────────── */
+.dash-card {
+  background: var(--color-tile-1);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--r-lg);
+  padding: var(--s-lg);
+}
+.dash-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin: 0;
+}
+.dash-card-meta {
+  margin-left: 6px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-body-muted);
+}
+.dash-divider {
+  height: 1px;
+  background: var(--color-divider-soft);
+  margin: var(--s-lg) 0;
+}
+.dash-empty-inline {
+  font-size: 12px;
+  color: var(--color-body-muted);
+  margin: var(--s-sm) 0 0;
+}
+
+/* ── Stat cards ──────────────────────────────────────────────── */
+.dash-stat-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--s-sm);
+}
+.dash-stat-card {
+  background: var(--color-tile-2);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--r-lg);
+  padding: var(--s-md);
+}
+.dash-stat-label {
+  font-size: 12px;
+  color: var(--color-body-muted);
+  margin: 0 0 6px;
+}
+.dash-stat-value {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: var(--headline-tracking);
+  color: var(--color-ink);
+  margin: 0;
+  line-height: 1;
+}
+.dash-stat-unit {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-body-muted);
+  letter-spacing: 0;
+}
+
+/* ── Progress rings ──────────────────────────────────────────── */
+.dash-rings {
+  display: flex;
+  align-items: center;
+  gap: var(--s-lg);
+}
+.dash-rings-svg {
+  width: 108px;
+  height: 108px;
+  flex-shrink: 0;
+}
+.dash-ring-track {
+  stroke: var(--color-tile-4);
+}
+.dash-rings-center {
+  font-size: 15px;
+  font-weight: 600;
+  fill: var(--color-ink);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.dash-rings-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-xs);
+  flex: 1;
+}
+.dash-rings-legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--s-xs);
+  font-size: 13px;
+}
+
+/* ── Legend dot / value (shared: rings, tags, timeline chip) ──── */
+.dash-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--r-pill);
+  flex-shrink: 0;
+}
+.dash-legend-label {
+  color: var(--color-ink-muted-80);
+}
+.dash-legend-val {
+  margin-left: auto;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+/* ── Section (inside analytics card) ─────────────────────────── */
+.dash-section-title,
+.dash-weekly .dash-card-title,
+.dash-tags .dash-card-title {
+  font-size: 13px;
+}
+
+/* ── Weekly trend ────────────────────────────────────────────── */
+.dash-weekly-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: var(--s-sm);
+}
+.dash-weekly-row {
+  display: grid;
+  grid-template-columns: 20px 1fr 24px;
+  align-items: center;
+  gap: var(--s-xs);
+}
+.dash-weekly-dow {
+  font-size: 12px;
+  color: var(--color-body-muted);
+}
+.dash-weekly-row.is-today .dash-weekly-dow {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+.dash-weekly-track {
+  height: 8px;
+  background: var(--color-tile-3);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+.dash-weekly-bar {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: var(--r-pill);
+  min-width: 2px;
+}
+.dash-weekly-row.is-today .dash-weekly-bar {
+  background: var(--color-primary-on-dark);
+}
+.dash-weekly-val {
+  font-size: 12px;
+  color: var(--color-ink-muted-80);
+  text-align: right;
+}
+
+/* ── Tag distribution ────────────────────────────────────────── */
+.dash-tags-bar {
+  display: flex;
+  height: 12px;
+  border-radius: var(--r-pill);
+  overflow: hidden;
+  margin: var(--s-sm) 0 var(--s-md);
+  background: var(--color-tile-3);
+}
+.dash-tags-seg {
+  height: 100%;
+}
+.dash-tags-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px var(--s-md);
+}
+.dash-tags-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+.dash-tags-legend .dash-legend-val {
+  margin-left: 4px;
+  font-weight: 500;
+  color: var(--color-body-muted);
+}
+
+/* ── Today timeline ──────────────────────────────────────────── */
+.dash-timeline {
+  height: 100%;
+}
+.dash-timeline-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--s-md);
+}
+.dash-timeline-count {
+  font-size: 12px;
+  color: var(--color-body-muted);
+}
+.dash-timeline-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.dash-timeline-item {
+  display: grid;
+  grid-template-columns: 44px 24px 1fr;
+  align-items: start;
+  gap: var(--s-sm);
+  width: 100%;
+  padding: 10px 0;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+}
+.dash-timeline-time {
+  font-size: 12px;
+  color: var(--color-body-muted);
+  padding-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+.dash-timeline-node {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding-top: 1px;
+}
+/* 노드 사이를 잇는 세로 레일 */
+.dash-timeline-list li:not(:last-child) .dash-timeline-node::after {
+  content: "";
+  position: absolute;
+  top: 22px;
+  bottom: -20px;
+  width: 1px;
+  background: var(--color-hairline);
+}
+.dash-timeline-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.dash-timeline-title {
+  font-size: 16px;
+  color: var(--color-ink);
+  line-height: 1.3;
+}
+.dash-timeline-title.is-done {
+  color: var(--color-ink-muted-48);
+  text-decoration: line-through;
+}
+.dash-timeline-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-xs);
+}
+.dash-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: var(--r-sm);
+  background: var(--color-tile-3);
+  font-size: 12px;
+  color: var(--color-ink-muted-80);
+}
+.dash-status-chip {
+  font-size: 12px;
+  color: var(--color-body-muted);
+}
+.dash-status-chip.status-done {
+  color: var(--color-status-done);
+}
+.dash-status-chip.status-in-progress {
+  color: var(--color-primary-on-dark);
+}
+.dash-timeline-item:hover .dash-timeline-title {
+  color: var(--color-primary-on-dark);
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .dash-grid {
+    grid-template-columns: 1fr;
+  }
+}

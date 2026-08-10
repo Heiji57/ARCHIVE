@@ -32,6 +32,7 @@ export type AppAction =
          * 서버의 반복 인스턴스 생성 로직이 없어 실제 반복은 일어나지 않는다.
          */
         recurrenceRule?: RecurrenceRule | null;
+        tags?: string[];
       };
     }
   | {
@@ -92,6 +93,8 @@ export type AppAction =
   | { type: "entry/replaceId"; payload: { localId: string; serverEntry: JournalEntry } }
   /** POST 응답 서버 ID 로 낙관적 로컬 ID 를 교체한다. */
   | { type: "todo/replaceId"; payload: { localId: string; serverTodo: Todo } }
+  /** lastTodoIdReplacement 1회성 신호를 소비 후 비운다. */
+  | { type: "todo/clearIdReplacement" }
   | { type: "github/setStatus"; payload: { status: GitHubStatus } }
   | {
       type: "github/setLinked";
@@ -132,6 +135,7 @@ export type AppAction =
     }
   | { type: "settings/retention"; payload: { days: number } }
   | { type: "settings/todoBoardRange"; payload: { days: number } }
+  | { type: "settings/spellCheck"; payload: { value: boolean } }
   | { type: "settings/calendarAutoPushTodo"; payload: { value: boolean } }
   | { type: "settings/calendarAutoDeleteTodo"; payload: { value: boolean } }
   | { type: "settings/scheduleCheck"; payload: { timestamp: string } }

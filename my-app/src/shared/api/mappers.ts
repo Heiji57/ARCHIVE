@@ -11,15 +11,17 @@ import type {
   NotificationItem,
 } from "@/entities/notification/model/types";
 import type { RetroTemplate } from "@/entities/template/model/types";
-import type { Todo } from "@/entities/todo/model/types";
+import type { Todo, TodoStats } from "@/entities/todo/model/types";
 import type { OAuthProvider, User } from "@/entities/user/model/types";
 import { DEFAULT_SETTINGS, type AccountType, type AppSettings, type Locale } from "@/app/model/settings";
+import { readSpellCheckPref } from "@/shared/lib/spellCheckPrefs";
 import { readTodoBoardRange } from "@/shared/lib/todoRangePrefs";
 import { utcISOToLocalTime } from "@/shared/lib/date";
 import type { components } from "./schema";
 
 type UserResponse = components["schemas"]["UserResponse"];
 type TodoResponse = components["schemas"]["TodoResponse"];
+type TodoStatsResponse = components["schemas"]["TodoStatsResponse"];
 type EntryResponse = components["schemas"]["EntryResponse"];
 type FolderResponse = components["schemas"]["FolderResponse"];
 type SettingsResponse = components["schemas"]["SettingsResponse"];
@@ -80,6 +82,28 @@ export function toTodo(api: TodoResponse): Todo {
     recurrenceRule: api.recurrence_rule
       ? { ...api.recurrence_rule, until: api.recurrence_rule.until ?? null }
       : null,
+    tags: api.tags ?? [],
+  };
+}
+
+/** TodoStatsResponse(snake) → TodoStats(camel). GET /todos/stats */
+export function toTodoStats(api: TodoStatsResponse): TodoStats {
+  return {
+    range: api.range,
+    total: api.total,
+    doneCount: api.done_count,
+    inProgressCount: api.in_progress_count,
+    notStartCount: api.not_start_count,
+    completionRate: api.completion_rate,
+    weeklyTrend: api.weekly_trend.map((d) => ({
+      dateKey: d.date_key,
+      doneCount: d.done_count,
+    })),
+    tagDistribution: api.tag_distribution.map((t) => ({
+      tag: t.tag,
+      count: t.count,
+    })),
+    retroCount: api.retro_count,
   };
 }
 
@@ -147,6 +171,8 @@ export function toSettings(api: SettingsResponse, current?: AppSettings): AppSet
     todoBoardRangeDays:
       current?.todoBoardRangeDays ??
       readTodoBoardRange(DEFAULT_SETTINGS.todoBoardRangeDays),
+    spellCheck:
+      current?.spellCheck ?? readSpellCheckPref(DEFAULT_SETTINGS.spellCheck),
   };
 }
 

@@ -68,6 +68,7 @@ import {
   todayKeyInTz,
   toDateKey,
 } from "@/shared/lib/date";
+import { writeSpellCheckPref } from "@/shared/lib/spellCheckPrefs";
 import { writeTodoBoardRange } from "@/shared/lib/todoRangePrefs";
 import { createId } from "@/shared/lib/id";
 import { translate } from "@/shared/lib/i18n";
@@ -162,6 +163,18 @@ import {
   mockRevokeOtherSessions,
 } from "@/app/lib/mockAuth";
 import type { PushRetrospectiveResult } from "@/app/model/types";
+
+/**
+ * 시작만 지정되고 끝이 비어 있으면 끝을 시작+60분으로 자동 보정한다(24:00 은 23:59 로 clamp).
+ * setTodoTime/updateTodoTimeRecurrence 둘 다 같은 보정 정책을 쓴다.
+ */
+function fillDefaultEndTime(startTime: string | null, endTime: string | null): string | null {
+  if (!startTime || endTime) return endTime;
+  const m = /^(\d{1,2}):(\d{2})$/.exec(startTime);
+  if (!m) return endTime;
+  const total = Math.min(24 * 60 - 1, Number(m[1]) * 60 + Number(m[2]) + 60);
+  return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
+}
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(
@@ -913,6 +926,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           timezone: tz ?? null,
           pushToCalendar: options?.pushToCalendar,
           recurrenceRule: options?.recurrenceRule,
+          tags: options?.tags,
         })
           .then((todo) => {
             dispatch({ type: "todo/upsert", payload: { todo } });
@@ -933,6 +947,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           startTime,
           endTime,
           recurrenceRule: options?.recurrenceRule,
+          tags: options?.tags,
         },
       });
       onCreated?.(newId);
@@ -1033,18 +1048,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       });
     },
     setTodoTime: (id, startTime, endTime) => {
-      // 시작만 지정되고 끝이 비어 있으면 끝을 시작+60분으로 자동 보정한다.
-      // (일간 캘린더 블록은 시각상 +1시간으로 그려지므로 데이터도 일치시켜,
-      //  블록을 눌러 상세를 봐도 끝 시간이 채워져 있도록 한다.)
-      if (startTime && !endTime) {
-        const m = /^(\d{1,2}):(\d{2})$/.exec(startTime);
-        if (m) {
-          const total = Math.min(24 * 60 - 1, Number(m[1]) * 60 + Number(m[2]) + 60);
-          endTime = `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(
-            total % 60,
-          ).padStart(2, "0")}`;
-        }
-      }
+      // 일간 캘린더 블록은 시각상 +1시간으로 그려지므로 데이터도 일치시켜,
+      // 블록을 눌러 상세를 봐도 끝 시간이 채워져 있도록 한다.
+      endTime = fillDefaultEndTime(startTime, endTime);
       dispatch({
         type: "todo/update",
         payload: { id, patch: { startTime, endTime } },
@@ -1056,12 +1062,59 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (!dateKey) return;
       const tz = state.currentUser?.timezone ?? undefined;
       const hasTime = Boolean(startTime || endTime);
+      // recurrenceScope 를 지정하지 않는다 — 서버 기본값 "this" 로 해당 회차만 수정된다
+      // (반복 시리즈면 예외 row 로 실체화). 이후 회차까지 바꾸려면 updateTodoTimeRecurrence.
       todoQueue.enqueue(id, {
         startTime: startTime ? localTimeToUtcISO(dateKey, startTime, tz) : null,
         endTime: endTime ? localTimeToUtcISO(dateKey, endTime, tz) : null,
         timezone: hasTime ? (tz ?? null) : null,
       });
     },
+    updateTodoTimeRecurrence: async (id, startTime, endTime) => {
+      // 데모/mock 은 반복 확장 로직 자체가 없어 지원하지 않는다.
+      if (!apiActive) return null;
+      endTime = fillDefaultEndTime(startTime, endTime);
+      const todo = state.todos.find((t) => t.id === id);
+      const dateKey = todo?.dateKey;
+      if (!dateKey) return null;
+      const tz = state.currentUser?.timezone ?? undefined;
+      const hasTime = Boolean(startTime || endTime);
+      // 큐를 거치지 않고 즉시 전송 — following 스코프는 서버가 새 시리즈(새 id)를
+      // 만드는 1회성 명시적 액션이라 디바운스 코얼레싱 대상이 아니다(updateTodoRecurrence와 동일).
+      try {
+        const serverTodo = await apiUpdateTodo(id, {
+          startTime: startTime ? localTimeToUtcISO(dateKey, startTime, tz) : null,
+          endTime: endTime ? localTimeToUtcISO(dateKey, endTime, tz) : null,
+          timezone: hasTime ? (tz ?? null) : null,
+          recurrenceScope: "following",
+        });
+        dispatch({ type: "todo/replaceId", payload: { localId: id, serverTodo } });
+        return serverTodo;
+      } catch {
+        reportApiError();
+        return null;
+      }
+    },
+    updateTodoFollowing: async (id, patch) => {
+      // 데모/mock 은 반복 확장 로직 자체가 없어 지원하지 않는다.
+      if (!apiActive) return null;
+      // 큐를 거치지 않고 즉시 전송 — following 스코프는 서버가 새 시리즈(새 id)를
+      // 만드는 1회성 명시적 액션이라 디바운스 코얼레싱 대상이 아니다(updateTodoRecurrence와 동일).
+      try {
+        const serverTodo = await apiUpdateTodo(id, {
+          title: patch.title,
+          description: patch.description,
+          tags: patch.tags,
+          recurrenceScope: "following",
+        });
+        dispatch({ type: "todo/replaceId", payload: { localId: id, serverTodo } });
+        return serverTodo;
+      } catch {
+        reportApiError();
+        return null;
+      }
+    },
+    clearTodoIdReplacement: () => dispatch({ type: "todo/clearIdReplacement" }),
     updateEntry: (id, patch) => {
       dispatch({ type: "entry/update", payload: { id, patch } }); // 낙관적
       // entry 본문/제목 변경 → readiness 캐시 무효화
@@ -1528,6 +1581,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // FE 전용 선호도 — 서버(/settings)로 동기화하지 않고 localStorage 에만 저장한다.
       dispatch({ type: "settings/todoBoardRange", payload: { days } });
       writeTodoBoardRange(days);
+    },
+    setSpellCheck: (value) => {
+      // FE 전용 선호도 — 서버(/settings)로 동기화하지 않고 localStorage 에만 저장한다.
+      dispatch({ type: "settings/spellCheck", payload: { value } });
+      writeSpellCheckPref(value);
     },
     setAccountType: (accountType) => {
       dispatch({ type: "settings/accountType", payload: { accountType } });

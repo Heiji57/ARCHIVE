@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Plus, X } from "lucide-react";
 import type { Todo } from "@/entities/todo/model/types";
 import { StatusIcon } from "@/entities/todo/ui/StatusIcon";
+import { TagDots } from "@/entities/todo/ui/TagDots";
 import {
   formatFullDate,
   fromDateKey,
@@ -360,6 +361,7 @@ export function MonthGrid({
                   >
                     {todo.title}
                   </span>
+                  <TagDots tags={todo.tags} />
                 </button>
               ))}
 

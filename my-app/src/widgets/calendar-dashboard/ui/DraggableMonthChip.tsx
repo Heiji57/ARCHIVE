@@ -1,5 +1,6 @@
 import { memo } from "react";
 import type { Todo } from "@/entities/todo/model/types";
+import { TagDots } from "@/entities/todo/ui/TagDots";
 import { useDraggable } from "@/shared/lib/dnd";
 import { TODO_DRAG_KIND } from "../model/constants";
 
@@ -22,7 +23,8 @@ function DraggableMonthChipImpl({ todo, onSelect }: DraggableMonthChipProps) {
       className="todo-month-chip"
       {...dragHandlers}
     >
-      {todo.title}
+      <span className="todo-month-chip-title">{todo.title}</span>
+      <TagDots tags={todo.tags} />
     </button>
   );
 }

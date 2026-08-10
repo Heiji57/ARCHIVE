@@ -24,6 +24,7 @@ export function appReducer(state: AppState, action: AppAction): AppState {
             action.payload.startTime,
             action.payload.endTime,
             action.payload.recurrenceRule,
+            action.payload.tags,
           ),
         ],
       };
@@ -89,7 +90,11 @@ export function appReducer(state: AppState, action: AppAction): AppState {
     }
 
     case "hydrate/todos":
-      return { ...state, todos: action.payload.todos };
+      // 서버 응답에 같은 id 의 row 가 두 번 포함될 수 있다(반복 시리즈의 예외 row 실체화
+      // 시점과 가상 인스턴스 확장 로직이 겹치는 경우 관찰됨 — 백엔드 확인 필요). id 기준으로
+      // 중복 제거해 화면에 같은 할 일이 두 장으로 보이고 하나만 수정해도 둘 다 바뀌는
+      // 현상(같은 id 라 리듀서가 둘 다 매칭)을 막는다. 마지막 항목을 우선한다.
+      return { ...state, todos: dedupeTodosById(action.payload.todos) };
 
     case "hydrate/entries":
       return { ...state, entries: action.payload.entries };
@@ -217,8 +222,15 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       const rest = state.todos.filter(
         (t) => t.id !== localId && t.id !== serverTodo.id,
       );
-      return { ...state, todos: [...rest, serverTodo] };
+      return {
+        ...state,
+        todos: [...rest, serverTodo],
+        lastTodoIdReplacement: { localId, newId: serverTodo.id },
+      };
     }
+
+    case "todo/clearIdReplacement":
+      return { ...state, lastTodoIdReplacement: null };
 
     case "github/setStatus":
       return {
@@ -382,6 +394,15 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         settings: {
           ...state.settings,
           todoBoardRangeDays: action.payload.days,
+        },
+      };
+
+    case "settings/spellCheck":
+      return {
+        ...state,
+        settings: {
+          ...state.settings,
+          spellCheck: action.payload.value,
         },
       };
 
@@ -559,6 +580,13 @@ export function appReducer(state: AppState, action: AppAction): AppState {
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
+/** id 기준 중복 제거(마지막 항목 우선) — loadTodosForRange 의 청크 병합과 동일한 정책. */
+function dedupeTodosById(todos: Todo[]): Todo[] {
+  const byId = new Map<string, Todo>();
+  for (const todo of todos) byId.set(todo.id, todo);
+  return [...byId.values()];
+}
+
 function createTodo(
   title: string,
   dateKey: string,
@@ -568,6 +596,7 @@ function createTodo(
   startTime?: string,
   endTime?: string,
   recurrenceRule?: Todo["recurrenceRule"],
+  tags?: string[],
 ): Todo {
   const now = new Date().toISOString();
   return {
@@ -587,6 +616,7 @@ function createTodo(
     seriesId: null,
     originalDateKey: null,
     recurrenceRule: recurrenceRule ?? null,
+    tags: tags ?? [],
   };
 }
 
@@ -595,7 +625,7 @@ function applyTodoPatch(
   patch: Partial<
     Pick<
       Todo,
-      "title" | "status" | "description" | "dateKey" | "startTime" | "endTime"
+      "title" | "status" | "description" | "dateKey" | "startTime" | "endTime" | "tags"
     >
   >,
 ): Todo {
@@ -640,6 +670,7 @@ export function ensureSettings(
       partial.calendarAutoPushTodo ?? DEFAULT_SETTINGS.calendarAutoPushTodo,
     calendarAutoDeleteTodo:
       partial.calendarAutoDeleteTodo ?? DEFAULT_SETTINGS.calendarAutoDeleteTodo,
+    spellCheck: partial.spellCheck ?? DEFAULT_SETTINGS.spellCheck,
   };
 }
 

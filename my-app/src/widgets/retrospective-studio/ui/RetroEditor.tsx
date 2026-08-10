@@ -411,6 +411,7 @@ export function RetroEditor({
                   value={entry.content}
                   placeholder={t("retro.editor.learnedPlaceholder")}
                   onChange={(md) => onUpdate({ content: md })}
+                  spellCheck={state.settings.spellCheck}
                 />
               </Suspense>
             </EditorErrorBoundary>
@@ -424,6 +425,7 @@ export function RetroEditor({
           entry={entry}
           onUpdate={onUpdate}
           onClose={() => setExpanded(false)}
+          spellCheck={state.settings.spellCheck}
         />
       ) : null}
 

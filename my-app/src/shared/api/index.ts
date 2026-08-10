@@ -22,11 +22,13 @@ export {
 } from "./auth";
 export {
   apiListTodos,
+  apiGetTodoStats,
   apiCreateTodo,
   apiUpdateTodo,
   apiDeleteTodo,
   apiLinkCalendarTodo,
   apiUnlinkCalendarTodo,
+  apiSearchTags,
 } from "./todos";
 export {
   apiGetCalendarConnection,

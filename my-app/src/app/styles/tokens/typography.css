@@ -2,6 +2,9 @@
 
 /* Inter: humanist sans (Linear app UI font, dense-data proven) */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+/* Commit Mono: UI-oriented mono for code/identifier text (repo names, commit shas, code blocks) */
+@import url('https://cdn.jsdelivr.net/npm/@fontsource/commit-mono@5.3.0/400.css');
+@import url('https://cdn.jsdelivr.net/npm/@fontsource/commit-mono@5.3.0/700.css');
 
 :root {
   --font-display:
@@ -11,7 +14,8 @@
     "Inter", -apple-system, BlinkMacSystemFont, system-ui,
     "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-mono:
-    ui-monospace, "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+    "Commit Mono", ui-monospace, "JetBrains Mono", "SF Mono", Menlo, Consolas,
+    monospace;
 
   /* Linear type scale */
   --headline-tracking:  -0.04em;   /* aggressive negative — display/headline */

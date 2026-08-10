@@ -26,8 +26,8 @@ export interface Todo {
   /**
    * 선택적 시작/종료 시각 ("HH:mm", 24시간제). 일간 타임라인 뷰의 블록 배치에 사용.
    * 비어 있으면(오늘 한정) createdAt 시각 기준 1시간 블록으로 자동 배치된다.
-   * NOTE: api.yaml 의 Todo 스키마에는 시간 필드가 없다(계약 간극, CLAUDE.md §8 참고).
-   *   → 현재 FE 로컬 상태로만 유지되며, 영속화하려면 백엔드에 start_time/end_time 추가 필요.
+   * 서버는 UTC ISO(start_time/end_time) + IANA timezone 으로 보관하고, mappers 에서
+   * "HH:mm" 벽시계로 환산한다(api.yaml TodoResponse).
    */
   startTime?: string | null;
   endTime?: string | null;
@@ -43,4 +43,45 @@ export interface Todo {
   originalDateKey: string | null;
   /** 반복 베이스 row에만 존재(현재 목록 조회 응답엔 거의 포함되지 않음). */
   recurrenceRule: RecurrenceRule | null;
+  /** 사용자 자유 태그 목록 (각 1~20자, 최대 10개, 중복 없음). 보드 칩/상세 편집/대시보드 분포에 사용. */
+  tags: string[];
+}
+
+/** 할 일당 최대 태그 개수 (api.yaml TodoCreateRequest/TodoUpdateRequest.tags.maxItems 와 동일). */
+export const MAX_TAGS_PER_TODO = 10;
+/** 태그 하나의 최대 길이 (api.yaml tags.items.maxLength 와 동일). */
+export const MAX_TAG_LENGTH = 20;
+
+// ─── Dashboard stats (GET /todos/stats) ──────────────────────────────────────
+
+/** 대시보드 통계 집계 범위. */
+export type StatsRange = "today" | "week" | "month";
+
+/** 이번 ISO주 하루치 완료 개수 (월~일 7칸). */
+export interface WeeklyTrendDay {
+  dateKey: string;
+  doneCount: number;
+}
+
+/** 태그별 할 일 개수 (내림차순, tag=null 제외). */
+export interface TagCount {
+  tag: string;
+  count: number;
+}
+
+/** GET /todos/stats 응답 (FE 도메인 타입). */
+export interface TodoStats {
+  range: StatsRange;
+  total: number;
+  doneCount: number;
+  inProgressCount: number;
+  notStartCount: number;
+  /** 0~100 정수. done/total. total=0 이면 0. */
+  completionRate: number;
+  /** 항상 이번 ISO주 월~일 7칸 (range 와 무관). */
+  weeklyTrend: WeeklyTrendDay[];
+  /** range 범위 내 태그별 개수, 내림차순. */
+  tagDistribution: TagCount[];
+  /** 여태까지 작성한 회고 전체 개수(range 무관, all-time). */
+  retroCount: number;
 }

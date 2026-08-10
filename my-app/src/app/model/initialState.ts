@@ -24,6 +24,7 @@ export function getInitialAppState(): AppState {
       activeTemplateIds: DEFAULT_ACTIVE_TEMPLATE_IDS,
       github: INITIAL_GITHUB_STATE,
       calendar: INITIAL_CALENDAR_STATE,
+      lastTodoIdReplacement: null,
     };
   }
 
@@ -41,5 +42,6 @@ export function getInitialAppState(): AppState {
     ...loadAppState(fallback),
     github: INITIAL_GITHUB_STATE,
     calendar: INITIAL_CALENDAR_STATE,
+    lastTodoIdReplacement: null,
   };
 }

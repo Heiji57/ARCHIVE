@@ -356,8 +356,14 @@ export function computeAutoTodoTime(): { startTime: string; endTime: string } {
   const rawStartM = Math.ceil(m / 30) * 30;
   const startH = rawStartM >= 60 ? (h + 1) % 24 : h;
   const startM = rawStartM >= 60 ? 0 : rawStartM;
-  const endH = (startH + 1) % 24;
-  const endM = startM;
+  // start/end 는 항상 같은 날짜(dateKey)에 실려 전송되므로, +1시간이 자정을 넘기면
+  // % 24 로 감싸지 않고 그날 마지막 시각(23:59)으로 clamp 한다 — 안 그러면 예: 시작
+  // 23:30 → 끝 00:30 처럼 끝이 시작보다 "이른" 시각이 되어 서버 검증(end > start)에
+  // 걸린다(setTodoTime 의 수동 종료시각 자동 채움과 동일한 clamp 정책).
+  const startTotal = startH * 60 + startM;
+  const endTotal = Math.min(24 * 60 - 1, startTotal + 60);
+  const endH = Math.floor(endTotal / 60);
+  const endM = endTotal % 60;
   return {
     startTime: `${pad(startH)}:${pad(startM)}`,
     endTime: `${pad(endH)}:${pad(endM)}`,

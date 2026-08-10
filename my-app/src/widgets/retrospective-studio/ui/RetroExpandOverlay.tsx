@@ -13,6 +13,8 @@ export interface RetroExpandOverlayProps {
   entry: JournalEntry
   onUpdate: (patch: Partial<Pick<JournalEntry, "title" | "content">>) => void
   onClose: () => void
+  /** 브라우저 맞춤법 검사(빨간 밑줄) 표시 여부. 기본 true. */
+  spellCheck?: boolean
 }
 
 /**
@@ -24,6 +26,7 @@ export function RetroExpandOverlay({
   entry,
   onUpdate,
   onClose,
+  spellCheck = true,
 }: RetroExpandOverlayProps) {
   const { t } = useTranslation()
 
@@ -102,6 +105,7 @@ export function RetroExpandOverlay({
                     value={entry.content}
                     placeholder={t("retro.editor.learnedPlaceholder")}
                     onChange={(md) => onUpdate({ content: md })}
+                    spellCheck={spellCheck}
                   />
                 </Suspense>
               </EditorErrorBoundary>

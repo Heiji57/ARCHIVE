@@ -3,6 +3,7 @@ import {
   Bell,
   BookOpen,
   Calendar,
+  LayoutDashboard,
   ListTodo,
   LogOut,
   Settings,
@@ -26,6 +27,11 @@ const ROUTE_META: Record<
   AppRoute,
   { eyebrow: TranslationKey; title: TranslationKey; subtitle: TranslationKey }
 > = {
+  dashboard: {
+    eyebrow: "subheader.dashboard.eyebrow",
+    title: "subheader.dashboard.title",
+    subtitle: "subheader.dashboard.subtitle",
+  },
   calendar: {
     eyebrow: "subheader.calendar.eyebrow",
     title: "subheader.calendar.title",
@@ -53,6 +59,7 @@ const NAV_ITEMS: Array<{
   labelKey: TranslationKey
   icon: typeof Calendar
 }> = [
+  { route: "dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
   { route: "calendar", labelKey: "nav.calendar", icon: Calendar },
   { route: "todos", labelKey: "nav.todos", icon: ListTodo },
   { route: "retrospectives", labelKey: "nav.retrospectives", icon: BookOpen },

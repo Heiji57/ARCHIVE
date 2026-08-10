@@ -1,10 +1,18 @@
 /** Todo 도메인 API. 반환은 FE 도메인 타입(camelCase)으로 매핑해 돌려준다. */
-import type { RecurrenceRule, RecurrenceScope, TaskStatus, Todo } from "@/entities/todo/model/types";
+import type {
+  RecurrenceRule,
+  RecurrenceScope,
+  StatsRange,
+  TaskStatus,
+  Todo,
+  TodoStats,
+} from "@/entities/todo/model/types";
 import { request } from "./client";
-import { toTodo } from "./mappers";
+import { toTodo, toTodoStats } from "./mappers";
 import type { components } from "./schema";
 
 type TodoResponse = components["schemas"]["TodoResponse"];
+type TodoStatsResponse = components["schemas"]["TodoStatsResponse"];
 
 /** 기간 범위(from~to) 또는 단일 날짜의 할 일 조회. GET /todos → Todo[] */
 export async function apiListTodos(params: {
@@ -16,6 +24,17 @@ export async function apiListTodos(params: {
     query: params,
   });
   return (Array.isArray(data) ? data : []).map(toTodo);
+}
+
+/** 대시보드 통계 조회. GET /todos/stats?range=&tz= → TodoStats */
+export async function apiGetTodoStats(
+  range: StatsRange,
+  tz?: string,
+): Promise<TodoStats> {
+  const res = await request<TodoStatsResponse>("/todos/stats", {
+    query: { range, ...(tz ? { tz } : {}) },
+  });
+  return toTodoStats(res);
 }
 
 export async function apiCreateTodo(input: {
@@ -35,6 +54,8 @@ export async function apiCreateTodo(input: {
   pushToCalendar?: boolean | null;
   /** 반복 규칙. null/생략 = 단건(비반복) todo. */
   recurrenceRule?: RecurrenceRule | null;
+  /** 태그 목록(각 1~20자, 최대 10개). 생략 = 빈 배열. */
+  tags?: string[];
 }): Promise<Todo> {
   const hasTime = input.startTimeUtc != null || input.endTimeUtc != null;
   const res = await request<TodoResponse>("/todos", {
@@ -50,6 +71,7 @@ export async function apiCreateTodo(input: {
       // null/undefined 는 필드 생략 → 서버가 calendarAutoPushTodo 설정으로 처리
       ...(input.pushToCalendar != null && { push_to_calendar: input.pushToCalendar }),
       ...(input.recurrenceRule !== undefined && { recurrence_rule: input.recurrenceRule }),
+      tags: input.tags ?? [],
     },
   });
   return toTodo(res);
@@ -74,6 +96,8 @@ export async function apiUpdateTodo(
     recurrenceScope?: Extract<RecurrenceScope, "this" | "following">;
     /** recurrenceScope: "following" 일 때 새 시리즈에 적용할 규칙. 생략 시 기존 규칙 유지. */
     recurrenceRule?: RecurrenceRule | null;
+    /** 태그 목록. omit=미변경, array(빈 배열 포함)=전체 교체. */
+    tags?: string[];
   },
 ): Promise<Todo> {
   const body: components["schemas"]["TodoUpdateRequest"] = {
@@ -87,6 +111,7 @@ export async function apiUpdateTodo(
   if (patch.endTime !== undefined) body.end_time = patch.endTime;
   if (patch.timezone !== undefined) body.timezone = patch.timezone;
   if (patch.recurrenceRule !== undefined) body.recurrence_rule = patch.recurrenceRule;
+  if (patch.tags !== undefined) body.tags = patch.tags;
   const res = await request<TodoResponse>(`/todos/${id}`, {
     method: "PATCH",
     body,
@@ -113,4 +138,17 @@ export async function apiLinkCalendarTodo(id: string): Promise<void> {
 /** DELETE /todos/{id}/calendar-link — 캘린더 연동 해제(비동기 반영). */
 export async function apiUnlinkCalendarTodo(id: string): Promise<void> {
   await request(`/todos/${id}/calendar-link`, { method: "DELETE" });
+}
+
+type TagSearchResponse = components["schemas"]["TagSearchResponse"];
+
+/**
+ * 태그 자동완성 검색. GET /todos/tags/search?q=&limit= → 사용 빈도순 태그명 목록.
+ * 이 사용자가 지금까지 쓴 전체 태그 이력에서 검색한다(현재 FE에 로드된 범위와 무관).
+ */
+export async function apiSearchTags(query: string, limit = 8): Promise<string[]> {
+  const res = await request<TagSearchResponse>("/todos/tags/search", {
+    query: { q: query, limit },
+  });
+  return res.tags;
 }

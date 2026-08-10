@@ -71,7 +71,7 @@ interface SummaryTemplateTabProps {
 
 function SummaryTemplateTab({ retroType }: SummaryTemplateTabProps) {
   const { t } = useTranslation();
-  const { pushNotification } = useArchiveApp();
+  const { state, pushNotification } = useArchiveApp();
   const summaryType = RETRO_TO_SUMMARY_TYPE[retroType];
   const typeLabel = t(TYPE_LABEL_KEY[retroType]);
 
@@ -279,6 +279,7 @@ function SummaryTemplateTab({ retroType }: SummaryTemplateTabProps) {
             displayName={selected.name}
             onUpdate={(patch) => scheduleUpdate(selected.id, patch)}
             onReset={() => {}}
+            spellCheck={state.settings.spellCheck}
           />
         ) : (
           <p className="template-editor-empty">
@@ -462,6 +463,7 @@ export function TemplatesCard() {
                 displayName={templateDisplayName(selected, t)}
                 onUpdate={(patch) => updateTemplate(selected.id, patch)}
                 onReset={() => resetTemplate(selected.retroType)}
+                spellCheck={state.settings.spellCheck}
               />
             ) : (
               <p className="template-editor-empty">

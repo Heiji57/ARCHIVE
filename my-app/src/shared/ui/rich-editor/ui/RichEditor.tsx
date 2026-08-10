@@ -14,6 +14,8 @@ export interface RichEditorProps {
   onChange?: (markdown: string) => void;
   /** false 면 읽기 전용 모드 — 편집 UI(툴바·슬래시 메뉴·블록 핸들)를 숨긴다. 기본 true. */
   editable?: boolean;
+  /** 브라우저 맞춤법 검사(빨간 밑줄) 표시 여부. 기본 true. */
+  spellCheck?: boolean;
 }
 
 /**
@@ -26,8 +28,9 @@ export default function RichEditor({
   placeholder,
   onChange,
   editable = true,
+  spellCheck = true,
 }: RichEditorProps) {
-  const editor = useRichEditorInstance({ value, placeholder, onChange, editable });
+  const editor = useRichEditorInstance({ value, placeholder, onChange, editable, spellCheck });
   const { popup, menuRef, items, handleSelect } = useSlashPopup(editable ? editor : null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const marquee = useDragSelect(editable ? editor : null, containerRef);

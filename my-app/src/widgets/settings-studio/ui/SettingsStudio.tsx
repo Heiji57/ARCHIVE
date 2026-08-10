@@ -14,6 +14,7 @@ import { RegionTimezoneCard } from "./RegionTimezoneCard";
 import { SessionsCard } from "./SessionsCard";
 import { TemplatesCard } from "./TemplatesCard";
 import { TodoRangeCard } from "./TodoRangeCard";
+import { WritingCard } from "./WritingCard";
 
 function SettingsSection({
   label,
@@ -87,6 +88,15 @@ export function SettingsStudio() {
       >
         <div className="settings-grid">
           <SessionsCard />
+        </div>
+      </SettingsSection>
+
+      <SettingsSection
+        label="settings.section.writing"
+        hint="settings.group.writing.hint"
+      >
+        <div className="settings-card settings-list">
+          <WritingCard />
         </div>
       </SettingsSection>
 
