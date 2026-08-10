@@ -84,7 +84,7 @@ export function useTodoListFilter(todos: Todo[], rangeDays: number) {
     }
     return visible.filter((t) => t.dateKey === filter.dateKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [todos, filter, todayK, rangeDays]);
+  }, [todos, filter, todayK, today, rangeDays]);
 
   // 날짜 필터만 적용된 집합 기준 개수 — 상태 필터를 바꿔도 다른 pill 의 개수는 변하지 않는다.
   const counts = useMemo(() => {
