@@ -1,144 +1,130 @@
-/* ---------- Todo board (kanban) layout ---------- */
+/* ---------- Todo split view (list pane + detail pane) ---------- */
 .todo-page {
   padding-top: 40px;
 }
 
-.kanban-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
-  align-items: start; /* 열 높이를 서로 맞추지 않음 — 각 열이 고정 높이를 가짐 */
+.todo-split {
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
+  /* 뷰포트 남은 높이의 근사치 — 앱 헤더/서브헤더/.page 패딩을 감안한 값이다.
+     브라우저에서 확인 후 과도한 페이지 스크롤/잘림이 보이면 260px 값을 조정한다. */
+  height: max(480px, calc(100vh - 260px));
 }
 
 @media (max-width: 900px) {
-  .kanban-grid {
-    grid-template-columns: 1fr;
+  .todo-split {
+    flex-direction: column;
+    height: auto;
   }
 }
 
-/* Wrapper around a filter button that anchors a popover */
-.todo-filter-date-wrap {
-  position: relative;
-}
-
-/* Calendar icon inside the date-filter button */
-.todo-filter-btn svg {
-  margin-right: 4px;
-}
-
-/* ---------- Kanban column ---------- */
-.kanban-col {
-  background: var(--color-tile-2);
-  border-radius: var(--r-xl);
-  border: 1px solid var(--color-divider-soft);
-  padding: 20px 18px 0;
-  height: 520px;
+/* ---------- Left: list pane ---------- */
+.todo-list-pane {
+  flex: 1 1 50%;
+  min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
-.kanban-col[data-done="true"] {
-  background: var(--color-tile-3);
+
+.todo-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin-top: 16px;
+  border-top: 1px solid var(--color-divider-soft);
+  padding-right: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-divider-soft) transparent;
 }
-.kanban-col-head {
+/* TodoBoard.tsx는 각 행을 `<div key={todo.id}>`로 감싸고, 상태 헤더가 있으면
+   그 안에 함께 넣는다 — 이 unstyled wrapper가 `.todo-list-header`의 sticky
+   포함 블록이 되어버려서, 헤더가 리스트 전체가 아니라 자기 행 높이만큼만
+   "붙어" 있다가 사라진다. wrapper를 레이아웃 트리에서 제거해(`display: contents`)
+   헤더가 `.todo-list`를 기준으로 정상적으로 sticky 되도록 한다.
+   (`.todo-list-empty`는 자체 박스가 필요하므로 제외한다.) */
+.todo-list > div:not(.todo-list-empty) {
+  display: contents;
+}
+
+@media (max-width: 900px) {
+  .todo-list {
+    max-height: 480px;
+  }
+}
+
+.todo-list-empty {
+  padding: 48px 12px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--color-ink-muted-48);
+}
+
+.todo-list-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 18px;
-  padding-inline: 4px;
-  flex-shrink: 0;
+  gap: 8px;
+  padding: 9px 4px;
+  position: sticky;
+  top: 0;
+  background: var(--color-canvas);
+  z-index: 1;
 }
-.kanban-col-head-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.kanban-col-dot {
-  width: 8px;
-  height: 8px;
+.todo-list-header-dot {
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
   background: var(--color-ink-muted-48);
 }
-.kanban-col-dot[data-status="in-progress"] { background: var(--color-primary); }
-.kanban-col-dot[data-status="done"]        { background: var(--color-status-done); }
-.kanban-col-title {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: -0.2px;
-}
-.kanban-col-subtitle {
-  margin: 0;
+.todo-list-header[data-status="in-progress"] .todo-list-header-dot { background: var(--color-primary); }
+.todo-list-header[data-status="done"] .todo-list-header-dot { background: var(--color-status-done); }
+.todo-list-header-label {
   font-size: 12px;
+  font-weight: 500;
   color: var(--color-body-muted);
 }
-/* 드롭존 = 열의 남은 공간 전체, 카드 수와 무관하게 고정 */
-.kanban-col-body {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
+.todo-list-header-count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-ink-muted-48);
+}
+
+/* ---------- Todo list row (replaces kanban card) ---------- */
+.todo-list-row {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding-top: 4px;    /* 첫 카드 hover lift(translateY -1px) 클립 방지 */
-  padding-bottom: 18px;
-  padding-right: 2px;  /* 스크롤바 여백 */
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-divider-soft) transparent;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 6px;
+  border-bottom: 1px solid var(--color-divider-soft);
+  border-left: 2px solid transparent;
+  cursor: pointer;
+  transition: background 100ms ease, border-color 100ms ease;
 }
-.kanban-col-empty {
-  font-size: 12px;
-  flex: 1;
-}
-
-/* 카드 드래그 중 열 위로 hover 해도 테두리 색상이 바뀌지 않도록 고정 */
-.kanban-col-body[data-drop-active="true"],
-.kanban-col-body[data-drop-over="true"] {
-  outline: 2px dashed var(--color-primary);
-  outline-offset: -4px;
-  background: transparent;
-}
-
-/* ---------- Kanban card ---------- */
-.kanban-card {
+.todo-list-row:hover {
   background: var(--color-tile-2);
-  border-radius: var(--r-md);
-  border: 1px solid var(--color-divider-soft);
-  border-left-width: 3px;
-  padding: 12px 14px;
-  flex-shrink: 0;
-  transition: background 100ms ease, box-shadow 120ms ease, transform 120ms ease, border-color 100ms ease;
 }
-/* 상태별 좌측 액센트 컬러 (컬럼 도트와 동일 계열) */
-.kanban-card[data-status="not-start"]   { border-left-color: var(--color-ink-muted-48); }
-.kanban-card[data-status="in-progress"] { border-left-color: var(--color-primary); }
-.kanban-card[data-status="done"]        { border-left-color: var(--color-status-done); }
-
-/* Hover — 모든 상태에서 동일한 밝은 색상으로만 변경 (그림자 색상 변경 제거) */
-.kanban-card:hover:not([data-dragging="true"]) {
-  background: var(--color-tile-3);
-  transform: translateY(-1px);
+.todo-list-row[data-selected="true"] {
+  background: var(--color-tile-2);
+  border-left-color: var(--color-primary);
 }
-.kanban-card[data-status="in-progress"]:hover:not([data-dragging="true"]) {
-  background: var(--color-tile-3);
-  transform: translateY(-1px);
+.todo-list-row-status-btn {
+  flex: none;
+  margin-top: 1px;
+  cursor: pointer;
+  display: flex;
 }
-.kanban-card[data-status="done"]:hover:not([data-dragging="true"]) {
-  background: var(--color-tile-3);
-  transform: translateY(-1px);
-}
-.kanban-card[data-done="true"] {
-  background: var(--color-tile-3);
-}
-.kanban-card-body {
+.todo-list-row-body {
+  flex: 1;
   min-width: 0;
 }
-.kanban-card-top {
+.todo-list-row-top {
   display: flex;
   align-items: flex-start;
   gap: 8px;
 }
-.kanban-card-title {
+.todo-list-row-title {
   margin: 0;
   flex: 1;
   min-width: 0;
@@ -147,45 +133,40 @@
   letter-spacing: -0.16px;
   color: var(--color-ink);
 }
-.kanban-card-title[data-done="true"] {
+.todo-list-row-title[data-done="true"] {
   text-decoration: line-through;
   color: var(--color-body-muted);
 }
-.kanban-card-notes {
+.todo-list-row-notes {
   flex-shrink: 0;
   margin-top: 2px;
   color: var(--color-ink-muted-48);
 }
-.kanban-card-meta {
+.todo-list-row-meta {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 10px;
-}
-.kanban-card-status-btn {
-  display: inline-flex;
-  flex-shrink: 0;
-}
-.kanban-card-date {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  color: var(--color-body-muted);
-}
-
-.kanban-card-tags {
-  display: flex;
   flex-wrap: wrap;
-  align-items: center;
   gap: 6px;
   margin-top: 8px;
 }
-.kanban-card-tag-anchor {
+.todo-list-row-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-body-muted);
+}
+.todo-list-row-time {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-body-muted);
+}
+.todo-list-row-tag-anchor {
   position: relative;
   display: inline-flex;
 }
-.kanban-card-tag-add {
+.todo-list-row-tag-add {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -197,12 +178,12 @@
   border: 1px dashed var(--color-divider-soft);
   cursor: pointer;
 }
-.kanban-card-tag-add:hover {
+.todo-list-row-tag-add:hover {
   color: var(--color-ink);
   border-color: var(--color-ink-muted-48);
   background: var(--color-tile-3);
 }
-.kanban-card-tag-popover {
+.todo-list-row-tag-popover {
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
@@ -216,7 +197,72 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
 }
 
-/* ---------- Quick capture (bar above the board) ---------- */
+/* ---------- Filter rows (date range + status) ----------
+   `.todo-filter-row`/`.todo-filter-btn` 기본 규칙(배경/보더/hover/[data-active])은
+   이 파일에 없다 — 기존 `TodoFilterRow.tsx`가 이미 이 클래스들을 쓰고 있었는데도
+   원본 `todo-board.css`에는 정의가 없었으므로, 다른 전역 CSS 파일(atoms 계열)에
+   이미 정의돼 있다는 뜻이다. 여기서는 그 기본 규칙을 재정의하지 않고, todo-board
+   전용 보강 규칙만 추가한다(Step 2에서 실제 정의 위치를 확인한다). */
+.todo-filter-btn svg {
+  margin-right: 4px;
+}
+.todo-filter-btn-count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-ink-muted-48);
+}
+.todo-status-filter-row {
+  margin-top: 8px;
+}
+
+/* Wrapper around a filter button that anchors a popover */
+.todo-filter-date-wrap {
+  position: relative;
+}
+
+/* ---------- Right: detail pane ---------- */
+.todo-detail-pane {
+  flex: 1 1 50%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--color-tile-2);
+  border-radius: var(--r-xl);
+  border: 1px solid var(--color-divider-soft);
+}
+@media (max-width: 900px) {
+  .todo-detail-pane {
+    min-height: 480px;
+  }
+}
+.todo-detail-pane-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.todo-detail-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  padding: 24px;
+}
+.todo-detail-empty-icon {
+  color: var(--color-ink-muted-48);
+}
+.todo-detail-empty-title {
+  margin: 0;
+  font-size: 16px;
+  color: var(--color-body-muted);
+}
+.todo-detail-empty-desc {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-ink-muted-48);
+}
+
+/* ---------- Quick capture (bar above the list) ---------- */
 .quick-capture {
   display: flex;
   gap: 12px;
