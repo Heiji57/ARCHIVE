@@ -68,7 +68,6 @@ export const zh: Dict = {
   "todo.col.inProgress.ko": "进行中",
   "todo.col.done.label": "Done",
   "todo.col.done.ko": "已完成",
-  "todo.col.empty": "此列暂无卡片。",
   "todo.card.advance": "变更状态",
   "todo.card.changeDate": "修改日期",
   "todo.card.hasNotes": "有备注",

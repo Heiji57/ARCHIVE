@@ -70,7 +70,6 @@ export const en: Dict = {
   "todo.col.inProgress.ko": "Active",
   "todo.col.done.label": "Done",
   "todo.col.done.ko": "Complete",
-  "todo.col.empty": "Nothing here yet.",
   "todo.card.advance": "Advance status",
   "todo.card.changeDate": "Change date",
   "todo.card.hasNotes": "Has notes",

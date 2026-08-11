@@ -69,7 +69,6 @@ export const ja: Dict = {
   "todo.col.inProgress.ko": "進行中",
   "todo.col.done.label": "Done",
   "todo.col.done.ko": "完了",
-  "todo.col.empty": "この列にはまだカードがありません。",
   "todo.card.advance": "状態を変更",
   "todo.card.changeDate": "日付を変更",
   "todo.card.hasNotes": "メモあり",

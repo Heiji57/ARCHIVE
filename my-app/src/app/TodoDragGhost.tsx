@@ -2,7 +2,6 @@ import { createPortal } from "react-dom";
 import { useDnd } from "@/shared/lib/dnd";
 import { useArchiveApp } from "@/app/providers/useArchiveApp";
 import { TODO_DRAG_KIND } from "@/widgets/calendar-dashboard/model/constants";
-import { KANBAN_DRAG_KIND } from "@/widgets/todo-board/model/constants";
 
 export function TodoDragGhost() {
   const { state } = useDnd();
@@ -11,7 +10,7 @@ export function TodoDragGhost() {
   if (!state.payload || !state.pointer) return null;
 
   const kind = state.payload.kind;
-  if (kind !== TODO_DRAG_KIND && kind !== KANBAN_DRAG_KIND) return null;
+  if (kind !== TODO_DRAG_KIND) return null;
 
   const data = state.payload.data as { id: string };
   const todo = appState.todos.find((t) => t.id === data.id);

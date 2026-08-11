@@ -70,7 +70,6 @@ export const ko: Dict = {
   "todo.col.inProgress.ko": "진행 중",
   "todo.col.done.label": "Done",
   "todo.col.done.ko": "완료",
-  "todo.col.empty": "아직 이 열에 배치된 카드가 없습니다.",
   "todo.card.advance": "상태 변경",
   "todo.card.changeDate": "날짜 수정",
   "todo.card.hasNotes": "메모 있음",

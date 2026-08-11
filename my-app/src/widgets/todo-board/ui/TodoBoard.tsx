@@ -2,13 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useArchiveApp } from "@/app/providers/useArchiveApp";
 import type { RecurrenceRule, Todo } from "@/entities/todo/model/types";
 import { collectAllTags, collectRecentTags, findTodoById } from "@/entities/todo/lib/selectors";
-import { TaskDetailPanel } from "@/entities/todo/ui/TaskDetailPanel";
 import { useTranslation } from "@/shared/lib/i18n";
-import { COLS } from "../model/constants";
-import { useKanbanFilter } from "../model/useKanbanFilter";
-import { KanbanColumn } from "./KanbanColumn";
+import { useTodoListFilter } from "../model/useTodoListFilter";
 import { QuickCapture } from "./QuickCapture";
-import { TodoFilterRow } from "./TodoFilterRow";
+import { TodoDetailPane } from "./TodoDetailPane";
+import { TodoListRow } from "./TodoListRow";
+import { TodoRangeFilterRow } from "./TodoRangeFilterRow";
+import { TodoStatusFilterRow } from "./TodoStatusFilterRow";
 
 export function TodoBoard() {
   const {
@@ -28,7 +28,8 @@ export function TodoBoard() {
   } = useArchiveApp();
   const { t } = useTranslation();
   const rangeDays = state.settings.todoBoardRangeDays;
-  const { filter, setFilter, todayK, grouped } = useKanbanFilter(state.todos, rangeDays);
+  const { filter, setFilter, statusFilter, setStatusFilter, todayK, counts, entries } =
+    useTodoListFilter(state.todos, rangeDays);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const allTags = useMemo(() => collectAllTags(state.todos), [state.todos]);
   const recentTags = useMemo(() => collectRecentTags(state.todos), [state.todos]);
@@ -46,7 +47,7 @@ export function TodoBoard() {
 
   // 반복 시리즈 가상 인스턴스를 편집하면 debounce 된 PATCH 응답으로 서버가 새 id 를
   // 발급할 수 있다(todo/replaceId) — selectedId 가 이를 따라가지 않으면 findTodoById 가
-  // null 을 반환해 side-panel 은 열린 채(.open) 내용만 사라져 빈 검은 패널로 보인다.
+  // null 을 반환해 상세 패널이 빈 상태로 바뀌어 보인다.
   useEffect(() => {
     const rep = state.lastTodoIdReplacement;
     if (!rep || rep.localId !== selectedId) return;
@@ -101,83 +102,90 @@ export function TodoBoard() {
     );
   };
 
+  const STATUS_LABEL: Record<Todo["status"], string> = {
+    "not-start": t("todo.col.notStart.ko"),
+    "in-progress": t("todo.col.inProgress.ko"),
+    done: t("todo.col.done.ko"),
+  };
+
+  const detailSelection = selectedTodo
+    ? {
+        todo: selectedTodo,
+        panelProps: {
+          tagSuggestions: allTags,
+          recentTags,
+          onClose: () => setSelectedId(null),
+          onUpdate: (patch: Parameters<typeof updateTodo>[1]) =>
+            updateTodo(selectedTodo.id, patch),
+          onUpdateFollowing: (patch: Parameters<typeof updateTodoFollowing>[1]) =>
+            void followRecurrenceMutation(
+              () => updateTodoFollowing(selectedTodo.id, patch),
+              selectedTodo.dateKey,
+            ),
+          onSetTime: (startTime: string | null, endTime: string | null) =>
+            setTodoTime(selectedTodo.id, startTime, endTime),
+          onSetTimeFollowing: (startTime: string | null, endTime: string | null) =>
+            void followRecurrenceMutation(
+              () => updateTodoTimeRecurrence(selectedTodo.id, startTime, endTime),
+              selectedTodo.dateKey,
+            ),
+          onDelete: (scope?: Parameters<typeof removeTodo>[1]) => {
+            removeTodo(selectedTodo.id, scope);
+            setSelectedId(null);
+          },
+          onUpdateRecurrence: (rule: RecurrenceRule) =>
+            void followRecurrenceMutation(
+              () => updateTodoRecurrence(selectedTodo.id, rule),
+              selectedTodo.dateKey,
+            ),
+          onConvertToRecurring: (rule: RecurrenceRule) =>
+            void followRecurrenceMutation(
+              () => convertTodoToRecurring(selectedTodo.id, rule),
+              selectedTodo.dateKey,
+            ),
+          onToggleCalendarLink:
+            state.calendar.status === "connected" || state.calendar.status === "needs-reauth"
+              ? () => toggleTodoCalendarLink(selectedTodo.id)
+              : undefined,
+          calendarNeedsReauth: state.calendar.status === "needs-reauth",
+        },
+      }
+    : null;
+
   return (
-    <div className="page todo-page">
-      <QuickCapture onSubmit={handleSubmit} tagSuggestions={allTags} recentTags={recentTags} />
+    <div className="page todo-page todo-split">
+      <section className="todo-list-pane">
+        <QuickCapture onSubmit={handleSubmit} tagSuggestions={allTags} recentTags={recentTags} />
+        <TodoRangeFilterRow filter={filter} onChange={setFilter} todayKey={todayK} />
+        <TodoStatusFilterRow value={statusFilter} onChange={setStatusFilter} counts={counts} />
 
-      <TodoFilterRow filter={filter} onChange={setFilter} todayKey={todayK} />
+        <div className="todo-list">
+          {entries.map(({ todo, showHeader }) => (
+            <div key={todo.id}>
+              {showHeader ? (
+                <div className="todo-list-header" data-status={todo.status}>
+                  <span className="todo-list-header-dot" />
+                  <span className="todo-list-header-label">{STATUS_LABEL[todo.status]}</span>
+                  <span className="todo-list-header-count">{counts[todo.status]}</span>
+                </div>
+              ) : null}
+              <TodoListRow
+                todo={todo}
+                isSelected={todo.id === selectedId}
+                allTags={allTags}
+                recentTags={recentTags}
+                onUpdate={updateTodo}
+                onSelect={setSelectedId}
+              />
+            </div>
+          ))}
+          {entries.length === 0 ? (
+            <div className="todo-list-empty">{t("todo.list.empty")}</div>
+          ) : null}
+        </div>
+      </section>
 
-      <div className="kanban-grid">
-        {COLS.map((col) => (
-          <KanbanColumn
-            key={col.id}
-            col={col}
-            items={grouped[col.id]}
-            allTags={allTags}
-            recentTags={recentTags}
-            onUpdate={updateTodo}
-            onSelect={setSelectedId}
-          />
-        ))}
-      </div>
-
-      <div
-        className={`side-panel-overlay ${selectedId ? "open" : ""}`}
-        onClick={() => setSelectedId(null)}
-      />
-
-      <aside
-        className={`side-panel ${selectedId ? "open" : ""}`}
-        aria-hidden={!selectedId}
-      >
-        {selectedTodo ? (
-          <TaskDetailPanel
-            key={selectedTodo.id}
-            todo={selectedTodo}
-            tagSuggestions={allTags}
-            recentTags={recentTags}
-            onClose={() => setSelectedId(null)}
-            onUpdate={(patch) => updateTodo(selectedTodo.id, patch)}
-            onUpdateFollowing={(patch) =>
-              void followRecurrenceMutation(
-                () => updateTodoFollowing(selectedTodo.id, patch),
-                selectedTodo.dateKey,
-              )
-            }
-            onSetTime={(startTime, endTime) =>
-              setTodoTime(selectedTodo.id, startTime, endTime)
-            }
-            onSetTimeFollowing={(startTime, endTime) =>
-              void followRecurrenceMutation(
-                () => updateTodoTimeRecurrence(selectedTodo.id, startTime, endTime),
-                selectedTodo.dateKey,
-              )
-            }
-            onDelete={(scope) => {
-              removeTodo(selectedTodo.id, scope);
-              setSelectedId(null);
-            }}
-            onUpdateRecurrence={(rule) =>
-              void followRecurrenceMutation(
-                () => updateTodoRecurrence(selectedTodo.id, rule),
-                selectedTodo.dateKey,
-              )
-            }
-            onConvertToRecurring={(rule) =>
-              void followRecurrenceMutation(
-                () => convertTodoToRecurring(selectedTodo.id, rule),
-                selectedTodo.dateKey,
-              )
-            }
-            onToggleCalendarLink={
-              state.calendar.status === "connected" || state.calendar.status === "needs-reauth"
-                ? () => toggleTodoCalendarLink(selectedTodo.id)
-                : undefined
-            }
-            calendarNeedsReauth={state.calendar.status === "needs-reauth"}
-          />
-        ) : null}
-      </aside>
+      <TodoDetailPane selection={detailSelection} />
     </div>
   );
 }

@@ -65,7 +65,6 @@ export type TranslationKey =
   | "todo.col.inProgress.ko"
   | "todo.col.done.label"
   | "todo.col.done.ko"
-  | "todo.col.empty"
   | "todo.card.advance"
   | "todo.card.changeDate"
   | "todo.card.hasNotes"
