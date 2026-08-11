@@ -87,7 +87,7 @@
 }
 .todo-list-header-count {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--color-ink-muted-48);
 }
 
@@ -154,12 +154,12 @@
   align-items: center;
   gap: 4px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--color-body-muted);
 }
 .todo-list-row-time {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--color-body-muted);
 }
 .todo-list-row-tag-anchor {
@@ -208,8 +208,9 @@
 }
 .todo-filter-btn-count {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--color-ink-muted-48);
+  margin-left: 6px;
 }
 .todo-status-filter-row {
   margin-top: 8px;

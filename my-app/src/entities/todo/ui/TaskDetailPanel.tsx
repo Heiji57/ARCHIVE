@@ -136,6 +136,8 @@ export function TaskDetailPanel({
   // onBlur 콜백은 같은 동기 틱이라 draftTags state 가 아직 리렌더에 반영되지 않은
   // 값(stale closure)을 볼 수 있다 — ref 로 최신값을 즉시 따라가 커밋 시점에 읽는다.
   const draftTagsRef = useRef(todo.tags);
+  // Delete 키 단축키가 패널 바깥에서 발동하지 않도록 포커스 범위를 제한하는 데 쓴다.
+  const panelRef = useRef<HTMLDivElement>(null);
   const [fieldScopeOpen, setFieldScopeOpen] = useState(false);
   const [pendingFieldPatch, setPendingFieldPatch] = useState<Partial<
     Pick<Todo, "title" | "description" | "tags">
@@ -203,6 +205,7 @@ export function TaskDetailPanel({
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Delete") return;
+      if (!panelRef.current?.contains(document.activeElement)) return;
       const el = document.activeElement;
       const tag = el?.tagName;
       const editable =
@@ -230,7 +233,7 @@ export function TaskDetailPanel({
   ];
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <div ref={panelRef} style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       {/* Header — 탭 전환과 무관하게 항상 노출 */}
       <div
         style={{
