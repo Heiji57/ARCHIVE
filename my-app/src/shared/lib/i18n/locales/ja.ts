@@ -89,6 +89,11 @@ export const ja: Dict = {
   "todo.recurrence.scope.following": "この予定以降すべて",
   "todo.recurrence.scope.all": "すべての繰り返し予定",
   "todo.recurrence.scope.cancel": "キャンセル",
+  "todo.period.label": "期間",
+  "todo.startDate.label": "開始日",
+  "todo.dueDate.label": "締め切り",
+  "todo.dueDate.none": "なし",
+  "todo.dueDate.clear": "締め切りを削除",
 
   "calendar.view.day": "日",
   "calendar.view.week": "週",

@@ -90,6 +90,11 @@ export const ko: Dict = {
   "todo.recurrence.scope.following": "이 일정 이후 전체",
   "todo.recurrence.scope.all": "모든 반복 일정",
   "todo.recurrence.scope.cancel": "취소",
+  "todo.period.label": "기간",
+  "todo.startDate.label": "시작일",
+  "todo.dueDate.label": "마감일",
+  "todo.dueDate.none": "없음",
+  "todo.dueDate.clear": "마감일 지우기",
 
   "calendar.view.week": "주간",
   "calendar.view.day": "일간",

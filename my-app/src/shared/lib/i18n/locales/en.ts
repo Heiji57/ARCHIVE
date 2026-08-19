@@ -90,6 +90,11 @@ export const en: Dict = {
   "todo.recurrence.scope.following": "This and following occurrences",
   "todo.recurrence.scope.all": "All occurrences",
   "todo.recurrence.scope.cancel": "Cancel",
+  "todo.period.label": "Period",
+  "todo.startDate.label": "Start date",
+  "todo.dueDate.label": "Due date",
+  "todo.dueDate.none": "None",
+  "todo.dueDate.clear": "Clear due date",
 
   "calendar.view.week": "Week",
   "calendar.view.day": "Day",

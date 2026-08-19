@@ -85,6 +85,11 @@ export type TranslationKey =
   | "todo.recurrence.scope.following"
   | "todo.recurrence.scope.all"
   | "todo.recurrence.scope.cancel"
+  | "todo.period.label"
+  | "todo.startDate.label"
+  | "todo.dueDate.label"
+  | "todo.dueDate.none"
+  | "todo.dueDate.clear"
   // Calendar
   | "calendar.view.day"
   | "calendar.view.week"

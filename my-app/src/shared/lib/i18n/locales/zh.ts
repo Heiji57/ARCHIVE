@@ -88,6 +88,11 @@ export const zh: Dict = {
   "todo.recurrence.scope.following": "此任务及以后",
   "todo.recurrence.scope.all": "所有重复任务",
   "todo.recurrence.scope.cancel": "取消",
+  "todo.period.label": "期间",
+  "todo.startDate.label": "开始日",
+  "todo.dueDate.label": "截止日",
+  "todo.dueDate.none": "无",
+  "todo.dueDate.clear": "清除截止日",
 
   "calendar.view.day": "日",
   "calendar.view.week": "周",
