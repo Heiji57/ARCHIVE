@@ -68,6 +68,17 @@ export function endOfYear(date: Date) {
   return new Date(date.getFullYear(), 11, 31, 12);
 }
 
+/**
+ * 목록 행에서 마감일을 간결하게 표시하기 위한 접미사.
+ * 같은 연도이면 "MM-DD", 다른 연도이면 "YYYY-MM-DD" 전체를 반환한다.
+ */
+export function formatDueDateSuffix(dateKey: string, dueDate: string): string {
+  if (dateKey.slice(0, 4) === dueDate.slice(0, 4)) {
+    return dueDate.slice(5); // "MM-DD"
+  }
+  return dueDate;
+}
+
 export function toDateKey(date: Date) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
