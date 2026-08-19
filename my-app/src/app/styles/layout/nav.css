@@ -11,10 +11,10 @@
 }
 
 .global-nav-inner {
-  max-width: 1440px;
+  /* .page(90% 고정 프레임)와 같은 폭으로 맞춰서 nav와 콘텐츠 좌우 끝이 정렬되게 한다 */
+  width: 90%;
   height: 100%;
   margin: 0 auto;
-  padding: 0 32px;
   display: flex;
   align-items: center;
   gap: 28px;

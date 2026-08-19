@@ -33,6 +33,8 @@ export async function apiCreateTodo(input: {
    * true/false = 이 할 일에 한해 개별 지정.
    */
   pushToCalendar?: boolean | null;
+  /** 마감일 (YYYY-MM-DD, >= dateKey). null/생략 = 단일 날짜. */
+  dueDate?: string | null;
   /** 반복 규칙. null/생략 = 단건(비반복) todo. */
   recurrenceRule?: RecurrenceRule | null;
 }): Promise<Todo> {
@@ -47,6 +49,7 @@ export async function apiCreateTodo(input: {
       ...(input.startTimeUtc !== undefined && { start_time: input.startTimeUtc }),
       ...(input.endTimeUtc !== undefined && { end_time: input.endTimeUtc }),
       ...(hasTime && { timezone: input.timezone ?? null }),
+      ...(input.dueDate !== undefined && { due_date_key: input.dueDate }),
       // null/undefined 는 필드 생략 → 서버가 calendarAutoPushTodo 설정으로 처리
       ...(input.pushToCalendar != null && { push_to_calendar: input.pushToCalendar }),
       ...(input.recurrenceRule !== undefined && { recurrence_rule: input.recurrenceRule }),
@@ -72,6 +75,8 @@ export async function apiUpdateTodo(
     timezone?: string | null;
     /** 반복 시리즈 수정 범위. 생략 = "this". */
     recurrenceScope?: Extract<RecurrenceScope, "this" | "following">;
+    /** omit=unchanged, null=삭제, YYYY-MM-DD=설정. */
+    dueDate?: string | null;
     /** recurrenceScope: "following" 일 때 새 시리즈에 적용할 규칙. 생략 시 기존 규칙 유지. */
     recurrenceRule?: RecurrenceRule | null;
   },
@@ -86,6 +91,7 @@ export async function apiUpdateTodo(
   if (patch.startTime !== undefined) body.start_time = patch.startTime;
   if (patch.endTime !== undefined) body.end_time = patch.endTime;
   if (patch.timezone !== undefined) body.timezone = patch.timezone;
+  if (patch.dueDate !== undefined) body.due_date_key = patch.dueDate;
   if (patch.recurrenceRule !== undefined) body.recurrence_rule = patch.recurrenceRule;
   const res = await request<TodoResponse>(`/todos/${id}`, {
     method: "PATCH",

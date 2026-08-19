@@ -2,16 +2,24 @@
 .app-shell-root {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
 }
 
+/* Nav을 제외한 영역을 채우고, 그 안에서 .page를 뷰포트 대비 90% x 90%로 중앙 배치한다 */
 .app-shell-main {
   flex: 1;
   min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .page {
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 40px 32px 80px;
+  width: 90%;
+  height: 90%;
+  box-sizing: border-box;
+  padding: 40px 32px;
+  overflow-y: auto;
 }

@@ -4069,6 +4069,8 @@ export interface components {
             timezone?: string | null;
             /** @description null(생략) = user_settings.calendarAutoPushTodo 기본값 적용, true/false = 개별 지정(생성 시 Google Calendar push 여부). */
             push_to_calendar?: boolean | null;
+            /** @description 선택적 마감일(포함). date_key 이상이어야 한다. 생략/null = 마감일 없음(단일 날짜 할 일). */
+            due_date_key?: string | null;
             /** @description 반복 규칙. null 이면 단건 todo. */
             recurrence_rule?: components["schemas"]["RecurrenceRule"] | null;
         };
@@ -4095,6 +4097,8 @@ export interface components {
              * @enum {string}
              */
             recurrence_scope: "this" | "following";
+            /** @description omit = unchanged, null = 마감일 삭제, YYYY-MM-DD = 설정. non-null 이면 date_key 이상이어야 한다. */
+            due_date_key?: string | null;
             /** @description `recurrence_scope: following` 일 때 새 시리즈에 적용할 규칙. 생략 시 기존 규칙 유지. 대상 todo 가 비반복 단독 항목(series_id 없음, 어떤 시리즈에도 속하지 않음)이면 `recurrence_scope` 값과 무관하게 이 규칙으로 반복 시리즈 base 로 전환된다 (이 회차 자체가 새 시리즈의 첫 회차가 됨). 이미 다른 시리즈의 예외 row 에는 무시된다 — 그 경우는 가상 인스턴스(`{base_id}::{slot_date}`)를 `recurrence_scope: following` 으로 수정해야 한다. */
             recurrence_rule?: components["schemas"]["RecurrenceRule"] | null;
         };
@@ -4138,6 +4142,8 @@ export interface components {
             series_id?: string | null;
             /** @description 예외 row가 커버하는 원래 슬롯 날짜(YYYY-MM-DD). 시리즈 멤버십 키. */
             original_date_key?: string | null;
+            /** @description 마감일 (YYYY-MM-DD). null = 단일 날짜. */
+            due_date_key?: string | null;
             /** @description 반복 베이스 row에만 존재. 예외/일반 todo 는 null. */
             recurrence_rule?: components["schemas"]["RecurrenceRule"] | null;
         };

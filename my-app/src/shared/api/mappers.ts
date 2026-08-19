@@ -74,6 +74,7 @@ export function toTodo(api: TodoResponse): Todo {
     endTime,
     calendarLinked: api.calendar_linked,
     calendarPushStatus: api.calendar_push_status ?? null,
+    dueDate: api.due_date_key ?? null,
     isVirtual: api.is_virtual ?? false,
     seriesId: api.series_id ?? null,
     originalDateKey: api.original_date_key ?? null,

@@ -41,6 +41,8 @@ export interface Todo {
   seriesId: string | null;
   /** 예외 row가 커버하는 원래 슬롯 날짜(시리즈 멤버십 키). 비반복은 null. */
   originalDateKey: string | null;
+  /** 선택적 마감일 ("YYYY-MM-DD"). null = 단일 날짜 할 일. */
+  dueDate?: string | null;
   /** 반복 베이스 row에만 존재(현재 목록 조회 응답엔 거의 포함되지 않음). */
   recurrenceRule: RecurrenceRule | null;
 }

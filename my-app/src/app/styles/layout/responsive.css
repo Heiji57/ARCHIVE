@@ -9,19 +9,22 @@
 }
 
 @media (max-width: 900px) {
-  .sub-header-inner {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 24px 20px 28px;
+  /* 좁은 화면에서는 90% 고정 프레임 대신 기존처럼 전체 폭을 쓰고 문서 스크롤로 되돌린다 */
+  .app-shell-root {
+    height: auto;
+    overflow: visible;
   }
-  .sub-header-right {
-    width: 100%;
-    justify-content: flex-start;
+  .app-shell-main {
+    display: block;
+    overflow: visible;
   }
   .page {
+    width: 100%;
+    height: auto;
     padding: 28px 20px 60px;
   }
   .global-nav-inner {
+    width: 100%;
     padding: 0 20px;
   }
 }

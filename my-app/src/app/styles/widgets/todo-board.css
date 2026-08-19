@@ -1,13 +1,17 @@
 /* ---------- Todo board (kanban) layout ---------- */
 .todo-page {
-  padding-top: 40px;
+  /* .page(90% 고정 프레임) 자체가 스크롤 컨테이너이므로, split view는
+     그 안을 꽉 채우고 리스트/디테일 각 pane이 내부에서 스크롤한다 */
+  overflow: hidden;
 }
 
-.kanban-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
-  align-items: start; /* 열 높이를 서로 맞추지 않음 — 각 열이 고정 높이를 가짐 */
+.todo-split {
+  /* height는 같은 엘리먼트에 걸린 전역 .page 규칙(height:90%)을 그대로 쓴다 —
+     여기서 height를 다시 지정하면 import 순서상 .page보다 나중에 로드되어 덮어써버린다 */
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
+  min-height: 480px;
 }
 
 @media (max-width: 900px) {

@@ -29,10 +29,9 @@
 @import "./atoms/placeholder.css";
 @import "./atoms/status-icon.css";
 
-/* 5. Layout (shell, nav, sub-header, side-panel, responsive) */
+/* 5. Layout (shell, nav, side-panel, responsive) */
 @import "./layout/shell.css";
 @import "./layout/nav.css";
-@import "./layout/sub-header.css";
 @import "./layout/side-panel.css";
 @import "./layout/responsive.css";
 

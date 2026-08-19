@@ -16,6 +16,7 @@
 4. **런타임 외부 라이브러리 무단 추가 금지** (상태관리/라우팅/UI/HTTP 클라이언트). `fetch`는 표준 API를 직접 쓴다. (빌드타임 전용 devDependency는 예외 — 4장 참고)
 5. FSD 레이어 규칙 준수: `app → pages → widgets → entities → shared`. API 클라이언트는 **`shared/api`** 에 둔다.
 6. 작업 후 반드시 `pnpm build`로 검증한다.
+7. **`.env`, `.env.local`, `.env.*.local` 등 실제 환경 변수 파일을 읽거나 수정하지 않는다.** 환경 변수 참조가 필요하면 `.env.example`만 본다.
 
 ---
 

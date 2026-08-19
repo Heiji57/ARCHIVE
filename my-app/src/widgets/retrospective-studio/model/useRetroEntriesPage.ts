@@ -40,7 +40,7 @@ export function useRetroEntriesPage(
   q: string,
   dateRange: DateRange | null,
   enabled = true,
-  size = 10,
+  size = 16,
 ): RetroEntriesPage {
   const { loadEntriesPage } = useArchiveApp();
   const [page, setPageState] = useState(1);

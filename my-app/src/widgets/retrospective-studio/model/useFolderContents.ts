@@ -37,7 +37,7 @@ export function useFolderContents(
   folderId: string | null,
   retroType: RetroTab,
   enabled = true,
-  size = 11,
+  size = 16,
 ): UseFolderContentsResult {
   const { loadFolderContents } = useArchiveApp();
   const [page, setPageState] = useState(1);

@@ -1,4 +1,14 @@
 /* ---------- Calendar page layout ---------- */
+/* .calendar-shell은 .page(전역 90% x 90% 프레임)를 감싸는 래퍼다 — .app-shell-main의
+   중앙 정렬 박스를 그대로 채우고, 그 안에서 .calendar-page를 다시 중앙 배치한다. */
+.calendar-shell {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .calendar-page {
   padding-top: 40px;
 }
@@ -69,13 +79,23 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  /* .calendar-shell 기본 규칙의 justify-content:center를 되돌린다 — 위 코멘트대로
+     세로 중앙 정렬은 justify-content가 아닌 자식의 margin:auto로만 한다 */
+  justify-content: flex-start;
   animation: calendarExpandFadeIn 160ms ease-out;
 }
 .calendar-shell-expanded .calendar-page {
   padding-top: 8px;
-  /* 화면(뷰포트)의 80% 를 차지 — %는 이미 패딩이 빠진 셸의 콘텐츠 박스 기준이라
-     좁은 화면에서도 가로 스크롤 없이 안전하다. */
-  width: 80%;
+  padding-left: 0;
+  padding-right: 0;
+  /* 전역 .page 규칙(width:90%/height:90%, overflow-y:auto)을 해제 — 셸의 콘텐츠 박스
+     (이미 좌우 패딩이 빠진 영역) 전체를 실제로 꽉 채우고, 스크롤은 .calendar-shell-expanded가
+     맡아 콘텐츠 높이만큼 자연스럽게 늘어나도록 한다(위 코멘트의 margin:auto 트릭). */
+  width: 100%;
+  height: auto;
+  overflow-y: visible;
+  margin-left: 0;
+  margin-right: 0;
   margin-top: auto;
   margin-bottom: auto;
 }
