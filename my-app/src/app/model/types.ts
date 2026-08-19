@@ -103,7 +103,7 @@ export interface ArchiveAppContextValue {
   toggleTodoCalendarLink: (id: string) => void;
   updateTodo: (
     id: string,
-    patch: Partial<Pick<Todo, "title" | "status" | "description" | "dateKey">>,
+    patch: Partial<Pick<Todo, "title" | "status" | "description" | "dateKey" | "dueDate">>,
   ) => void;
   moveTodo: (id: string, dateKey: string) => void;
   /**

@@ -19,7 +19,7 @@ import { COALESCE_MS, createCoalescingQueue } from "@/shared/lib/coalesce";
 import { useLatestRef } from "@/shared/lib/useLatestRef";
 
 export type TodoQueuePatch = Partial<
-  Pick<Todo, "title" | "status" | "description" | "dateKey">
+  Pick<Todo, "title" | "status" | "description" | "dateKey" | "dueDate">
 > & { startTime?: string | null; endTime?: string | null; timezone?: string | null };
 export type EntryQueuePatch = Partial<
   Pick<JournalEntry, "title" | "content" | "retroType">
