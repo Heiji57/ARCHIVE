@@ -19,6 +19,8 @@ export interface DatePickerPopoverProps {
   onChange: (v: string) => void;
   onClose: () => void;
   anchorRight?: boolean;
+  /** 이 날짜 이전은 선택 불가 (YYYY-MM-DD). 마감일 피커에서 시작일 이전을 막을 때 사용. */
+  minDate?: string;
 }
 
 /**
@@ -31,6 +33,7 @@ export function DatePickerPopover({
   onChange,
   onClose,
   anchorRight = true,
+  minDate,
 }: DatePickerPopoverProps) {
   const { t } = useTranslation();
   const today = new Date();
@@ -173,13 +176,14 @@ export function DatePickerPopover({
         >
           {monthDays.map((d) => {
             const k = toDateKey(d);
+            const disabled = minDate !== undefined && k < minDate;
             const sel = k === value;
             const inMonth = d.getMonth() === cursor.getMonth();
             return (
               <button
                 key={k}
                 type="button"
-                onClick={() => onChange(k)}
+                onClick={() => { if (!disabled) onChange(k); }}
                 style={{
                   aspectRatio: "1 / 1",
                   borderRadius: "var(--r-sm)",
@@ -188,7 +192,7 @@ export function DatePickerPopover({
                     : "var(--color-tile-3)",
                   color: sel
                     ? "#fff"
-                    : inMonth
+                    : inMonth && !disabled
                       ? "var(--color-ink)"
                       : "var(--color-ink-muted-48)",
                   fontSize: 12,
@@ -196,6 +200,8 @@ export function DatePickerPopover({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  cursor: disabled ? "default" : "pointer",
+                  opacity: disabled ? 0.35 : 1,
                 }}
               >
                 {d.getDate()}
