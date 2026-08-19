@@ -23,7 +23,7 @@ import { DEFAULT_RECURRENCE_RULE, RecurrencePopover } from "./RecurrencePopover"
 import { RecurrenceScopeDialog } from "./RecurrenceScopeDialog";
 
 export type TodoPatch = Partial<
-  Pick<Todo, "title" | "status" | "description" | "dateKey">
+  Pick<Todo, "title" | "status" | "description" | "dateKey" | "dueDate">
 >;
 
 export interface TaskDetailPanelProps {
@@ -84,7 +84,8 @@ export function TaskDetailPanel({
   calendarNeedsReauth = false,
 }: TaskDetailPanelProps) {
   const [statusOpen, setStatusOpen] = useState(false);
-  const [dateOpen, setDateOpen] = useState(false);
+  const [startDateOpen, setStartDateOpen] = useState(false);
+  const [dueDateOpen, setDueDateOpen] = useState(false);
   const [deleteScopeOpen, setDeleteScopeOpen] = useState(false);
   const [recurrencePopoverOpen, setRecurrencePopoverOpen] = useState(false);
   // 팝오버가 열려 있는 동안의 편집 중 값 — RecurrencePopover 는 매 조작마다 onChange 를
@@ -325,18 +326,20 @@ export function TaskDetailPanel({
           />
         </div>
 
-        {/* Date */}
+        {/* Period — 시작일 + 마감일 */}
         <div>
-          <p
-            className="t-eyebrow"
-            style={{ margin: "0 0 8px", color: "var(--color-body-muted)" }}
-          >
-            {t("calendar.taskDetail.date")}
+          <p className="t-eyebrow" style={{ margin: "0 0 8px", color: "var(--color-body-muted)" }}>
+            {t("todo.period.label")}
           </p>
-          <div style={{ position: "relative" }}>
+
+          {/* 시작일 */}
+          <div style={{ position: "relative", marginBottom: 6 }}>
             <button
               type="button"
-              onClick={() => setDateOpen((o) => !o)}
+              onClick={() => {
+                setStartDateOpen((o) => !o);
+                setDueDateOpen(false);
+              }}
               style={{
                 width: "100%",
                 display: "flex",
@@ -350,24 +353,82 @@ export function TaskDetailPanel({
                 fontSize: 16,
               }}
             >
-              <span
-                style={{ display: "inline-flex", gap: 8, alignItems: "center" }}
-              >
+              <span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
                 <CalendarDays size={15} />
+                <span style={{ fontSize: 12, color: "var(--color-body-muted)", marginRight: 4 }}>
+                  {t("todo.startDate.label")}
+                </span>
                 {todo.dateKey}
               </span>
               <ChevronDown size={14} />
             </button>
-
-            {dateOpen ? (
+            {startDateOpen ? (
               <DatePickerPopover
                 value={todo.dateKey}
                 anchorRight={false}
                 onChange={(v) => {
                   onUpdate({ dateKey: v });
-                  setDateOpen(false);
+                  setStartDateOpen(false);
                 }}
-                onClose={() => setDateOpen(false)}
+                onClose={() => setStartDateOpen(false)}
+              />
+            ) : null}
+          </div>
+
+          {/* 마감일 */}
+          <div style={{ position: "relative" }}>
+            <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setDueDateOpen((o) => !o);
+                  setStartDateOpen(false);
+                }}
+                style={{
+                  flex: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "11px 14px",
+                  borderRadius: "var(--r-md)",
+                  background: "var(--color-tile-3)",
+                  border: "1px solid var(--color-divider-soft)",
+                  color: "var(--color-ink)",
+                  fontSize: 16,
+                }}
+              >
+                <span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
+                  <CalendarDays size={15} />
+                  <span style={{ fontSize: 12, color: "var(--color-body-muted)", marginRight: 4 }}>
+                    {t("todo.dueDate.label")}
+                  </span>
+                  {todo.dueDate ?? t("todo.dueDate.none")}
+                </span>
+                <ChevronDown size={14} />
+              </button>
+              {todo.dueDate ? (
+                <button
+                  type="button"
+                  className="btn-icon"
+                  aria-label={t("todo.dueDate.clear")}
+                  title={t("todo.dueDate.clear")}
+                  onClick={() => onUpdate({ dueDate: null })}
+                  style={{ flexShrink: 0 }}
+                >
+                  <X size={14} />
+                </button>
+              ) : null}
+            </div>
+            {dueDateOpen ? (
+              <DatePickerPopover
+                value={todo.dueDate ?? todo.dateKey}
+                anchorRight={false}
+                minDate={todo.dateKey}
+                onChange={(v) => {
+                  onUpdate({ dueDate: v });
+                  setDueDateOpen(false);
+                }}
+                onClose={() => setDueDateOpen(false)}
               />
             ) : null}
           </div>
