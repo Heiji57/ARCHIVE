@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useArchiveApp } from "@/app/providers/useArchiveApp";
 import type { JournalEntry } from "@/entities/entry/model/types";
 import type { Folder } from "@/entities/folder/model/types";
-import type { RetroTab } from "./constants";
+import { PAGE_SIZE, type RetroTab } from "./constants";
 
 export interface UseFolderContentsResult {
   /** 현재 폴더의 직계 하위 폴더. */
@@ -37,7 +37,7 @@ export function useFolderContents(
   folderId: string | null,
   retroType: RetroTab,
   enabled = true,
-  size = 11,
+  size = PAGE_SIZE,
 ): UseFolderContentsResult {
   const { loadFolderContents } = useArchiveApp();
   const [page, setPageState] = useState(1);

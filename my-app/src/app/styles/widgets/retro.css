@@ -1,6 +1,19 @@
 /* ---------- Retrospective page ---------- */
 .retro-page {
   padding-top: 32px;
+  /* 갤러리가 페이지 높이를 채우도록 flex 컬럼으로 — 카드 그리드/페이저를
+     하단으로 밀어내기 위한 높이 체인의 시작점. */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 갤러리 섹션이 남은 높이를 모두 차지하고, 그 안에서 그리드를 아래로 민다. */
+.retro-gallery {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 /* ---------- Editor: back link ---------- */
@@ -214,6 +227,9 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 16px;
+  /* 그리드를 헤더 아래 고정 지점으로 내린다 — 회고록 개수와 무관하게 "새 회고록
+     만들기"/첫 카드 위치를 항상 여기에 고정(페이저만 margin-top:auto 로 하단 유지). */
+  margin-top: 96px;
 }
 
 /* ---------- Folder card ---------- */

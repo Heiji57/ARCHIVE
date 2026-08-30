@@ -12,6 +12,7 @@ import {
   assignLanes,
   buildTimeline,
   formatTime,
+  parseTime,
   snap,
   type TimelineBlock,
 } from "../model/timeline";
@@ -25,6 +26,8 @@ export interface DayTimelineProps {
   dayKey: string;
   todayKey: string;
   todos: Todo[];
+  /** 마감일 지정 할 일(dateKey < dueDate) 전체 목록 — 오늘에 걸친 것만 필터링해서 span 블록으로 표시. */
+  spanningTodos?: Todo[];
   selectedId: string | null;
   onSelect: (id: string) => void;
   onReschedule: (id: string, startTime: string, endTime: string) => void;
@@ -35,6 +38,11 @@ export interface DayTimelineProps {
 
 const HOURS = Array.from({ length: 24 }, (_, h) => h);
 const DRAG_THRESHOLD_PX = 4;
+
+function shortDate(dateKey: string) {
+  const [, m, d] = dateKey.split("-");
+  return `${parseInt(m)}/${parseInt(d)}`;
+}
 /** 미지정 칩을 타임라인에 놓을 때 기본 블록 길이(분). */
 const CHIP_DROP_MIN = 60;
 
@@ -85,6 +93,7 @@ export function DayTimeline({
   dayKey,
   todayKey,
   todos,
+  spanningTodos,
   selectedId,
   onSelect,
   onReschedule,
@@ -94,21 +103,77 @@ export function DayTimeline({
   const { t } = useTranslation();
   const isToday = dayKey === todayKey;
 
-  const { blocks: rawBlocks, untimed } = useMemo(
+  const daySpanTodos = useMemo(
+    () =>
+      (spanningTodos ?? []).filter(
+        (t) => t.dateKey <= dayKey && (t.dueDate ?? t.dateKey) >= dayKey,
+      ),
+    [spanningTodos, dayKey],
+  );
+
+  /** span 블록 각각의 시작/종료 분 — 시작일이면 startTime~자정, 마감일이면 00:00~endTime, 중간일은 전일. */
+  const daySpanBlocks = useMemo(
+    () =>
+      daySpanTodos.map((todo) => {
+        const isStartDay = todo.dateKey === dayKey;
+        const isEndDay = todo.dueDate === dayKey;
+        const startMin = isStartDay ? (parseTime(todo.startTime) ?? 0) : 0;
+        const endMin = isEndDay
+          ? (parseTime(todo.endTime) ?? MINUTES_IN_DAY)
+          : MINUTES_IN_DAY;
+        return { todo, startMin, endMin };
+      }),
+    [daySpanTodos, dayKey],
+  );
+
+  /** span 할 일 ID 집합 — buildTimeline 결과에서 제거해 span 블록으로만 단일 표시. */
+  const spanTodoIds = useMemo(
+    () => new Set(daySpanTodos.map((t) => t.id)),
+    [daySpanTodos],
+  );
+
+  const { blocks: allRawBlocks, untimed: allRawUntimed } = useMemo(
     () => buildTimeline(todos, dayKey),
     [todos, dayKey],
+  );
+
+  const rawBlocks = useMemo(
+    () => allRawBlocks.filter((b) => !spanTodoIds.has(b.todo.id)),
+    [allRawBlocks, spanTodoIds],
+  );
+  const untimed = useMemo(
+    () => allRawUntimed.filter((t) => !spanTodoIds.has(t.id)),
+    [allRawUntimed, spanTodoIds],
   );
 
   /** 사용자가 드래그로 지정한 블록별 선호 레인. 빈 레인일 때만 적용돼 충돌이 없다. */
   const [lanePrefs, setLanePrefs] = useState<Record<string, number>>({});
 
-  const blocks = useMemo(() => {
-    const res = assignLanes(
-      rawBlocks.map(visualSpan),
-      rawBlocks.map((b) => lanePrefs[b.todo.id]),
-    );
-    return rawBlocks.map((b, i) => ({ ...b, ...res[i] }));
-  }, [rawBlocks, lanePrefs]);
+  /** 레인 배정: regular 블록만 독립 계산 — span과 레인 풀을 공유하지 않는다. */
+  const regularLanes = useMemo(
+    () =>
+      assignLanes(
+        rawBlocks.map(visualSpan),
+        rawBlocks.map((b) => lanePrefs[b.todo.id]),
+      ),
+    [rawBlocks, lanePrefs],
+  );
+
+  const blocks = useMemo(
+    () => rawBlocks.map((b, i) => ({ ...b, ...regularLanes[i] })),
+    [rawBlocks, regularLanes],
+  );
+
+  /** span 블록끼리만 독립적으로 레인 배정 — regular 블록 위치와 무관. */
+  const spanLanes = useMemo(
+    () => assignLanes(daySpanBlocks.map(visualSpan)),
+    [daySpanBlocks],
+  );
+
+  const spanBlocksLaned = useMemo(
+    () => daySpanBlocks.map((b, i) => ({ ...b, ...spanLanes[i] })),
+    [daySpanBlocks, spanLanes],
+  );
 
   const [drag, setDrag] = useState<DragState | null>(null);
   const [nowMin, setNowMin] = useState(() => currentMinutes());
@@ -541,6 +606,38 @@ export function DayTimeline({
               setTimeout(() => addInputRef.current?.focus(), 0);
             }}
           >
+            {spanBlocksLaned.map((b) => {
+              const durationMin = b.endMin - b.startMin;
+              const top = b.startMin * PX_PER_MIN;
+              const height = Math.max(durationMin, MIN_BLOCK_MIN) * PX_PER_MIN;
+              const laneWidth = 100 / b.lanes;
+              return (
+                <div
+                  key={b.todo.id}
+                  className="day-block"
+                  data-status={b.todo.status}
+                  data-active={selectedId === b.todo.id ? "" : undefined}
+                  data-span=""
+                  style={{
+                    top,
+                    height,
+                    left: `calc(${b.lane * laneWidth}% + 2px)`,
+                    width: `calc(${laneWidth}% - 6px)`,
+                  }}
+                  onClick={() => onSelect(b.todo.id)}
+                >
+                  <div className="day-block-head">
+                    <StatusIcon status={b.todo.status} size={12} />
+                    <span className="day-block-title">{b.todo.title}</span>
+                    <TagDots tags={b.todo.tags} />
+                  </div>
+                  <span className="day-block-time">
+                    {shortDate(b.todo.dateKey)} – {shortDate(b.todo.dueDate!)}
+                  </span>
+                </div>
+              );
+            })}
+
             {previewBlocks.map((b) => {
               const dragging = drag?.id === b.todo.id;
               // 드래그 블록이 미지정 영역 위면 칩 고스트로 대체 → 시각적으로만 숨긴다.

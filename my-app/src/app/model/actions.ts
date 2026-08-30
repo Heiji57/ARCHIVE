@@ -42,7 +42,7 @@ export type AppAction =
         patch: Partial<
           Pick<
             Todo,
-            "title" | "status" | "description" | "dateKey" | "startTime" | "endTime"
+            "title" | "status" | "description" | "dateKey" | "startTime" | "endTime" | "dueDate"
           >
         >;
       };

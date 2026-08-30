@@ -22,7 +22,7 @@ import { RecurrenceScopeDialog } from "./RecurrenceScopeDialog";
 import { TagEditor } from "./TagEditor";
 
 export type TodoPatch = Partial<
-  Pick<Todo, "title" | "status" | "description" | "dateKey" | "tags">
+  Pick<Todo, "title" | "status" | "description" | "dateKey" | "tags" | "dueDate">
 >;
 
 function sameTags(a: string[], b: string[]): boolean {
@@ -114,6 +114,7 @@ export function TaskDetailPanel({
   const [tab, setTab] = useState<DetailTab>("content");
   const [statusOpen, setStatusOpen] = useState(false);
   const [dateOpen, setDateOpen] = useState(false);
+  const [dueDateOpen, setDueDateOpen] = useState(false);
   const [deleteScopeOpen, setDeleteScopeOpen] = useState(false);
   const [timeScopeOpen, setTimeScopeOpen] = useState(false);
   const [pendingTime, setPendingTime] = useState<{
@@ -481,7 +482,7 @@ export function TaskDetailPanel({
               <div style={{ position: "relative" }}>
                 <button
                   type="button"
-                  onClick={() => setDateOpen((o) => !o)}
+                  onClick={() => { setDateOpen((o) => !o); setDueDateOpen(false); }}
                   style={{
                     width: "100%",
                     display: "flex",
@@ -513,6 +514,61 @@ export function TaskDetailPanel({
                       setDateOpen(false);
                     }}
                     onClose={() => setDateOpen(false)}
+                  />
+                ) : null}
+              </div>
+            </div>
+
+            {/* Due Date */}
+            <div>
+              <p className="t-eyebrow" style={eyebrowStyle}>
+                {t("todo.dueDate.label")}
+              </p>
+              <div style={{ position: "relative" }}>
+                <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                  <button
+                    type="button"
+                    onClick={() => { setDueDateOpen((o) => !o); setDateOpen(false); }}
+                    style={{
+                      flex: 1,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "11px 14px",
+                      borderRadius: "var(--r-md)",
+                      background: "var(--color-tile-3)",
+                      border: "1px solid var(--color-divider-soft)",
+                      color: "var(--color-ink)",
+                      fontSize: 16,
+                    }}
+                  >
+                    <span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
+                      <CalendarDays size={15} />
+                      <span style={{ color: todo.dueDate ? "var(--color-ink)" : "var(--color-body-muted)" }}>
+                        {todo.dueDate ?? t("todo.dueDate.none")}
+                      </span>
+                    </span>
+                    <ChevronDown size={14} />
+                  </button>
+                  {todo.dueDate ? (
+                    <button
+                      type="button"
+                      className="btn-icon"
+                      aria-label={t("todo.dueDate.clear")}
+                      onClick={() => onUpdate({ dueDate: null })}
+                      style={{ flexShrink: 0 }}
+                    >
+                      <X size={14} />
+                    </button>
+                  ) : null}
+                </div>
+                {dueDateOpen ? (
+                  <DatePickerPopover
+                    value={todo.dueDate ?? todo.dateKey}
+                    anchorRight={false}
+                    minDate={todo.dateKey}
+                    onChange={(v) => { onUpdate({ dueDate: v }); setDueDateOpen(false); }}
+                    onClose={() => setDueDateOpen(false)}
                   />
                 ) : null}
               </div>

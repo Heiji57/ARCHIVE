@@ -56,6 +56,8 @@ export async function apiCreateTodo(input: {
   recurrenceRule?: RecurrenceRule | null;
   /** 태그 목록(각 1~20자, 최대 10개). 생략 = 빈 배열. */
   tags?: string[];
+  /** 마감일(포함, YYYY-MM-DD). dateKey 이상이어야 한다. null = 마감일 없음. */
+  dueDate?: string | null;
 }): Promise<Todo> {
   const hasTime = input.startTimeUtc != null || input.endTimeUtc != null;
   const res = await request<TodoResponse>("/todos", {
@@ -72,6 +74,7 @@ export async function apiCreateTodo(input: {
       ...(input.pushToCalendar != null && { push_to_calendar: input.pushToCalendar }),
       ...(input.recurrenceRule !== undefined && { recurrence_rule: input.recurrenceRule }),
       tags: input.tags ?? [],
+      ...(input.dueDate !== undefined && { due_date_key: input.dueDate }),
     },
   });
   return toTodo(res);
@@ -98,6 +101,8 @@ export async function apiUpdateTodo(
     recurrenceRule?: RecurrenceRule | null;
     /** 태그 목록. omit=미변경, array(빈 배열 포함)=전체 교체. */
     tags?: string[];
+    /** 마감일(YYYY-MM-DD). omit=미변경, null=삭제, string=설정. dateKey 이상이어야 한다. */
+    dueDate?: string | null;
   },
 ): Promise<Todo> {
   const body: components["schemas"]["TodoUpdateRequest"] = {
@@ -112,6 +117,7 @@ export async function apiUpdateTodo(
   if (patch.timezone !== undefined) body.timezone = patch.timezone;
   if (patch.recurrenceRule !== undefined) body.recurrence_rule = patch.recurrenceRule;
   if (patch.tags !== undefined) body.tags = patch.tags;
+  if (patch.dueDate !== undefined) body.due_date_key = patch.dueDate;
   const res = await request<TodoResponse>(`/todos/${id}`, {
     method: "PATCH",
     body,

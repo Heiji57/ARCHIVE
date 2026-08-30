@@ -45,6 +45,8 @@ export interface Todo {
   recurrenceRule: RecurrenceRule | null;
   /** 사용자 자유 태그 목록 (각 1~20자, 최대 10개, 중복 없음). 보드 칩/상세 편집/대시보드 분포에 사용. */
   tags: string[];
+  /** 마감일 (로컬 "YYYY-MM-DD"). null = 미설정. dateKey 이후여야 한다. */
+  dueDate?: string | null;
 }
 
 /** 할 일당 최대 태그 개수 (api.yaml TodoCreateRequest/TodoUpdateRequest.tags.maxItems 와 동일). */

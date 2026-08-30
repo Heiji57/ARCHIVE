@@ -83,6 +83,7 @@ export function toTodo(api: TodoResponse): Todo {
       ? { ...api.recurrence_rule, until: api.recurrence_rule.until ?? null }
       : null,
     tags: api.tags ?? [],
+    dueDate: api.due_date_key ?? null,
   };
 }
 

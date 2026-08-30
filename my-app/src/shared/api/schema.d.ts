@@ -4174,6 +4174,8 @@ export interface components {
              * @default []
              */
             tags: string[];
+            /** @description 선택적 마감일(포함). date_key 이상이어야 한다. 생략/null = 마감일 없음(단일 날짜 할 일). */
+            due_date_key?: string | null;
         };
         TodoUpdateRequest: {
             title?: string | null;
@@ -4202,6 +4204,8 @@ export interface components {
             recurrence_rule?: components["schemas"]["RecurrenceRule"] | null;
             /** @description omit = unchanged, null = 빈 배열과 동일하게 처리(전체 삭제), array = 전체 교체. 각 1~20자, 최대 10개, 중복 제거됨. */
             tags?: string[] | null;
+            /** @description omit = unchanged, null = 마감일 삭제, YYYY-MM-DD = 설정. non-null 이면 date_key 이상이어야 한다. */
+            due_date_key?: string | null;
         };
         TodoResponse: {
             id: string;
@@ -4247,6 +4251,8 @@ export interface components {
             recurrence_rule?: components["schemas"]["RecurrenceRule"];
             /** @description 태그 목록 (0~10개, 각 1~20자). 없으면 빈 배열. */
             tags: string[];
+            /** @description 마감일 (YYYY-MM-DD). null = 단일 날짜. */
+            due_date_key?: string | null;
         };
         RecurrenceRule: {
             /**

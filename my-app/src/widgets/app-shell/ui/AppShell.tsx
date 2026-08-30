@@ -23,37 +23,6 @@ interface AppShellProps {
   onNavigate: (route: AppRoute) => void
 }
 
-const ROUTE_META: Record<
-  AppRoute,
-  { eyebrow: TranslationKey; title: TranslationKey; subtitle: TranslationKey }
-> = {
-  dashboard: {
-    eyebrow: "subheader.dashboard.eyebrow",
-    title: "subheader.dashboard.title",
-    subtitle: "subheader.dashboard.subtitle",
-  },
-  calendar: {
-    eyebrow: "subheader.calendar.eyebrow",
-    title: "subheader.calendar.title",
-    subtitle: "subheader.calendar.subtitle",
-  },
-  todos: {
-    eyebrow: "subheader.todos.eyebrow",
-    title: "subheader.todos.title",
-    subtitle: "subheader.todos.subtitle",
-  },
-  retrospectives: {
-    eyebrow: "subheader.retrospectives.eyebrow",
-    title: "subheader.retrospectives.title",
-    subtitle: "subheader.retrospectives.subtitle",
-  },
-  settings: {
-    eyebrow: "subheader.settings.eyebrow",
-    title: "subheader.settings.title",
-    subtitle: "subheader.settings.subtitle",
-  },
-}
-
 const NAV_ITEMS: Array<{
   route: AppRoute
   labelKey: TranslationKey
@@ -70,7 +39,6 @@ export function AppShell({ route, children, onNavigate }: AppShellProps) {
   const { state, logout } = useArchiveApp()
   const { t } = useTranslation()
   const [notifOpen, setNotifOpen] = useState(false)
-  const meta = ROUTE_META[route]
   const currentUser = state.currentUser
   const initial = currentUser?.displayName?.[0]?.toUpperCase() ?? "?"
 
@@ -159,17 +127,6 @@ export function AppShell({ route, children, onNavigate }: AppShellProps) {
           </div>
         </div>
       </nav>
-
-      {/* Sub-header */}
-      <header className="sub-header">
-        <div className="sub-header-inner">
-          <div className="sub-header-text">
-            <p className="t-eyebrow sub-header-eyebrow">{t(meta.eyebrow)}</p>
-            <h1 className="t-hero sub-header-title">{t(meta.title)}</h1>
-            <p className="sub-header-sub">{t(meta.subtitle)}</p>
-          </div>
-        </div>
-      </header>
 
       {/* Page content */}
       <main className="app-shell-main">{children}</main>
