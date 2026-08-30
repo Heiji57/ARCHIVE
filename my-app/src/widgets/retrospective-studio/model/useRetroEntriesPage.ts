@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useArchiveApp } from "@/app/providers/useArchiveApp";
-import type { RetroTab } from "./constants";
+import { PAGE_SIZE, type RetroTab } from "./constants";
 import type { DateRange } from "./useRetroFilter";
 
 export interface RetroEntriesPage {
@@ -40,7 +40,7 @@ export function useRetroEntriesPage(
   q: string,
   dateRange: DateRange | null,
   enabled = true,
-  size = 10,
+  size = PAGE_SIZE,
 ): RetroEntriesPage {
   const { loadEntriesPage } = useArchiveApp();
   const [page, setPageState] = useState(1);

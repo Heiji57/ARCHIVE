@@ -2,7 +2,7 @@ import type { RetrospectiveType } from "@/entities/entry/model/types";
 import type { TranslationKey } from "@/shared/lib/i18n";
 
 /** Number of retro list entries per pagination page. */
-export const PAGE_SIZE = 8;
+export const PAGE_SIZE = 20;
 
 /**
  * 사이드바 탭 값. "all" 은 daily/weekly/monthly/yearly 를 타입 구분 없이 합친

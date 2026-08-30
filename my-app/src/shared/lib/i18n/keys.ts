@@ -113,6 +113,10 @@ export type TranslationKey =
   | "todo.recurrence.scope.following"
   | "todo.recurrence.scope.all"
   | "todo.recurrence.scope.cancel"
+  // Todo 마감일
+  | "todo.dueDate.label"
+  | "todo.dueDate.none"
+  | "todo.dueDate.clear"
   // Todo 태그(tags)
   | "todo.tag.title"
   | "todo.tag.placeholder"

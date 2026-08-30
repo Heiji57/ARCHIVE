@@ -8,9 +8,14 @@ export interface DraggableMonthChipProps {
   todo: Todo;
   /** 안정적 참조(setState 등)를 그대로 넘겨야 memo 가 작동한다 — 인라인 클로저 금지. */
   onSelect: (id: string) => void;
+  onResizeStart: (e: React.PointerEvent, todoId: string) => void;
 }
 
-function DraggableMonthChipImpl({ todo, onSelect }: DraggableMonthChipProps) {
+function DraggableMonthChipImpl({
+  todo,
+  onSelect,
+  onResizeStart,
+}: DraggableMonthChipProps) {
   const { isDragging, ...dragHandlers } = useDraggable({ kind: TODO_DRAG_KIND, data: { id: todo.id } });
 
   return (
@@ -23,8 +28,12 @@ function DraggableMonthChipImpl({ todo, onSelect }: DraggableMonthChipProps) {
       className="todo-month-chip"
       {...dragHandlers}
     >
-      <span className="todo-month-chip-title">{todo.title}</span>
+      <span className="todo-month-chip-title" style={{ paddingRight: 8 }}>{todo.title}</span>
       <TagDots tags={todo.tags} />
+      <div
+        className="chip-resize-handle"
+        onPointerDown={(e) => onResizeStart(e, todo.id)}
+      />
     </button>
   );
 }

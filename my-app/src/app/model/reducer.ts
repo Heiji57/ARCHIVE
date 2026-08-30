@@ -89,12 +89,25 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       };
     }
 
-    case "hydrate/todos":
+    case "hydrate/todos": {
       // 서버 응답에 같은 id 의 row 가 두 번 포함될 수 있다(반복 시리즈의 예외 row 실체화
       // 시점과 가상 인스턴스 확장 로직이 겹치는 경우 관찰됨 — 백엔드 확인 필요). id 기준으로
       // 중복 제거해 화면에 같은 할 일이 두 장으로 보이고 하나만 수정해도 둘 다 바뀌는
       // 현상(같은 id 라 리듀서가 둘 다 매칭)을 막는다. 마지막 항목을 우선한다.
-      return { ...state, todos: dedupeTodosById(action.payload.todos) };
+      const deduped = dedupeTodosById(action.payload.todos);
+      // dueDate 는 서버가 반환하지만, 일간 뷰처럼 좁은 범위 조회 시 이전에 로드된
+      // 스패닝 할 일이 응답에 포함되지 않을 수 있으므로 기존 값을 보존용 폴백으로 유지.
+      const prevDueMap = new Map(
+        state.todos.filter((t) => t.dueDate != null).map((t) => [t.id, t.dueDate!]),
+      );
+      const enriched =
+        prevDueMap.size === 0
+          ? deduped
+          : deduped.map((t) =>
+              prevDueMap.has(t.id) ? { ...t, dueDate: prevDueMap.get(t.id) } : t,
+            );
+      return { ...state, todos: enriched };
+    }
 
     case "hydrate/entries":
       return { ...state, entries: action.payload.entries };
@@ -219,12 +232,19 @@ export function appReducer(state: AppState, action: AppAction): AppState {
     case "todo/replaceId": {
       const { localId, serverTodo } = action.payload;
       // entry/replaceId 와 동일하게 중복(localId + serverTodo.id) 제거 후 단일 유지.
+      const localTodo = state.todos.find((t) => t.id === localId);
       const rest = state.todos.filter(
         (t) => t.id !== localId && t.id !== serverTodo.id,
       );
+      // dueDate 는 api.yaml 미지원 로컬 전용 필드 — 서버 응답에 포함되지 않으므로
+      // 교체 전 로컬 값을 보존해 PATCH 응답으로 유실되지 않도록 한다.
+      const enriched: Todo =
+        localTodo?.dueDate != null
+          ? { ...serverTodo, dueDate: localTodo.dueDate }
+          : serverTodo;
       return {
         ...state,
-        todos: [...rest, serverTodo],
+        todos: [...rest, enriched],
         lastTodoIdReplacement: { localId, newId: serverTodo.id },
       };
     }
@@ -625,7 +645,7 @@ function applyTodoPatch(
   patch: Partial<
     Pick<
       Todo,
-      "title" | "status" | "description" | "dateKey" | "startTime" | "endTime" | "tags"
+      "title" | "status" | "description" | "dateKey" | "startTime" | "endTime" | "tags" | "dueDate"
     >
   >,
 ): Todo {

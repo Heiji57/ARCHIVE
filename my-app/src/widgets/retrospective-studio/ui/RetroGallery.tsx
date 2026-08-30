@@ -403,7 +403,7 @@ export function RetroGallery({
 
       {/* 페이저 */}
       {totalPages > 1 ? (
-        <div className="pager" style={{ marginTop: 20 }}>
+        <div className="pager" style={{ marginTop: "auto" }}>
           <button
             type="button"
             className="pager-btn"

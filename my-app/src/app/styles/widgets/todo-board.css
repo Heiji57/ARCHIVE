@@ -1,15 +1,17 @@
 /* ---------- Todo split view (list pane + detail pane) ---------- */
 .todo-page {
   padding-top: 40px;
+  padding-bottom: 32px;
 }
 
 .todo-split {
   display: flex;
   align-items: stretch;
   gap: 24px;
-  /* 뷰포트 남은 높이의 근사치 — 앱 헤더/서브헤더/.page 패딩을 감안한 값이다.
-     브라우저에서 확인 후 과도한 페이지 스크롤/잘림이 보이면 260px 값을 조정한다. */
-  height: max(480px, calc(100vh - 260px));
+  /* box-sizing: border-box 전역 적용 상태 — sticky 네비게이션(56px)만 빼면
+     요소 박스가 뷰포트 하단까지 정확히 채워진다. 내부 패딩(top 40 + bottom 32)은
+     border-box 안에 포함되므로 별도로 뺄 필요 없다. */
+  height: max(480px, calc(100vh - 56px));
 }
 
 @media (max-width: 900px) {

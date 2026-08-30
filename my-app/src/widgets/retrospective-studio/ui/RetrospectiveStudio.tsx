@@ -276,17 +276,22 @@ export function RetrospectiveStudio({ retroParams, onRetroNavigate }: { retroPar
     }
   }, [retroParams?.view, retroParams?.entryId]);
 
-  const completedTodos = useMemo(
-    () =>
-      active
-        ? state.todos.filter(
-            (todoItem) =>
-              todoItem.dateKey === active.dateKey &&
-              todoItem.status === "done",
-          )
-        : [],
-    [state.todos, active],
-  );
+  const completedTodos = useMemo(() => {
+    if (!active) return [];
+    return state.todos.filter((todoItem) => {
+      if (todoItem.status !== "done") return false;
+      const isSpanning = todoItem.dueDate && todoItem.dueDate > todoItem.dateKey;
+      if (isSpanning) {
+        // 마감일 지정 할 일: completedAt 날짜 기준 회고록에만 표시.
+        // completedAt 이 없으면 dueDate(마감일)를 완료일로 간주.
+        const completedDate = todoItem.completedAt
+          ? todoItem.completedAt.slice(0, 10)
+          : todoItem.dueDate!;
+        return completedDate === active.dateKey;
+      }
+      return todoItem.dateKey === active.dateKey;
+    });
+  }, [state.todos, active]);
 
   // 서버 모델: 연결 상태 + login + push target + verified emails
   const isGithubConnected = state.github.status === "connected";

@@ -19,6 +19,8 @@ export interface DatePickerPopoverProps {
   onChange: (v: string) => void;
   onClose: () => void;
   anchorRight?: boolean;
+  /** 선택 가능한 최소 날짜 (포함). 이보다 이전 날짜는 비활성화된다. */
+  minDate?: string;
 }
 
 /**
@@ -31,6 +33,7 @@ export function DatePickerPopover({
   onChange,
   onClose,
   anchorRight = true,
+  minDate,
 }: DatePickerPopoverProps) {
   const { t } = useTranslation();
   const today = new Date();
@@ -82,10 +85,13 @@ export function DatePickerPopover({
             marginBottom: 8,
           }}
         >
-          {quickOptions.map((o) => (
+          {quickOptions.map((o) => {
+            const quickDisabled = minDate !== undefined && o.v < minDate;
+            return (
             <button
               key={o.v}
               type="button"
+              disabled={quickDisabled}
               onClick={() => onChange(o.v)}
               style={{
                 padding: "8px 12px",
@@ -94,7 +100,9 @@ export function DatePickerPopover({
                 fontSize: 16,
                 background:
                   o.v === value ? "var(--color-tile-4)" : "transparent",
-                color: "var(--color-ink)",
+                color: quickDisabled ? "var(--color-body-muted)" : "var(--color-ink)",
+                opacity: quickDisabled ? 0.45 : 1,
+                cursor: quickDisabled ? "default" : undefined,
               }}
             >
               {o.label}{" "}
@@ -108,7 +116,8 @@ export function DatePickerPopover({
                 {o.v}
               </span>
             </button>
-          ))}
+            );
+          })}
         </div>
 
         {/* Month header */}
@@ -175,10 +184,12 @@ export function DatePickerPopover({
             const k = toDateKey(d);
             const sel = k === value;
             const inMonth = d.getMonth() === cursor.getMonth();
+            const disabled = minDate !== undefined && k < minDate;
             return (
               <button
                 key={k}
                 type="button"
+                disabled={disabled}
                 onClick={() => onChange(k)}
                 style={{
                   aspectRatio: "1 / 1",
@@ -188,14 +199,18 @@ export function DatePickerPopover({
                     : "var(--color-tile-3)",
                   color: sel
                     ? "#fff"
-                    : inMonth
-                      ? "var(--color-ink)"
-                      : "var(--color-ink-muted-48)",
+                    : disabled
+                      ? "var(--color-ink-muted-24, rgba(255,255,255,.15))"
+                      : inMonth
+                        ? "var(--color-ink)"
+                        : "var(--color-ink-muted-48)",
                   fontSize: 12,
                   fontWeight: 500,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  cursor: disabled ? "not-allowed" : "pointer",
+                  opacity: disabled ? 0.4 : 1,
                 }}
               >
                 {d.getDate()}

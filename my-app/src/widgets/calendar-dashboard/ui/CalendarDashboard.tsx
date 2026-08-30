@@ -6,6 +6,7 @@ import { collectAllTags, collectRecentTags, findTodoById } from "@/entities/todo
 import type { Todo } from "@/entities/todo/model/types";
 import { useTranslation } from "@/shared/lib/i18n";
 import {
+  addDays,
   endOfISOWeek,
   endOfMonth,
   fromDateKey,
@@ -90,8 +91,11 @@ export function CalendarDashboard() {
   // 현재 뷰(일/주/월)가 커버하는 날짜 범위 — 재조회(뷰 전환 시 + 반복 변경 후) 공용.
   const viewRange = useMemo(() => {
     if (view === "day") {
-      const k = toDateKey(cursor);
-      return { from: k, to: k };
+      const to = toDateKey(cursor);
+      // 마감일 지정 할 일이 이전 날에 시작해 오늘에 걸칠 수 있으므로
+      // 30일 이전부터 로드해 span 블록이 중간/마감일에도 표시되도록 한다.
+      const from = toDateKey(addDays(fromDateKey(to), -30));
+      return { from, to };
     }
     if (view === "week") {
       // WeekGrid 는 월요일 시작(ISO) 주를 그리므로 조회 범위도 동일 기준이어야
@@ -148,8 +152,17 @@ export function CalendarDashboard() {
     return m;
   }, [state.todos]);
 
+  const spanningTodos = useMemo(
+    () => state.todos.filter((t) => t.dueDate && t.dueDate > t.dateKey),
+    [state.todos],
+  );
+
   const handleDropTodo = (todoId: string, dateKey: string) => {
     moveTodo(todoId, dateKey);
+  };
+
+  const handleResizeDueDate = (id: string, dueDate: string | null) => {
+    updateTodo(id, { dueDate });
   };
 
   return (
@@ -182,6 +195,7 @@ export function CalendarDashboard() {
             dayKey={toDateKey(cursor)}
             todayKey={todayCellKey}
             todos={state.todos}
+            spanningTodos={spanningTodos}
             selectedId={selectedId}
             onSelect={setSelectedId}
             onReschedule={(id, startTime, endTime) =>
@@ -199,24 +213,28 @@ export function CalendarDashboard() {
           <WeekGrid
             cursor={cursor}
             byDate={byDate}
+            spanningTodos={spanningTodos}
             todayKey={todayCellKey}
             selectedId={selectedId}
             onSelect={setSelectedId}
             onDropTodo={handleDropTodo}
             onAddTodo={(title, dateKey) =>
-            addTodo(title, dateKey, undefined, setSelectedId)
-          }
+              addTodo(title, dateKey, undefined, setSelectedId)
+            }
+            onResizeDueDate={handleResizeDueDate}
           />
         ) : (
           <MonthGrid
             cursor={cursor}
             byDate={byDate}
+            spanningTodos={spanningTodos}
             todayKey={todayCellKey}
             onSelect={setSelectedId}
             onDropTodo={handleDropTodo}
             onAddTodo={(title, dateKey) =>
               addTodo(title, dateKey, undefined, setSelectedId)
             }
+            onResizeDueDate={handleResizeDueDate}
           />
         )}
       </div>
