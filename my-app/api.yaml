@@ -4242,7 +4242,7 @@ components:
 
     TopicDigestResponse:
       type: object
-      required: [id, topic_id, status]
+      required: [id, topic_id, status, created_at]
       properties:
         id: { type: string }
         topic_id: { type: string }

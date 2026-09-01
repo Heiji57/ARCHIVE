@@ -4839,7 +4839,7 @@ export interface components {
             content?: string | null;
             watermark_date_key?: string | null;
             /** Format: date-time */
-            created_at?: string;
+            created_at: string;
             /** Format: date-time */
             updated_at?: string | null;
         };
