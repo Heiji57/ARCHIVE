@@ -46,12 +46,14 @@ tags:
     description: GitHub 저장소 연결·동기화 (OAuth access_token 재사용)
   - name: calendar
     description: Google Calendar 연결·동기화 (refresh_token 기반 백그라운드 갱신)
+  - name: topics
+    description: 주제(Topic) 기반 자동 정리 문서 (비동기 + SSE)
 
 x-tagGroups:
   - name: Account
     tags: [auth, settings]
   - name: Retrospective
-    tags: [entries, summaries]
+    tags: [entries, summaries, topics]
   - name: Productivity
     tags: [todos, notifications]
   - name: Integrations
@@ -1657,6 +1659,97 @@ paths:
                 example: 'data: {"status":"completed","summary_id":"summ_abc"}\n\n'
         "401":
           $ref: "#/components/responses/Unauthorized_401"
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # TOPICS
+  # ════════════════════════════════════════════════════════════════════════════
+
+  /topics:
+    post:
+      tags: [topics]
+      summary: 주제 생성
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateTopicRequest" }
+      responses:
+        "201":
+          description: 생성됨
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiResponseTopic" }
+      x-error-codes: [TOPIC_NAME_DUPLICATED, TOPIC_LIMIT_REACHED, VALIDATION_ERROR]
+    get:
+      tags: [topics]
+      summary: 주제 목록 조회
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiResponseTopicList" }
+
+  /topics/{topic_id}:
+    delete:
+      tags: [topics]
+      summary: 주제 삭제
+      parameters:
+        - name: topic_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "204":
+          description: 삭제됨
+      x-error-codes: [TOPIC_NOT_FOUND]
+
+  /topics/{topic_id}/digest/generate:
+    post:
+      tags: [topics]
+      summary: 주제 정리 문서 생성/재생성 요청(비동기)
+      parameters:
+        - name: topic_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "202":
+          description: 생성 요청 접수
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiResponseTopicDigest" }
+      x-error-codes: [TOPIC_NOT_FOUND, TOPIC_DIGEST_ALREADY_IN_PROGRESS]
+
+  /topics/{topic_id}/digest:
+    get:
+      tags: [topics]
+      summary: 주제 정리 문서 조회
+      parameters:
+        - name: topic_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiResponseTopicDigest" }
+      x-error-codes: [TOPIC_NOT_FOUND, TOPIC_DIGEST_NOT_FOUND]
+
+  /topics/{topic_id}/digest/stream:
+    get:
+      tags: [topics]
+      summary: 주제 정리 문서 생성 완료 SSE 구독
+      parameters:
+        - name: topic_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: text/event-stream
 
   # ════════════════════════════════════════════════════════════════════════════
   # NOTIFICATIONS
@@ -4128,6 +4221,61 @@ components:
         - type: object
           properties:
             data: { $ref: "#/components/schemas/SummaryUsageResponse" }
+
+    # ── Topic ──────────────────────────────────────────────────────────────
+    TopicResponse:
+      type: object
+      required: [id, name, description, created_at]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        description: { type: string }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time, nullable: true }
+
+    CreateTopicRequest:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 100 }
+        description: { type: string, maxLength: 500, default: "" }
+
+    TopicDigestResponse:
+      type: object
+      required: [id, topic_id, status]
+      properties:
+        id: { type: string }
+        topic_id: { type: string }
+        status:
+          type: string
+          enum: [pending, in_progress, completed, failed]
+        content: { type: string, nullable: true }
+        watermark_date_key: { type: string, nullable: true }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time, nullable: true }
+
+    ApiResponseTopic:
+      allOf:
+        - $ref: "#/components/schemas/ApiResponseEmpty"
+        - type: object
+          properties:
+            data: { $ref: "#/components/schemas/TopicResponse" }
+
+    ApiResponseTopicList:
+      allOf:
+        - $ref: "#/components/schemas/ApiResponseEmpty"
+        - type: object
+          properties:
+            data:
+              type: array
+              items: { $ref: "#/components/schemas/TopicResponse" }
+
+    ApiResponseTopicDigest:
+      allOf:
+        - $ref: "#/components/schemas/ApiResponseEmpty"
+        - type: object
+          properties:
+            data: { $ref: "#/components/schemas/TopicDigestResponse" }
 
     # ── Notification ───────────────────────────────────────────────────────
     NotificationResponse:
