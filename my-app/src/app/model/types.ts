@@ -399,6 +399,19 @@ export interface ArchiveAppContextValue {
   minimizeSummary: () => void;
   completeSummary: () => void;
   cancelSummary: () => void;
+  // ─── Topics ─────────────────────────────────────────────────────────────
+  loadTopics: () => Promise<import("@/entities/topic/model/types").Topic[]>;
+  createTopic: (
+    name: string,
+    description: string,
+  ) => Promise<import("@/entities/topic/model/types").Topic>;
+  deleteTopic: (id: string) => Promise<void>;
+  generateTopicDigest: (
+    topicId: string,
+  ) => Promise<import("@/entities/topic/model/types").TopicDigest>;
+  getTopicDigest: (
+    topicId: string,
+  ) => Promise<import("@/entities/topic/model/types").TopicDigest | null>;
   // ─── Templates ──────────────────────────────────────────────────────────
   addTemplate: (
     retroType: RetrospectiveType,
