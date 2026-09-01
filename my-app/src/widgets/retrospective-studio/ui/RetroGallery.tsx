@@ -357,7 +357,7 @@ export function RetroGallery({
             type="button"
             className="retro-card retro-card-new"
             onClick={() =>
-              retroFilter === "daily" || retroFilter === "all"
+              retroFilter === "daily" || retroFilter === "all" || retroFilter === "topics"
                 ? onNewDaily()
                 : onSummarize(retroFilter)
             }
