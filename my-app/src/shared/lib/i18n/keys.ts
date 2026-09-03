@@ -310,6 +310,7 @@ export type TranslationKey =
   | "topic.pane.noSelection"
   | "topic.pane.watermark"
   | "topic.generate.failed"
+  | "topic.generate.alreadyInProgress"
   // Summary overlay
   | "summary.processing.title"
   | "summary.processing.message"

@@ -41,6 +41,9 @@ export function useTopics(): UseTopicsResult {
 
   const create = useCallback(
     async (name: string, description: string) => {
+      // 진행 중이던 목록 조회를 무효화한다 — 그렇지 않으면 그 응답이 생성보다
+      // 늦게 도착해 방금 추가한 주제를 목록에서 지워버릴 수 있다.
+      ++reqRef.current;
       const topic = await createTopic(name, description);
       setTopics((prev) => [...prev, topic]);
       return topic;
@@ -50,6 +53,8 @@ export function useTopics(): UseTopicsResult {
 
   const remove = useCallback(
     async (id: string) => {
+      // 위와 동일한 이유로 진행 중이던 목록 조회를 무효화한다.
+      ++reqRef.current;
       await deleteTopic(id);
       setTopics((prev) => prev.filter((t) => t.id !== id));
     },

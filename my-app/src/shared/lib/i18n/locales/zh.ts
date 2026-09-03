@@ -314,6 +314,7 @@ export const zh: Dict = {
   "topic.pane.noSelection": "请在左侧选择一个主题。",
   "topic.pane.watermark": "已反映至 {date} 的内容",
   "topic.generate.failed": "生成整理失败，请稍后重试。",
+  "topic.generate.alreadyInProgress": "已经在生成整理中，请等待完成。",
 
   "summary.processing.title": "AI 摘要处理中",
   "summary.processing.message": "正在分析回顾内容,请稍候。",
