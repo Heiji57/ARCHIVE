@@ -316,6 +316,7 @@ export const ko: Dict = {
   "topic.pane.noSelection": "왼쪽에서 주제를 선택하세요.",
   "topic.pane.watermark": "{date} 까지의 내용이 반영됨",
   "topic.generate.failed": "정리 생성에 실패했어요. 잠시 후 다시 시도해주세요.",
+  "topic.generate.alreadyInProgress": "이미 정리를 생성하고 있어요. 완료될 때까지 기다려주세요.",
 
   "summary.processing.title": "AI 요약 처리 중",
   "summary.processing.message":

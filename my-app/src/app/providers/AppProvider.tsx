@@ -51,6 +51,7 @@ import {
   type SummaryReadiness,
 } from "@/entities/summary/model/types";
 import type { Todo } from "@/entities/todo/model/types";
+import type { Topic } from "@/entities/topic/model/types";
 import { getTodosInRange, sortTodos } from "@/entities/todo/lib/selectors";
 import { getEntriesInRange } from "@/entities/entry/lib/selectors";
 import { DEMO_ANCHOR_DATE_KEY, isDemoMode } from "@/app/config/demo";
@@ -897,6 +898,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // 동작이 완전히 동일하다 — 즉 이 플래그 치환은 프로덕션 경로에 영향이 없다.
   const apiActive = USE_API && !isDemo;
 
+  // ─── Topics — 안정적인 참조가 필요하다: useTopics/useTopicDigest 가 이 함수들을
+  // effect 의존성 배열에 넣기 때문에, value 객체 리터럴 안에서 매 렌더마다 새로
+  // 만들어지면 provider 가 (토픽과 무관한 이유로) 리렌더될 때마다 목록 재로드 /
+  // 진행 중이던 digest 폴링·SSE 가 끊긴다.
+  const loadTopics = useCallback(async (): Promise<Topic[]> => {
+    // 데모(게스트) 모드는 주제 기능에 대응하는 mock 이 없다 → 서버 호출 없이 빈 목록.
+    if (!apiActive) return [];
+    return apiListTopics();
+  }, [apiActive]);
+  const createTopic = useCallback(
+    (name: string, description: string) => apiCreateTopic(name, description),
+    [],
+  );
+  const deleteTopic = useCallback((id: string) => apiDeleteTopic(id), []);
+  const generateTopicDigest = useCallback(
+    (topicId: string) => apiGenerateDigest(topicId),
+    [],
+  );
+  const getTopicDigest = useCallback(
+    (topicId: string) => apiGetDigest(topicId),
+    [],
+  );
+
   // ─── Context value ────────────────────────────────────────────────────────
   const sortedTodos = useMemo(() => sortTodos(state.todos), [state.todos]);
   const sortedState = useMemo(
@@ -1672,11 +1696,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dispatch({ type: "summary/cancel" });
     },
     // ─── Topics ───────────────────────────────────────────────────────────
-    loadTopics: () => apiListTopics(),
-    createTopic: (name, description) => apiCreateTopic(name, description),
-    deleteTopic: (id) => apiDeleteTopic(id),
-    generateTopicDigest: (topicId) => apiGenerateDigest(topicId),
-    getTopicDigest: (topicId) => apiGetDigest(topicId),
+    loadTopics,
+    createTopic,
+    deleteTopic,
+    generateTopicDigest,
+    getTopicDigest,
     // ─── Templates ──────────────────────────────────────────────────────────
     addTemplate: (retroType, name, content) => {
       const localId = createId("template");

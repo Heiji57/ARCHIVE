@@ -17,6 +17,7 @@ export function RetroTabBar({ retroFilter, setRetroFilter }: RetroTabBarProps) {
           type="button"
           className="retro-gallery-chip"
           data-active={retroFilter === f.id ? "true" : undefined}
+          aria-pressed={retroFilter === f.id}
           onClick={() => setRetroFilter(f.id)}
         >
           {t(f.labelKey)}

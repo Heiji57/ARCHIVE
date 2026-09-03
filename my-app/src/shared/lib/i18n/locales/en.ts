@@ -319,6 +319,7 @@ export const en: Dict = {
   "topic.pane.noSelection": "Select a topic on the left.",
   "topic.pane.watermark": "Reflects content through {date}",
   "topic.generate.failed": "Failed to generate the digest. Please try again.",
+  "topic.generate.alreadyInProgress": "A digest is already being generated. Please wait for it to finish.",
 
   "summary.processing.title": "AI summary in progress",
   "summary.processing.message":

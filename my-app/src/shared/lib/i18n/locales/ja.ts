@@ -313,10 +313,11 @@ export const ja: Dict = {
   "topic.pane.loading": "整理ドキュメントを読み込み中...",
   "topic.pane.loadError": "整理ドキュメントの読み込みに失敗しました。",
   "topic.pane.emptyTitle": "まだ整理された内容がありません",
-  "topic.pane.emptyDesc": "左側の「整理する」を押して、このトピックに関する会顧・タスクを集めましょう。",
+  "topic.pane.emptyDesc": "左側の「整理する」を押して、このトピックに関する振り返り・タスクを集めましょう。",
   "topic.pane.noSelection": "左側でトピックを選択してください。",
   "topic.pane.watermark": "{date} までの内容が反映されています",
   "topic.generate.failed": "整理の生成に失敗しました。しばらくしてからもう一度お試しください。",
+  "topic.generate.alreadyInProgress": "すでに整理を生成中です。完了までお待ちください。",
 
   "summary.processing.title": "AI サマリー処理中",
   "summary.processing.message": "振り返り内容を分析しています。少々お待ちを。",
