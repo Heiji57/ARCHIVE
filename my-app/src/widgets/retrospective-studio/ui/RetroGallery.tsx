@@ -143,10 +143,13 @@ export function RetroGallery({
     listEntries.length === 0 &&
     (!isFolderView || folders.length === 0);
 
-  // 첫 방문 빈 상태: 헤더 없이 중앙 CTA 하나만.
+  // 첫 방문 빈 상태: 탭 바(주제 탭 진입 경로 유지) + 중앙 CTA.
   if (isEmpty && isPristine) {
     return (
       <section className="retro-gallery">
+        <div className="retro-gallery-head">
+          <RetroTabBar retroFilter={retroFilter} setRetroFilter={setRetroFilter} />
+        </div>
         <div className="retro-gallery-empty">
           <span className="retro-gallery-empty-icon">
             <Plus size={22} />
