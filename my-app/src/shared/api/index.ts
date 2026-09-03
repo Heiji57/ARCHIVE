@@ -122,5 +122,6 @@ export {
   apiGenerateDigest,
   apiGetDigest,
   streamTopicDigest,
+  getTopicLimitFromError,
   type TopicDigestStreamHandlers,
 } from "./topics";

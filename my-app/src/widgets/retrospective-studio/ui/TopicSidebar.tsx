@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { useTranslation } from "@/shared/lib/i18n";
-import { ApiError } from "@/shared/api";
+import { ApiError, getTopicLimitFromError } from "@/shared/api";
 import { ConfirmModal } from "@/shared/ui/confirm-modal/ConfirmModal";
 import { TextField } from "@/shared/ui/text-field/TextField";
 import { EmptyState } from "@/shared/ui/empty-state/EmptyState";
@@ -10,7 +10,7 @@ import type { Topic } from "@/entities/topic/model/types";
 
 export interface TopicSidebarProps {
   selectedId: string | null;
-  onSelect: (id: string) => void;
+  onSelect: (id: string | null) => void;
   requireLoginInDemo: () => boolean;
 }
 
@@ -47,8 +47,7 @@ export function TopicSidebar({
       if (e instanceof ApiError && e.code === "TOPIC_NAME_DUPLICATED") {
         setFormError(t("topic.sidebar.nameDuplicated"));
       } else if (e instanceof ApiError && e.code === "TOPIC_LIMIT_REACHED") {
-        const limit = (e.details[0] as unknown as { limit?: number } | undefined)
-          ?.limit;
+        const limit = getTopicLimitFromError(e);
         setFormError(t("topic.sidebar.limitReached", { limit: limit ?? "" }));
       } else {
         setFormError(t("topic.generate.failed"));
@@ -61,6 +60,9 @@ export function TopicSidebar({
     if (!target) return;
     setDeleteTarget(null);
     await remove(target.id);
+    // 삭제한 주제가 선택돼 있었다면 선택을 풀어준다 — 그대로 두면 삭제된
+    // 주제의 정리 문서 화면이 계속 남거나, 그 주제로 후속 요청이 나갈 수 있다.
+    if (target.id === selectedId) onSelect(null);
   };
 
   return (

@@ -142,7 +142,7 @@ src/shared/api/
 3. **요약 content 구조 차이**: api `SummaryResponse.content`는 `{achievements, challenges, learnings, next_focus}` 구조화 객체. 현재 FE는 회고를 **마크다운 문자열**로 다룸 → 매핑 시 구조화 객체를 마크다운으로 합성하거나, 회고 엔트리(`/entries`)와의 관계를 백엔드와 확정.
 4. **요약 주기 enum**: api `SummaryType`=`[weekly, monthly, annual]` (주의: `annual`) vs FE `SummaryKind`=`[weekly, monthly, yearly]`. 매핑 필요.
 5. **회고 1일 1개 제약**: `journal_entries`는 `UNIQUE(user_id, date_key)` → 같은 날 daily 중복 생성 시 `409 JOURNAL_ENTRY_ALREADY_EXISTS`. FE의 `createDailyEntry` 중복 처리와 정합 확인.
-6. **`TOPIC_LIMIT_REACHED`의 `details` 비표준 shape**: 다른 에러는 `details`가 `{field, message}[]`이지만, 이 코드만 `[{"limit": number}]`를 그대로 내려준다(백엔드 `TopicLimitReachedException` 구현 그대로). FE에서 `as unknown as {limit?: number}` 캐스팅으로 처리한다(`shared/api/topics.ts` 관례 참고용, 실제 매핑은 `TopicSidebar.tsx`에 있음).
+6. **`TOPIC_LIMIT_REACHED`의 `details` 비표준 shape**: 다른 에러는 `details`가 `{field, message}[]`이지만, 이 코드만 `[{"limit": number}]`를 그대로 내려준다(백엔드 `TopicLimitReachedException` 구현 그대로). FE는 API 경계(`shared/api/topics.ts`의 `getTopicLimitFromError()`)에서 한 번만 캐스팅하고, 소비처(`TopicSidebar.tsx`)는 그 결과만 사용한다.
 
 ---
 
