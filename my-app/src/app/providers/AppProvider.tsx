@@ -142,6 +142,11 @@ import {
   apiUpdateFolder,
   apiDeleteFolder,
   apiMoveEntryToFolder,
+  apiListTopics,
+  apiCreateTopic,
+  apiDeleteTopic,
+  apiGenerateDigest,
+  apiGetDigest,
 } from "@/shared/api";
 import {
   MOCK_AVAILABLE_REPOS,
@@ -1666,6 +1671,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       apiSummaryAbortRef.current = null;
       dispatch({ type: "summary/cancel" });
     },
+    // ─── Topics ───────────────────────────────────────────────────────────
+    loadTopics: () => apiListTopics(),
+    createTopic: (name, description) => apiCreateTopic(name, description),
+    deleteTopic: (id) => apiDeleteTopic(id),
+    generateTopicDigest: (topicId) => apiGenerateDigest(topicId),
+    getTopicDigest: (topicId) => apiGetDigest(topicId),
     // ─── Templates ──────────────────────────────────────────────────────────
     addTemplate: (retroType, name, content) => {
       const localId = createId("template");

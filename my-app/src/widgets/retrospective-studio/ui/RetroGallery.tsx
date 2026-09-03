@@ -18,13 +18,13 @@ import { useTranslation, type TranslationKey } from "@/shared/lib/i18n";
 import {
   MONTHS,
   RETRO_DRAG_KIND,
-  RETRO_FILTERS,
   type RetroDragPayload,
 } from "../model/constants";
 import type { FolderCrumb } from "../model/useFolderNav";
 import type { UseRetroFilterResult } from "../model/useRetroFilter";
 import { RetroCard } from "./RetroCard";
 import { RetroFolderCard } from "./RetroFolderCard";
+import { RetroTabBar } from "./RetroTabBar";
 
 export interface RetroGalleryProps {
   filterState: UseRetroFilterResult;
@@ -306,19 +306,7 @@ export function RetroGallery({
         </div>
 
         {/* 타입 칩 */}
-        <div className="retro-gallery-tabs">
-          {RETRO_FILTERS.map((f) => (
-            <button
-              key={f.id}
-              type="button"
-              className="retro-gallery-chip"
-              data-active={retroFilter === f.id ? "true" : undefined}
-              onClick={() => setRetroFilter(f.id)}
-            >
-              {t(f.labelKey)}
-            </button>
-          ))}
-        </div>
+        <RetroTabBar retroFilter={retroFilter} setRetroFilter={setRetroFilter} />
       </div>
 
       {/* ── 폴더 경로(breadcrumb) — 최상위가 아닐 때만. 각 항목은 drop target 이라
@@ -357,7 +345,7 @@ export function RetroGallery({
             type="button"
             className="retro-card retro-card-new"
             onClick={() =>
-              retroFilter === "daily" || retroFilter === "all"
+              retroFilter === "daily" || retroFilter === "all" || retroFilter === "topics"
                 ? onNewDaily()
                 : onSummarize(retroFilter)
             }

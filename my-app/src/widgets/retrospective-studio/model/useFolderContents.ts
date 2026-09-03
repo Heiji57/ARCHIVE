@@ -68,7 +68,7 @@ export function useFolderContents(
     setError(false);
     void loadFolderContents({
       folderId: folderId ?? undefined,
-      retroType: retroType === "all" ? undefined : retroType,
+      retroType: retroType === "all" || retroType === "topics" ? undefined : retroType,
       page,
       size,
     })

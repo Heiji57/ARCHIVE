@@ -2360,6 +2360,214 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/topics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 주제 목록 조회 */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiResponseTopicList"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** 주제 생성 */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CreateTopicRequest"];
+                };
+            };
+            responses: {
+                /** @description 생성됨 */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiResponseTopic"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/topics/{topic_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** 주제 삭제 */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    topic_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 삭제됨 */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/topics/{topic_id}/digest/generate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 주제 정리 문서 생성/재생성 요청(비동기) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    topic_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 생성 요청 접수 */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiResponseTopicDigest"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/topics/{topic_id}/digest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 주제 정리 문서 조회 */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    topic_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiResponseTopicDigest"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/topics/{topic_id}/digest/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 주제 정리 문서 생성 완료 SSE 구독 */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    topic_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description text/event-stream */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/notifications/stream": {
         parameters: {
             query?: never;
@@ -4608,6 +4816,41 @@ export interface components {
         };
         ApiResponseSummaryUsage: components["schemas"]["ApiResponseEmpty"] & {
             data?: components["schemas"]["SummaryUsageResponse"];
+        };
+        TopicResponse: {
+            id: string;
+            name: string;
+            description: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at?: string | null;
+        };
+        CreateTopicRequest: {
+            name: string;
+            /** @default  */
+            description: string;
+        };
+        TopicDigestResponse: {
+            id: string;
+            topic_id: string;
+            /** @enum {string} */
+            status: "pending" | "in_progress" | "completed" | "failed";
+            content?: string | null;
+            watermark_date_key?: string | null;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at?: string | null;
+        };
+        ApiResponseTopic: components["schemas"]["ApiResponseEmpty"] & {
+            data?: components["schemas"]["TopicResponse"];
+        };
+        ApiResponseTopicList: components["schemas"]["ApiResponseEmpty"] & {
+            data?: components["schemas"]["TopicResponse"][];
+        };
+        ApiResponseTopicDigest: components["schemas"]["ApiResponseEmpty"] & {
+            data?: components["schemas"]["TopicDigestResponse"];
         };
         NotificationResponse: {
             id: string;

@@ -23,6 +23,7 @@ import { useRetroFilter } from "../model/useRetroFilter";
 import { PeriodPickerModal } from "./PeriodPickerModal";
 import { RetroEditor } from "./RetroEditor";
 import { RetroGallery } from "./RetroGallery";
+import { TopicsPane } from "./TopicsPane";
 
 export function RetrospectiveStudio({ retroParams, onRetroNavigate }: { retroParams?: RetroRouteParams; onRetroNavigate?: (params: RetroRouteParams) => void }) {
   const {
@@ -89,18 +90,19 @@ export function RetrospectiveStudio({ retroParams, onRetroNavigate }: { retroPar
   const isFolderView =
     debouncedSearch.trim() === "" && filterState.dateRange === null;
 
+  const isTopicsView = filterState.retroFilter === "topics";
   const entriesPage = useRetroEntriesPage(
     filterState.retroFilter,
     debouncedSearch,
     filterState.dateRange,
-    !isFolderView,
+    !isFolderView && !isTopicsView,
   );
   const folderContents = useFolderContents(
     state.folders,
     state.entries,
     folderNav.currentFolderId,
     filterState.retroFilter,
-    isFolderView,
+    isFolderView && !isTopicsView,
   );
   // 데모/mock 은 서버가 없어 serverMode=false → 클라이언트 목록(useRetroFilter)으로 폴백.
   const useServerList = entriesPage.serverMode;
@@ -428,6 +430,12 @@ export function RetrospectiveStudio({ retroParams, onRetroNavigate }: { retroPar
             setView("gallery");
             onRetroNavigate?.({});
           }}
+        />
+      ) : filterState.retroFilter === "topics" ? (
+        <TopicsPane
+          retroFilter={filterState.retroFilter}
+          setRetroFilter={filterState.setRetroFilter}
+          requireLoginInDemo={requireLoginInDemo}
         />
       ) : (
         <RetroGallery
