@@ -124,17 +124,25 @@ export function useTopicDigest(topicId: string | null): UseTopicDigestResult {
           finish(null, true);
           return;
         }
-        void getTopicDigest(topicId).then((d) => {
-          if (isStale() || !d) return;
-          if (d.status === "completed") finish(d, false);
-          else if (d.status === "failed") finish(d, true);
-        });
+        void getTopicDigest(topicId)
+          .then((d) => {
+            if (isStale() || !d) return;
+            if (d.status === "completed") finish(d, false);
+            else if (d.status === "failed") finish(d, true);
+          })
+          .catch(() => {
+            // 일시적 조회 실패 — 다음 폴링 tick 에서 다시 시도한다.
+          });
       }, POLL_INTERVAL_MS);
 
       stopSSERef.current = streamTopicDigest(topicId, {
         onCompleted: () => {
           if (isStale()) return;
-          void getTopicDigest(topicId).then((d) => finish(d, false));
+          void getTopicDigest(topicId)
+            .then((d) => finish(d, false))
+            .catch(() => {
+              // 조회 실패 — 진행 중인 폴링이 재시도를 이어받는다.
+            });
         },
         onFailed: () => finish(null, true),
         // 타임아웃/오류는 폴링이 계속 담당 — 여기서는 상태를 건드리지 않음.
