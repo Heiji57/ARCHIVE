@@ -84,7 +84,10 @@ export function useRetroFilter(entries: JournalEntry[]): UseRetroFilterResult {
   // "all" 탭: 타입 구분 없이 4종 전부(서버 GET /entries/paginated 의 retroType
   // 생략과 동일한 의미) — 클라이언트 폴백(데모/mock)에서만 쓰인다.
   const allOfType = useMemo(
-    () => (retroFilter === "all" ? entries : getEntriesByRetroType(entries, retroFilter)),
+    () =>
+      retroFilter === "all" || retroFilter === "topics"
+        ? entries
+        : getEntriesByRetroType(entries, retroFilter),
     [entries, retroFilter],
   );
 

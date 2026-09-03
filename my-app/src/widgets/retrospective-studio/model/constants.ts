@@ -9,7 +9,7 @@ export const PAGE_SIZE = 20;
  * "전체" 뷰(GET /entries/paginated 의 retroType 생략) — 실제 엔트리의
  * retroType(RetrospectiveType)에는 존재하지 않는, 탭 선택 전용 값이다.
  */
-export type RetroTab = RetrospectiveType | "all";
+export type RetroTab = RetrospectiveType | "all" | "topics";
 
 /** Retrospective type filter tabs. */
 export interface RetroFilterConfig {
@@ -23,6 +23,7 @@ export const RETRO_FILTERS: RetroFilterConfig[] = [
   { id: "weekly", labelKey: "retro.filter.weekly" },
   { id: "monthly", labelKey: "retro.filter.monthly" },
   { id: "yearly", labelKey: "retro.filter.yearly" },
+  { id: "topics", labelKey: "retro.filter.topics" },
 ];
 
 export const RETRO_LABEL_KEY: Record<RetrospectiveType, TranslationKey> = {

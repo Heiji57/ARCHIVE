@@ -1,0 +1,137 @@
+/* ---------- Topics tab: split view (sidebar + digest pane) ---------- */
+.topic-split {
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
+  height: max(480px, calc(100vh - 220px));
+}
+
+@media (max-width: 900px) {
+  .topic-split {
+    flex-direction: column;
+    height: auto;
+  }
+}
+
+/* ---------- Left: topic list ---------- */
+.topic-sidebar {
+  flex: 1 1 32%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--color-tile-2);
+  border-radius: var(--r-xl);
+  border: 1px solid var(--color-divider-soft);
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.topic-sidebar-head {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.topic-sidebar-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.topic-sidebar-list li {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
+.topic-card {
+  flex: 1;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 34px 10px 12px;
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+}
+
+.topic-card:hover {
+  background: var(--color-tile-3);
+}
+
+.topic-card[data-active="true"] {
+  background: var(--color-tile-3);
+  border-color: var(--color-divider-soft);
+}
+
+.topic-card-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.topic-card-desc {
+  font-size: 12px;
+  color: var(--color-body-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topic-card-delete {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: var(--color-body-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--r-sm);
+}
+
+.topic-card-delete:hover {
+  background: var(--color-tile-3);
+  color: var(--color-ink);
+}
+
+/* ---------- Right: digest pane ---------- */
+.topic-pane {
+  flex: 1 1 68%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--color-tile-2);
+  border-radius: var(--r-xl);
+  border: 1px solid var(--color-divider-soft);
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.topic-pane-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topic-pane-meta {
+  font-size: 12px;
+  color: var(--color-body-muted);
+}
+
+.topic-pane-error {
+  padding: 10px 14px;
+  border-radius: var(--r-sm);
+  background: var(--color-tile-3);
+  color: var(--color-warn, #d9a23a);
+  font-size: 16px;
+}

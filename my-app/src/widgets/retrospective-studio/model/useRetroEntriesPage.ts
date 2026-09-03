@@ -75,7 +75,7 @@ export function useRetroEntriesPage(
     setLoading(true);
     setError(false);
     void loadEntriesPage({
-      retroType: retroType === "all" ? undefined : retroType,
+      retroType: retroType === "all" || retroType === "topics" ? undefined : retroType,
       page,
       size,
       q: q || undefined,

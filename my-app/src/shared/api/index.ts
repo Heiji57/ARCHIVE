@@ -115,3 +115,12 @@ export {
   type PushRetrospectivePayload,
   type PushRetrospectiveResult,
 } from "./github";
+export {
+  apiListTopics,
+  apiCreateTopic,
+  apiDeleteTopic,
+  apiGenerateDigest,
+  apiGetDigest,
+  streamTopicDigest,
+  type TopicDigestStreamHandlers,
+} from "./topics";
