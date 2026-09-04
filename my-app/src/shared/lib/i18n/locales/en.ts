@@ -215,14 +215,11 @@ export const en: Dict = {
   "retro.search": "Search...",
   "retro.empty": "No retrospectives in this filter.",
   "retro.editor.titlePlaceholder": "Write a title",
-  "retro.editor.sub":
-    "Tie today's tasks, commits, and lessons together in one thread.",
   "retro.editor.completed": "Completed work",
   "retro.editor.noCompleted": "No completed tasks today.",
   "retro.editor.commits": "Today's commits",
   "retro.editor.commitsPast": "Commits on this day",
   "retro.editor.noCommitsPast": "No commits on this day",
-  "retro.editor.learned": "What I learned",
   "retro.editor.learnedPlaceholder":
     "Write freely about what you learned and what you'd improve.",
   "retro.editor.save": "Push to GitHub",

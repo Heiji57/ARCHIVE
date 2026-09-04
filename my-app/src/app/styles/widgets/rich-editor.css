@@ -12,14 +12,6 @@
   /* Notion 기본 페이지 본문 폭(708px)과 동일하게 제한 — 화면 폭을 그대로 채우지 않는다 */
 }
 
-/* 회고 본문 카드 자체도 에디터 폭(708px)에 맞춰 축소 — 카드(회색 블록)가
-   화면 전체 폭을 채우지 않고 본문과 함께 중앙 정렬되도록 한다.
-   708px 본문 + section-card 좌우 padding(26px × 2). */
-.section-card--retro-body {
-  margin-left: auto;
-  margin-right: auto;
-}
-
 .rich-editor-content {
   outline: none;
 }

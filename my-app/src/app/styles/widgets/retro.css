@@ -20,9 +20,9 @@
 .retro-back-link {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  margin-bottom: 18px;
-  padding: 4px 0;
+  gap: var(--s-xxs);
+  margin-bottom: var(--s-md);
+  padding: var(--s-xxs) 0;
   font-size: 16px;
   color: var(--color-body-muted);
   transition: color 120ms ease;
@@ -639,6 +639,14 @@
   color: var(--color-ink-muted-48);
 }
 
+.retro-rail-autosaved {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-xxs);
+  font-size: 12px;
+  color: var(--color-ink-muted-48);
+}
+
 .retro-rail-stat {
   display: flex;
   justify-content: space-between;
@@ -672,7 +680,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--s-xxs);
-  padding: 4px 8px;
+  padding: var(--s-xxs) var(--s-xs);
   border-radius: var(--r-sm);
   background: var(--color-tile-2);
   border: 1px solid var(--color-hairline);
@@ -697,7 +705,7 @@
   padding: var(--s-xxs);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--s-xxs);
   background: var(--color-tile-1);
   border: 1px solid var(--color-divider-soft);
   border-radius: var(--r-md);

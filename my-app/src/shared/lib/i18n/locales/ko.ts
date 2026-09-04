@@ -213,13 +213,11 @@ export const ko: Dict = {
   "retro.search": "검색...",
   "retro.empty": "해당 유형의 회고가 없습니다.",
   "retro.editor.titlePlaceholder": "제목을 적어주세요",
-  "retro.editor.sub": "오늘의 작업과 커밋, 배운 점을 한 흐름으로 묶어보세요.",
   "retro.editor.completed": "완료한 작업 · Completed",
   "retro.editor.noCompleted": "오늘 완료된 작업이 없습니다.",
   "retro.editor.commits": "오늘의 커밋 · Commits",
   "retro.editor.commitsPast": "이 날의 커밋 · Commits",
   "retro.editor.noCommitsPast": "이 날의 커밋이 없습니다",
-  "retro.editor.learned": "배운 점과 아쉬운 점 · Learned",
   "retro.editor.learnedPlaceholder":
     "오늘 알게 된 것, 다음에 더 잘하고 싶은 것을 자유롭게 적어주세요.",
   "retro.editor.save": "GitHub에 Push",

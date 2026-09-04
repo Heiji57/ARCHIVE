@@ -211,13 +211,11 @@ export const zh: Dict = {
   "retro.search": "搜索...",
   "retro.empty": "此类别下暂无回顾。",
   "retro.editor.titlePlaceholder": "请输入标题",
-  "retro.editor.sub": "把今天的任务、提交和心得串联到一条主线里。",
   "retro.editor.completed": "已完成的工作",
   "retro.editor.noCompleted": "今天没有已完成的任务。",
   "retro.editor.commits": "今天的提交",
   "retro.editor.commitsPast": "当天的提交",
   "retro.editor.noCommitsPast": "当天没有提交",
-  "retro.editor.learned": "学到的与改进点",
   "retro.editor.learnedPlaceholder":
     "随意记录今天学到的事情和下次想做得更好的部分。",
   "retro.editor.save": "Push 到 GitHub",

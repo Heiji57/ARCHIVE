@@ -212,14 +212,11 @@ export const ja: Dict = {
   "retro.search": "検索...",
   "retro.empty": "該当の振り返りはありません。",
   "retro.editor.titlePlaceholder": "タイトルを書く",
-  "retro.editor.sub":
-    "今日のタスクとコミット、学んだことを一本にまとめましょう。",
   "retro.editor.completed": "完了した作業",
   "retro.editor.noCompleted": "今日完了したタスクはありません。",
   "retro.editor.commits": "今日のコミット",
   "retro.editor.commitsPast": "この日のコミット",
   "retro.editor.noCommitsPast": "この日のコミットはありません",
-  "retro.editor.learned": "学びと改善点",
   "retro.editor.learnedPlaceholder":
     "今日気付いたこと、次に改善したいことを自由に。",
   "retro.editor.save": "GitHub に Push",

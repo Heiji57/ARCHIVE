@@ -48,7 +48,11 @@ export function RetroSummaryBanner({ entry, onRevert }: RetroSummaryBannerProps)
       <button
         type="button"
         className="btn btn-utility"
-        style={{ padding: "6px 12px", fontSize: 12, whiteSpace: "nowrap" }}
+        style={{
+          padding: "var(--s-xs) var(--s-sm)",
+          fontSize: 12,
+          whiteSpace: "nowrap",
+        }}
         onClick={onRevert}>
         <RotateCcw size={12} />
         {t("retro.summary.revert")}

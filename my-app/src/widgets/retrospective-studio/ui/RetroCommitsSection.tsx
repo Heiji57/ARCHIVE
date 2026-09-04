@@ -43,7 +43,7 @@ export function RetroCommitsSection({
           <button
             type="button"
             className="btn btn-utility"
-            style={{ padding: "4px 8px", fontSize: 12 }}
+            style={{ padding: "var(--s-xxs) var(--s-xs)", fontSize: 12 }}
             onClick={onRefresh}
             disabled={loading}
             title={t("retro.editor.loadCommits")}>

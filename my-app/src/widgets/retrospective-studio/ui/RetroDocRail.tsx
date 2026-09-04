@@ -34,14 +34,7 @@ export function RetroDocRail({
   return (
     <>
       <div className="retro-rail-group">
-        <span
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "var(--s-xxs)",
-            fontSize: 12,
-            color: "var(--color-ink-muted-48)",
-          }}>
+        <span className="retro-rail-autosaved">
           <Save size={11} />
           {t("retro.editor.autoSaved")}
         </span>
