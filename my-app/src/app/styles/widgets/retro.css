@@ -508,7 +508,7 @@
 }
 
 .retro-doc-type {
-  padding: 4px 8px;
+  padding: var(--s-xxs) var(--s-xs);
   border-radius: var(--r-sm);
   background: var(--color-tile-2);
   border: 1px solid var(--color-hairline);

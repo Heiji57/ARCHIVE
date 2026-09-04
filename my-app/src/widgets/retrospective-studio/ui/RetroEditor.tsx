@@ -167,7 +167,7 @@ export function RetroEditor({
 
       <div className="retro-doc">
         <div className="retro-doc-main">
-          <div>
+          <div style={{ marginBottom: "var(--s-md)" }}>
             <p className="t-eyebrow" style={{ margin: "0 0 6px" }}>
               {retroLabel}
             </p>
