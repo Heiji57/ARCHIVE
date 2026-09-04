@@ -423,6 +423,12 @@ export function RetrospectiveStudio({ retroParams, onRetroNavigate }: { retroPar
           isGithubConnected={isGithubConnected}
           hasVerifiedEmails={hasVerifiedEmails}
           pushTargetRepositoryId={pushTargetRepositoryId}
+          folders={state.folders}
+          onFolderChange={(folderId) => {
+            void moveEntryToFolder(active.id, active.retroType, folderId).then(() => {
+              if (isFolderView) folderContents.refetch();
+            });
+          }}
           onUpdate={(patch) => updateEntry(active.id, patch)}
           onSave={handleSave}
           onRevertSummary={handleRevertSummary}

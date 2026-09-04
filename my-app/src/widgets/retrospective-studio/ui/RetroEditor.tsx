@@ -12,6 +12,7 @@ import {
   Save,
 } from "lucide-react"
 import type { JournalEntry } from "@/entities/entry/model/types"
+import type { Folder } from "@/entities/folder/model/types"
 import type { GitHubCommit } from "@/entities/github/model/types"
 import { useArchiveApp } from "@/app/providers/useArchiveApp"
 import { can } from "@/shared/lib/permissions"
@@ -36,6 +37,10 @@ export interface RetroEditorProps {
   /** verified emails 캐시 보유 여부. false 면 커밋 0건 시 재연결 안내를 표시한다. */
   hasVerifiedEmails: boolean
   pushTargetRepositoryId: string | null
+  /** 폴더 선택기에 쓸 전체 폴더 목록. */
+  folders: Folder[]
+  /** 폴더 이동. null 이면 루트로 옮긴다. */
+  onFolderChange: (folderId: string | null) => void
   onUpdate: (patch: Partial<Pick<JournalEntry, "title" | "content">>) => void
   onSave: () => void
   /** AI 요약(isSummary) 편집 해제 — 확인 후 AI 원본으로 되돌린다. */
@@ -51,6 +56,8 @@ export function RetroEditor({
   isGithubConnected,
   hasVerifiedEmails,
   pushTargetRepositoryId,
+  folders,
+  onFolderChange,
   onUpdate,
   onSave,
   onRevertSummary,
@@ -166,9 +173,9 @@ export function RetroEditor({
         <div className="retro-doc-main">
           <RetroDocHead
             entry={entry}
-            folders={[]}
+            folders={folders}
             onTitleChange={(title) => onUpdate({ title })}
-            onFolderChange={() => {}}
+            onFolderChange={onFolderChange}
           />
 
           {isGithubEnabled && !isGithubConnected ? (

@@ -4,6 +4,7 @@ import { formatFullDate, fromDateKey } from "@/shared/lib/date"
 import { useTranslation } from "@/shared/lib/i18n"
 import { RETRO_LABEL_KEY } from "../model/constants"
 import { formatDefaultEntryTitle } from "../model/formatDefaultEntryTitle"
+import { EntryFolderPicker } from "./EntryFolderPicker"
 
 export interface RetroDocHeadProps {
   entry: JournalEntry
@@ -23,11 +24,6 @@ export function RetroDocHead({
   onTitleChange,
   onFolderChange,
 }: RetroDocHeadProps) {
-  // folders / onFolderChange 는 Task 4(폴더 선택기)에서 실제로 쓰인다. props 시그니처를
-  // 지금 확정해 두어야 Task 4 가 컴포넌트 경계를 다시 손대지 않는다.
-  void folders
-  void onFolderChange
-
   const { t } = useTranslation()
   const defaultTitle = formatDefaultEntryTitle(t, entry.dateKey, entry.retroType)
 
@@ -35,7 +31,11 @@ export function RetroDocHead({
     <header className="retro-doc-head">
       <div className="retro-doc-meta">
         <span className="retro-doc-type">{t(RETRO_LABEL_KEY[entry.retroType])}</span>
-        {/* Task 4에서 EntryFolderPicker 로 교체 */}
+        <EntryFolderPicker
+          folders={folders}
+          value={entry.folderId}
+          onChange={onFolderChange}
+        />
         <span className="retro-doc-date">
           {formatFullDate(fromDateKey(entry.dateKey))}
         </span>
