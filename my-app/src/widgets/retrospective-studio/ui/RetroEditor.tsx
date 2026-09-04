@@ -1,15 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react"
-import {
-  BookOpen,
-  Check,
-  ChevronLeft,
-  Clock,
-  GitCommit,
-  Lock,
-  Maximize2,
-  RotateCcw,
-  Save,
-} from "lucide-react"
+import { BookOpen, ChevronLeft, RotateCcw } from "lucide-react"
 import type { JournalEntry } from "@/entities/entry/model/types"
 import type { Folder } from "@/entities/folder/model/types"
 import type { GitHubCommit } from "@/entities/github/model/types"
@@ -17,13 +7,13 @@ import { useArchiveApp } from "@/app/providers/useArchiveApp"
 import { can } from "@/shared/lib/permissions"
 import { ConfirmModal } from "@/shared/ui/confirm-modal/ConfirmModal"
 import { DisconnectBanner } from "@/shared/ui/disconnect-banner/DisconnectBanner"
-import { Pill } from "@/shared/ui/pill/Pill"
 import { useTodayKey } from "@/app/providers/useToday"
 import { useTranslation } from "@/shared/lib/i18n"
 import { EditorErrorBoundary } from "@/shared/ui/rich-editor"
 import { RetroCommitsSection } from "./RetroCommitsSection"
 import { RetroCompletedSection } from "./RetroCompletedSection"
 import { RetroDocHead } from "./RetroDocHead"
+import { RetroDocRail } from "./RetroDocRail"
 import { RetroExpandOverlay } from "./RetroExpandOverlay"
 
 // TipTap 에디터는 번들 크기가 크므로 회고록 페이지 진입 시에만 로드
@@ -275,81 +265,30 @@ export function RetroEditor({
         </div>
 
         <aside className="retro-doc-rail">
-          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-            {/* 자동 저장 안내 */}
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 4,
-                fontSize: 12,
-                color: "var(--color-body-muted)",
-              }}>
-              <Save size={11} />
-              {t("retro.editor.autoSaved")}
-            </span>
+          <RetroDocRail
+            entry={entry}
+            isGithubEnabled={isGithubEnabled}
+            isGithubConnected={isGithubConnected}
+            canPush={canPush}
+            pushing={pushing}
+            completedCount={completedTodos.length}
+            commitCount={commits.length}
+            onPush={() => void handlePush()}
+            onExpand={() => setExpanded(true)}
+          />
 
-            {/* AI 요약 되돌리기(편집 해제 → AI 원본 복귀) — 요약 항목에만 노출 */}
-            {entry.isSummary && onRevertSummary ? (
-              <button
-                type="button"
-                className="btn btn-utility"
-                onClick={() => setRevertConfirmOpen(true)}
-                style={{ padding: "6px 12px", fontSize: 12 }}
-                title={t("retro.summary.revert")}>
-                <RotateCcw size={12} />
-                {t("retro.summary.revert")}
-              </button>
-            ) : null}
-
-            {/* 확장 버튼 */}
+          {/* AI 요약 되돌리기(편집 해제 → AI 원본 복귀) — 요약 항목에만 노출 */}
+          {entry.isSummary && onRevertSummary ? (
             <button
               type="button"
-              className="retro-expand-btn"
-              onClick={() => setExpanded(true)}
-              aria-label="회고록 확장"
-              title="회고록 확장 (Ctrl+Shift+F)">
-              <Maximize2 size={14} />
+              className="btn btn-utility"
+              onClick={() => setRevertConfirmOpen(true)}
+              style={{ padding: "6px 12px", fontSize: 12 }}
+              title={t("retro.summary.revert")}>
+              <RotateCcw size={12} />
+              {t("retro.summary.revert")}
             </button>
-
-            {isGithubEnabled && (
-              <>
-                {isGithubConnected ? (
-                  entry.synced ? (
-                    <Pill tone="green">
-                      <Check size={10} /> {t("retro.editor.synced")}
-                    </Pill>
-                  ) : (
-                    <Pill tone="warn">
-                      <Clock size={10} /> {t("retro.editor.pending")}
-                    </Pill>
-                  )
-                ) : (
-                  <Pill tone="ghost">
-                    <Lock size={10} /> {t("settings.github.notConnected")}
-                  </Pill>
-                )}
-
-                {/* Push 버튼 */}
-                <button
-                  type="button"
-                  onClick={() => void handlePush()}
-                  className="btn btn-primary"
-                  style={{ padding: "10px 22px" }}
-                  disabled={!canPush || pushing}
-                  title={
-                    !isGithubConnected
-                      ? t("retro.github.connectFromSettings")
-                      : !pushTargetRepositoryId
-                        ? t("settings.github.pushTargetHint")
-                        : ""
-                  }>
-                  <GitCommit size={14} />
-                  {pushing ? t("retro.editor.pushing") : t("retro.editor.save")}
-                </button>
-              </>
-            )}
-          </div>
+          ) : null}
         </aside>
       </div>
 

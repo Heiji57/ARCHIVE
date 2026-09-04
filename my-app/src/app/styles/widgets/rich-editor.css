@@ -515,26 +515,6 @@
   color: var(--color-ink);
 }
 
-/* 확장 버튼 (헤더 우측) */
-.retro-expand-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.13);
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.7);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 100ms;
-}
-.retro-expand-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.95);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
 /* 확장 오버레이 (Portal로 body 직속) */
 .retro-expand-overlay {
   position: fixed;
