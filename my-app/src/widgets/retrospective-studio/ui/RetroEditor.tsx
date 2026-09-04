@@ -2,7 +2,6 @@ import { lazy, Suspense, useEffect, useRef, useState } from "react"
 import {
   BookOpen,
   Check,
-  CheckCircle,
   ChevronLeft,
   Clock,
   GitCommit,
@@ -23,6 +22,7 @@ import { useTodayKey } from "@/app/providers/useToday"
 import { useTranslation } from "@/shared/lib/i18n"
 import { EditorErrorBoundary } from "@/shared/ui/rich-editor"
 import { RetroCommitsSection } from "./RetroCommitsSection"
+import { RetroCompletedSection } from "./RetroCompletedSection"
 import { RetroDocHead } from "./RetroDocHead"
 import { RetroExpandOverlay } from "./RetroExpandOverlay"
 
@@ -188,52 +188,7 @@ export function RetroEditor({
           {!expanded && (
             <>
               {/* 완료된 할 일 — 일간 회고에서만 표시 */}
-              {isDailyEntry && (
-                <section className="section-card" style={{ marginBottom: 16 }}>
-                  <div className="section-card-head">
-                    <div className="avatar avatar-sm avatar-done">
-                      <CheckCircle size={14} strokeWidth={2.6} />
-                    </div>
-                    <p className="section-card-title">
-                      {t("retro.editor.completed")}
-                    </p>
-                  </div>
-
-                  {completedTodos.length > 0 ? (
-                    <ul
-                      style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      {completedTodos.map((tdo) => (
-                        <li
-                          key={tdo.id}
-                          style={{
-                            padding: "10px 12px",
-                            borderRadius: "var(--r-sm)",
-                            background: "var(--color-tile-3)",
-                            fontSize: 16,
-                            display: "flex",
-                            gap: 10,
-                            alignItems: "center",
-                          }}>
-                          <CheckCircle
-                            size={14}
-                            style={{ color: "var(--color-status-done)" }}
-                          />
-                          <span style={{ flex: 1 }}>{tdo.title}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p
-                      style={{
-                        margin: 0,
-                        fontSize: 16,
-                        color: "var(--color-body-muted)",
-                      }}>
-                      {t("retro.editor.noCompleted")}
-                    </p>
-                  )}
-                </section>
-              )}
+              {isDailyEntry && <RetroCompletedSection todos={completedTodos} />}
 
               {/* 커밋 기록 (개발자 계정 + 일간 회고 + GitHub 연결 시 표시) */}
               {isGithubEnabled && isGithubConnected && isDailyEntry ? (
