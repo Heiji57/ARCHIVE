@@ -1,12 +1,11 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react"
-import { BookOpen, ChevronLeft, RotateCcw } from "lucide-react"
+import { BookOpen, ChevronLeft } from "lucide-react"
 import type { JournalEntry } from "@/entities/entry/model/types"
 import type { Folder } from "@/entities/folder/model/types"
 import type { GitHubCommit } from "@/entities/github/model/types"
 import { useArchiveApp } from "@/app/providers/useArchiveApp"
 import { can } from "@/shared/lib/permissions"
 import { ConfirmModal } from "@/shared/ui/confirm-modal/ConfirmModal"
-import { DisconnectBanner } from "@/shared/ui/disconnect-banner/DisconnectBanner"
 import { useTodayKey } from "@/app/providers/useToday"
 import { useTranslation } from "@/shared/lib/i18n"
 import { EditorErrorBoundary } from "@/shared/ui/rich-editor"
@@ -15,6 +14,7 @@ import { RetroCompletedSection } from "./RetroCompletedSection"
 import { RetroDocHead } from "./RetroDocHead"
 import { RetroDocRail } from "./RetroDocRail"
 import { RetroExpandOverlay } from "./RetroExpandOverlay"
+import { RetroSummaryBanner } from "./RetroSummaryBanner"
 
 // TipTap 에디터는 번들 크기가 크므로 회고록 페이지 진입 시에만 로드
 const RichEditor = lazy(() => import("@/shared/ui/rich-editor/ui/RichEditor"))
@@ -169,9 +169,31 @@ export function RetroEditor({
           />
 
           {isGithubEnabled && !isGithubConnected ? (
-            <DisconnectBanner message={t("retro.github.notConnected")} />
+            <div className="retro-doc-banner" style={{ marginTop: "var(--s-md)" }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "var(--s-xxs)",
+                  flex: 1,
+                }}>
+                <span style={{ color: "var(--color-ink)" }}>
+                  {t("retro.github.notConnected")}
+                </span>
+                <span>{t("retro.github.connectFromSettings")}</span>
+              </div>
+            </div>
           ) : isGithubEnabled && !pushTargetRepositoryId ? (
-            <DisconnectBanner message={t("settings.github.pushTargetHint")} />
+            <div className="retro-doc-banner" style={{ marginTop: "var(--s-md)" }}>
+              <span style={{ flex: 1 }}>{t("settings.github.pushTargetHint")}</span>
+            </div>
+          ) : null}
+
+          {entry.isSummary && onRevertSummary ? (
+            <RetroSummaryBanner
+              entry={entry}
+              onRevert={() => setRevertConfirmOpen(true)}
+            />
           ) : null}
 
           {/* 일반 모드 */}
@@ -190,23 +212,6 @@ export function RetroEditor({
                   hasVerifiedEmails={hasVerifiedEmails}
                   isToday={isTodayDaily}
                 />
-              ) : null}
-
-              {/* 미완성 요약(GET /entries/paginated placeholder) 안내 배너 */}
-              {entry.isSummary && entry.status && entry.status !== "completed" ? (
-                <div
-                  style={{
-                    padding: "10px 14px",
-                    marginBottom: 12,
-                    borderRadius: "var(--r-sm)",
-                    background: "var(--color-tile-3)",
-                    fontSize: 16,
-                    color: "var(--color-body-muted)",
-                  }}>
-                  {entry.status === "failed"
-                    ? t("retro.summary.statusFailed")
-                    : t("retro.summary.statusPending")}
-                </div>
               ) : null}
 
               {/* 회고 본문 — AI 요약(isSummary)도 편집 가능(PATCH /summaries/{id}) */}
@@ -276,19 +281,6 @@ export function RetroEditor({
             onPush={() => void handlePush()}
             onExpand={() => setExpanded(true)}
           />
-
-          {/* AI 요약 되돌리기(편집 해제 → AI 원본 복귀) — 요약 항목에만 노출 */}
-          {entry.isSummary && onRevertSummary ? (
-            <button
-              type="button"
-              className="btn btn-utility"
-              onClick={() => setRevertConfirmOpen(true)}
-              style={{ padding: "6px 12px", fontSize: 12 }}
-              title={t("retro.summary.revert")}>
-              <RotateCcw size={12} />
-              {t("retro.summary.revert")}
-            </button>
-          ) : null}
         </aside>
       </div>
 
