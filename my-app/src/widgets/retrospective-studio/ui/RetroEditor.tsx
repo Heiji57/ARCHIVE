@@ -19,11 +19,10 @@ import { ConfirmModal } from "@/shared/ui/confirm-modal/ConfirmModal"
 import { DisconnectBanner } from "@/shared/ui/disconnect-banner/DisconnectBanner"
 import { Pill } from "@/shared/ui/pill/Pill"
 import { useTodayKey } from "@/app/providers/useToday"
-import { formatFullDate, fromDateKey } from "@/shared/lib/date"
 import { useTranslation } from "@/shared/lib/i18n"
 import { EditorErrorBoundary } from "@/shared/ui/rich-editor"
-import { RETRO_LABEL_KEY } from "../model/constants"
 import { RetroCommitsSection } from "./RetroCommitsSection"
+import { RetroDocHead } from "./RetroDocHead"
 import { RetroExpandOverlay } from "./RetroExpandOverlay"
 
 // TipTap 에디터는 번들 크기가 크므로 회고록 페이지 진입 시에만 로드
@@ -61,8 +60,6 @@ export function RetroEditor({
   const { state, loadCommits, pushRetrospective, pushNotification } = useArchiveApp()
   const isGithubEnabled = can(state.settings.accountType, "github")
   const todayDateKey = useTodayKey()
-  const d = fromDateKey(entry.dateKey)
-  const retroLabel = t(RETRO_LABEL_KEY[entry.retroType])
 
   // 커밋 섹션은 모든 일간 회고에 표시 (오늘 + 과거 날짜 모두)
   const isDailyEntry = entry.retroType === "daily"
@@ -167,19 +164,12 @@ export function RetroEditor({
 
       <div className="retro-doc">
         <div className="retro-doc-main">
-          <div style={{ marginBottom: "var(--s-md)" }}>
-            <p className="t-eyebrow" style={{ margin: "0 0 6px" }}>
-              {retroLabel}
-            </p>
-            <p
-              style={{
-                margin: 0,
-                fontSize: 16,
-                color: "var(--color-body-muted)",
-              }}>
-              {formatFullDate(d)}
-            </p>
-          </div>
+          <RetroDocHead
+            entry={entry}
+            folders={[]}
+            onTitleChange={(title) => onUpdate({ title })}
+            onFolderChange={() => {}}
+          />
 
           {isGithubEnabled && !isGithubConnected ? (
             <DisconnectBanner message={t("retro.github.notConnected")} />
@@ -190,26 +180,6 @@ export function RetroEditor({
           {/* 일반 모드 */}
           {!expanded && (
             <>
-              <input
-                value={entry.title}
-                onChange={(e) => onUpdate({ title: e.target.value })}
-                readOnly={entry.isSummary}
-                title={
-                  entry.isSummary ? t("retro.summary.titleReadOnly") : undefined
-                }
-                placeholder={t("retro.editor.titlePlaceholder")}
-                className="retro-title-input"
-              />
-              <p
-                style={{
-                  margin: "0 0 32px",
-                  fontSize: 19,
-                  color: "var(--color-body-muted)",
-                  lineHeight: 1.4,
-                }}>
-                {t("retro.editor.sub")}
-              </p>
-
               {/* 완료된 할 일 — 일간 회고에서만 표시 */}
               {isDailyEntry && (
                 <section className="section-card" style={{ marginBottom: 16 }}>
