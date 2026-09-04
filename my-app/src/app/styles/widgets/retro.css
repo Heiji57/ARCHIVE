@@ -723,3 +723,26 @@
 .retro-folder-pick-item[data-active="true"] {
   color: var(--color-ink);
 }
+
+.retro-commit-msg {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-ink-muted-80);
+  word-break: break-word;
+}
+
+.retro-commit-sha {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-xxs);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-ink-muted-48);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.retro-commit-sha:hover {
+  color: var(--color-primary-on-dark);
+}
