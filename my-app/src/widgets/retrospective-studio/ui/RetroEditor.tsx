@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react"
-import { BookOpen, ChevronLeft } from "lucide-react"
+import { ChevronLeft } from "lucide-react"
 import type { JournalEntry } from "@/entities/entry/model/types"
 import type { Folder } from "@/entities/folder/model/types"
 import type { GitHubCommit } from "@/entities/github/model/types"
@@ -215,45 +215,31 @@ export function RetroEditor({
               ) : null}
 
               {/* 회고 본문 — AI 요약(isSummary)도 편집 가능(PATCH /summaries/{id}) */}
-              <section className="section-card section-card--retro-body">
-                {!entry.isSummary && (
-                  <div className="section-card-head">
-                    <div className="avatar avatar-sm avatar-tile">
-                      <BookOpen size={14} />
-                    </div>
-                    <p className="section-card-title">
-                      {t("retro.editor.learned")}
-                    </p>
-                  </div>
-                )}
+              <section className="retro-doc-section">
+                <div className="retro-doc-section-head">
+                  <h2 className="retro-doc-section-title">{t("retro.editor.content")}</h2>
+                  <span className="retro-doc-section-meta">
+                    {t("retro.editor.contentHint")}
+                  </span>
+                </div>
+
                 <EditorErrorBoundary
                   fallback={(error) => (
                     <div
+                      className="retro-doc-banner"
+                      data-tone="danger"
                       style={{
-                        padding: 14,
-                        fontSize: 16,
-                        color: "var(--color-warn, #d9a23a)",
-                        background: "var(--color-tile-3)",
-                        borderRadius: "var(--r-sm)",
-                        fontFamily: "var(--font-mono, monospace)",
+                        fontFamily: "var(--font-mono)",
                         whiteSpace: "pre-wrap",
                       }}>
-                      <strong>에디터를 불러오지 못했습니다.</strong>
-                      {"\n"}
                       {error.message}
                     </div>
                   )}>
                   <Suspense
                     fallback={
-                      <div
-                        style={{
-                          minHeight: 260,
-                          padding: 12,
-                          fontSize: 16,
-                          color: "var(--color-body-muted)",
-                        }}>
-                        에디터 로딩 중...
-                      </div>
+                      <p className="retro-doc-empty" style={{ minHeight: 260 }}>
+                        {t("retro.editor.loadingEditor")}
+                      </p>
                     }>
                     <RichEditor
                       key={entry.id}

@@ -301,6 +301,7 @@ export const en: Dict = {
   "retro.editor.folderNone": "No folder",
   "retro.editor.content": "Content",
   "retro.editor.contentHint": "Markdown · press / to add a block",
+  "retro.editor.loadingEditor": "Loading the editor…",
   "retro.editor.commitsRepoAll": "All in {repo}",
   "retro.editor.commitsRepoMulti": "{count} repositories",
   "retro.editor.materials": "Sources for this entry",

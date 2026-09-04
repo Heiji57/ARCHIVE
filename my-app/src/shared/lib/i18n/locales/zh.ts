@@ -296,6 +296,7 @@ export const zh: Dict = {
   "retro.editor.folderNone": "无文件夹",
   "retro.editor.content": "正文 · Content",
   "retro.editor.contentHint": "Markdown · 按 / 添加块",
+  "retro.editor.loadingEditor": "正在加载编辑器…",
   "retro.editor.commitsRepoAll": "全部来自 {repo}",
   "retro.editor.commitsRepoMulti": "{count} 个仓库",
   "retro.editor.materials": "这篇回顾的素材",

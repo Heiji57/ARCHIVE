@@ -290,6 +290,7 @@ export type TranslationKey =
   | "retro.editor.folderNone"
   | "retro.editor.content"
   | "retro.editor.contentHint"
+  | "retro.editor.loadingEditor"
   | "retro.editor.commitsRepoAll"
   | "retro.editor.commitsRepoMulti"
   | "retro.editor.materials"

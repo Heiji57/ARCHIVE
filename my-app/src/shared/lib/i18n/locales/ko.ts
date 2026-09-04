@@ -298,6 +298,7 @@ export const ko: Dict = {
   "retro.editor.folderNone": "폴더 없음",
   "retro.editor.content": "회고 본문 · Content",
   "retro.editor.contentHint": "Markdown · / 명령으로 블록 추가",
+  "retro.editor.loadingEditor": "에디터를 불러오는 중…",
   "retro.editor.commitsRepoAll": "모두 {repo}",
   "retro.editor.commitsRepoMulti": "{count}개 저장소",
   "retro.editor.materials": "이 회고의 재료",

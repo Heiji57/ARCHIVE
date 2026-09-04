@@ -299,6 +299,7 @@ export const ja: Dict = {
   "retro.editor.folderNone": "フォルダなし",
   "retro.editor.content": "本文 · Content",
   "retro.editor.contentHint": "Markdown · / でブロックを追加",
+  "retro.editor.loadingEditor": "エディタを読み込んでいます…",
   "retro.editor.commitsRepoAll": "すべて {repo}",
   "retro.editor.commitsRepoMulti": "{count} 個のリポジトリ",
   "retro.editor.materials": "この振り返りの材料",
