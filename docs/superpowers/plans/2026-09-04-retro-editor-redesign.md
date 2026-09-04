@@ -25,7 +25,7 @@
 
 ---
 
-### Task 1: 파운데이션 — Pretendard 폰트 + 신규 i18n 키 14개
+### Task 1: 파운데이션 — Pretendard 폰트 + 신규 i18n 키 17개
 
 **Files:**
 - Modify: `src/app/styles/tokens/typography.css`
@@ -34,7 +34,7 @@
 
 **Interfaces:**
 - Consumes: 없음
-- Produces: 번역 키 `retro.title.default.{daily,weekly,monthly,yearly}`, `retro.editor.{titleHint,folderNone,content,contentHint,commitsRepoAll,commitsRepoMulti,materials,materialBlocks,expand}`, `retro.summary.aiSummary` — Task 3~11이 이 키들을 쓴다.
+- Produces: 번역 키 `retro.title.default.{daily,weekly,monthly,yearly}`, `retro.editor.{titleHint,folderNone,content,contentHint,commitsRepoAll,commitsRepoMulti,materials,materialBlocks,expand}`, `retro.summary.{aiSummary,aiSummaryDesc}`, `retro.editor.{materialCompleted,materialCommits}` — Task 3~11이 이 키들을 쓴다.
 
 - [ ] **Step 1: Pretendard를 폰트 스택 맨 앞에 추가**
 
@@ -74,7 +74,10 @@
   | "retro.editor.materials"
   | "retro.editor.materialBlocks"
   | "retro.editor.expand"
+  | "retro.editor.materialCompleted"
+  | "retro.editor.materialCommits"
   | "retro.summary.aiSummary"
+  | "retro.summary.aiSummaryDesc"
 ```
 
 - [ ] **Step 3: `locales/ko.ts`에 값 추가**
@@ -95,7 +98,10 @@
   "retro.editor.materials": "이 회고의 재료",
   "retro.editor.materialBlocks": "본문 블록",
   "retro.editor.expand": "전체 화면으로 쓰기",
+  "retro.editor.materialCompleted": "완료한 작업",
+  "retro.editor.materialCommits": "커밋",
   "retro.summary.aiSummary": "AI 요약",
+  "retro.summary.aiSummaryDesc": "본문 전체가 AI 요약으로 표시되고 있습니다",
 ```
 
 - [ ] **Step 4: `locales/en.ts`에 값 추가**
@@ -114,7 +120,10 @@
   "retro.editor.materials": "Sources for this entry",
   "retro.editor.materialBlocks": "Content blocks",
   "retro.editor.expand": "Write full screen",
+  "retro.editor.materialCompleted": "Completed todos",
+  "retro.editor.materialCommits": "Commits",
   "retro.summary.aiSummary": "AI summary",
+  "retro.summary.aiSummaryDesc": "The whole entry is showing an AI summary",
 ```
 
 - [ ] **Step 5: `locales/ja.ts`에 값 추가**
@@ -133,7 +142,10 @@
   "retro.editor.materials": "この振り返りの材料",
   "retro.editor.materialBlocks": "本文ブロック",
   "retro.editor.expand": "全画面で書く",
+  "retro.editor.materialCompleted": "完了したタスク",
+  "retro.editor.materialCommits": "コミット",
   "retro.summary.aiSummary": "AI 要約",
+  "retro.summary.aiSummaryDesc": "本文全体が AI 要約として表示されています",
 ```
 
 - [ ] **Step 6: `locales/zh.ts`에 값 추가**
@@ -152,7 +164,10 @@
   "retro.editor.materials": "这篇回顾的素材",
   "retro.editor.materialBlocks": "正文块",
   "retro.editor.expand": "全屏书写",
+  "retro.editor.materialCompleted": "已完成任务",
+  "retro.editor.materialCommits": "提交",
   "retro.summary.aiSummary": "AI 摘要",
+  "retro.summary.aiSummaryDesc": "正文整体显示为 AI 摘要",
 ```
 
 - [ ] **Step 7: 빌드 검증**
@@ -1235,11 +1250,11 @@ export function RetroDocRail({
       <div className="retro-rail-group">
         <span className="retro-rail-label">{t("retro.editor.materials")}</span>
         <span className="retro-rail-stat">
-          {t("retro.editor.completed")}
+          {t("retro.editor.materialCompleted")}
           <b>{completedCount}</b>
         </span>
         <span className="retro-rail-stat">
-          {t("retro.editor.commits")}
+          {t("retro.editor.materialCommits")}
           <b>{commitCount}</b>
         </span>
         <span className="retro-rail-stat">
@@ -1425,7 +1440,7 @@ export function RetroSummaryBanner({ entry, onRevert }: RetroSummaryBannerProps)
         <Sparkles size={12} />
         {t("retro.summary.aiSummary")}
       </span>
-      <span style={{ flex: 1 }}>{t("retro.summary.titleReadOnly")}</span>
+      <span style={{ flex: 1 }}>{t("retro.summary.aiSummaryDesc")}</span>
       <button
         type="button"
         className="btn btn-utility"
