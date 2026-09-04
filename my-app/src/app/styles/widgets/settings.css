@@ -1,10 +1,13 @@
 /* ---------- Settings page layout ---------- */
 .settings-page {
-  padding-top: 8px;
+  padding-top: 50px;
   padding-bottom: 80px;
   display: flex;
   flex-direction: column;
   gap: 48px;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: calc(1100px + 26px * 2);
 }
 
 /* Logical grouping of cards under a labeled section */

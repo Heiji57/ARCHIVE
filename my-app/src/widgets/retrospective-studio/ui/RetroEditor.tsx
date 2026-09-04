@@ -368,7 +368,7 @@ export function RetroEditor({
           ) : null}
 
           {/* 회고 본문 — AI 요약(isSummary)도 편집 가능(PATCH /summaries/{id}) */}
-          <section className="section-card">
+          <section className="section-card section-card--retro-body">
             {!entry.isSummary && (
               <div className="section-card-head">
                 <div className="avatar avatar-sm avatar-tile">

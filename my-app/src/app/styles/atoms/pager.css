@@ -2,9 +2,9 @@
 .pager {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 10px 4px 2px;
+  justify-content: center;
+  gap: 40px;
+  padding: 50px 4px 2px;
   font-size: 12px;
   color: var(--color-body-muted);
 }

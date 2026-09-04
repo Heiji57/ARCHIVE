@@ -229,7 +229,7 @@
   gap: 16px;
   /* 그리드를 헤더 아래 고정 지점으로 내린다 — 회고록 개수와 무관하게 "새 회고록
      만들기"/첫 카드 위치를 항상 여기에 고정(페이저만 margin-top:auto 로 하단 유지). */
-  margin-top: 96px;
+  margin-top: 50px;
 }
 
 /* ---------- Folder card ---------- */
@@ -297,9 +297,9 @@
   text-align: left;
   display: flex;
   flex-direction: column;
-  gap: 10px;
   min-height: 154px;
   padding: 18px;
+  gap: 12px;
   border-radius: var(--r-lg);
   background: var(--color-tile-2);
   border: 1px solid var(--color-divider-soft);
@@ -325,8 +325,8 @@
   justify-content: space-between;
 }
 .retro-card-icon {
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--r-sm);
   display: inline-flex;
   align-items: center;
@@ -359,14 +359,14 @@
   margin-top: auto;
 }
 .retro-card-date {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--color-body-muted);
 }
 .retro-card-sync {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--color-body-muted);
 }
 .retro-card-sync-dot {
