@@ -71,7 +71,7 @@ export function useRichEditorInstance({
         HTMLAttributes: { rel: "noopener noreferrer" },
       }),
       TaskList,
-      TaskItem.configure({ nested: true }),
+      TaskItem,
       Callout,
       ToggleNode,
       ToggleSummary,

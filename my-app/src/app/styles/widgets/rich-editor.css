@@ -1037,3 +1037,7 @@
   accent-color: var(--color-primary);
   cursor: pointer;
 }
+
+.rich-editor .ProseMirror ul[data-type="taskList"] li::before {
+  content: none;
+}
