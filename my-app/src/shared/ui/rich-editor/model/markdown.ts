@@ -22,7 +22,38 @@ export function markdownToHtml(markdown: string): string {
   if (!markdown) return "";
   // GitHub Alert를 우리의 callout div로 사전 변환
   const preprocessed = convertAlertsToHtml(markdown);
-  return marked.parse(preprocessed, { async: false }) as string;
+  const html = marked.parse(preprocessed, { async: false }) as string;
+  return convertTaskListsToHtml(html);
+}
+
+/**
+ * GFM 체크박스 목록(`<li><input type=checkbox>`)을 TipTap taskList 마크업으로 변환.
+ * marked 는 체크박스를 li 안의 input 으로 내보내는데, TipTap TaskList 는
+ * `ul[data-type="taskList"]` / `li[data-type="taskItem"]` 를 파싱한다.
+ */
+function convertTaskListsToHtml(html: string): string {
+  if (typeof DOMParser === "undefined") return html;
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  doc.querySelectorAll("ul").forEach((ul) => {
+    const items = Array.from(ul.children).filter((el) => el.tagName === "LI");
+    const isTaskList =
+      items.length > 0 &&
+      items.every((li) => li.querySelector('input[type="checkbox"]'));
+    if (!isTaskList) return;
+    ul.setAttribute("data-type", "taskList");
+    items.forEach((li) => {
+      const input = li.querySelector(
+        'input[type="checkbox"]',
+      ) as HTMLInputElement | null;
+      li.setAttribute("data-type", "taskItem");
+      li.setAttribute(
+        "data-checked",
+        input?.hasAttribute("checked") ? "true" : "false",
+      );
+      input?.remove();
+    });
+  });
+  return doc.body.innerHTML;
 }
 
 function convertAlertsToHtml(md: string): string {
@@ -115,6 +146,20 @@ turndown.addRule("toggle", {
       .join("");
     const bodyMd = turndown.turndown(bodyHtml).trim();
     return `\n\n<details>\n<summary>${summaryText}</summary>\n\n${bodyMd}\n\n</details>\n\n`;
+  },
+});
+
+// 체크박스(할 일) 목록 — TipTap taskItem → `- [ ] / - [x]`
+turndown.addRule("taskItem", {
+  filter: (node) =>
+    node.nodeName === "LI" &&
+    (node as HTMLElement).getAttribute("data-type") === "taskItem",
+  replacement: (content, node) => {
+    const el = node as HTMLElement;
+    const checked = el.getAttribute("data-checked") === "true";
+    const body = el.querySelector("div");
+    const text = (body?.textContent ?? content).trim().replace(/\s*\n\s*/g, " ");
+    return `- [${checked ? "x" : " "}] ${text}\n`;
   },
 });
 

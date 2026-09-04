@@ -3,6 +3,8 @@ import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Link } from "@tiptap/extension-link";
 import { Placeholder } from "@tiptap/extension-placeholder";
+import { TaskItem } from "@tiptap/extension-task-item";
+import { TaskList } from "@tiptap/extension-task-list";
 import {
   Table,
   TableCell,
@@ -68,6 +70,8 @@ export function useRichEditorInstance({
         openOnClick: false,
         HTMLAttributes: { rel: "noopener noreferrer" },
       }),
+      TaskList,
+      TaskItem.configure({ nested: true }),
       Callout,
       ToggleNode,
       ToggleSummary,
