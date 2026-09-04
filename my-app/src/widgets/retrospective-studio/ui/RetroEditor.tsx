@@ -165,259 +165,261 @@ export function RetroEditor({
         {t("retro.gallery.backToList")}
       </button>
 
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 16,
-          gap: 12,
-          flexWrap: "wrap",
-        }}>
-        <div>
-          <p className="t-eyebrow" style={{ margin: "0 0 6px" }}>
-            {retroLabel}
-          </p>
-          <p
-            style={{
-              margin: 0,
-              fontSize: 16,
-              color: "var(--color-body-muted)",
-            }}>
-            {formatFullDate(d)}
-          </p>
-        </div>
-        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          {/* 자동 저장 안내 */}
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 4,
-              fontSize: 12,
-              color: "var(--color-body-muted)",
-            }}>
-            <Save size={11} />
-            {t("retro.editor.autoSaved")}
-          </span>
-
-          {/* AI 요약 되돌리기(편집 해제 → AI 원본 복귀) — 요약 항목에만 노출 */}
-          {entry.isSummary && onRevertSummary ? (
-            <button
-              type="button"
-              className="btn btn-utility"
-              onClick={() => setRevertConfirmOpen(true)}
-              style={{ padding: "6px 12px", fontSize: 12 }}
-              title={t("retro.summary.revert")}>
-              <RotateCcw size={12} />
-              {t("retro.summary.revert")}
-            </button>
-          ) : null}
-
-          {/* 확장 버튼 */}
-          <button
-            type="button"
-            className="retro-expand-btn"
-            onClick={() => setExpanded(true)}
-            aria-label="회고록 확장"
-            title="회고록 확장 (Ctrl+Shift+F)">
-            <Maximize2 size={14} />
-          </button>
-
-          {isGithubEnabled && (
-            <>
-              {isGithubConnected ? (
-                entry.synced ? (
-                  <Pill tone="green">
-                    <Check size={10} /> {t("retro.editor.synced")}
-                  </Pill>
-                ) : (
-                  <Pill tone="warn">
-                    <Clock size={10} /> {t("retro.editor.pending")}
-                  </Pill>
-                )
-              ) : (
-                <Pill tone="ghost">
-                  <Lock size={10} /> {t("settings.github.notConnected")}
-                </Pill>
-              )}
-
-              {/* Push 버튼 */}
-              <button
-                type="button"
-                onClick={() => void handlePush()}
-                className="btn btn-primary"
-                style={{ padding: "10px 22px" }}
-                disabled={!canPush || pushing}
-                title={
-                  !isGithubConnected
-                    ? t("retro.github.connectFromSettings")
-                    : !pushTargetRepositoryId
-                      ? t("settings.github.pushTargetHint")
-                      : ""
-                }>
-                <GitCommit size={14} />
-                {pushing ? t("retro.editor.pushing") : t("retro.editor.save")}
-              </button>
-            </>
-          )}
-        </div>
-      </div>
-
-      {isGithubEnabled && !isGithubConnected ? (
-        <DisconnectBanner message={t("retro.github.notConnected")} />
-      ) : isGithubEnabled && !pushTargetRepositoryId ? (
-        <DisconnectBanner message={t("settings.github.pushTargetHint")} />
-      ) : null}
-
-      {/* 일반 모드 */}
-      {!expanded && (
-        <>
-          <input
-            value={entry.title}
-            onChange={(e) => onUpdate({ title: e.target.value })}
-            readOnly={entry.isSummary}
-            title={entry.isSummary ? t("retro.summary.titleReadOnly") : undefined}
-            placeholder={t("retro.editor.titlePlaceholder")}
-            className="retro-title-input"
-          />
-          <p
-            style={{
-              margin: "0 0 32px",
-              fontSize: 19,
-              color: "var(--color-body-muted)",
-              lineHeight: 1.4,
-            }}>
-            {t("retro.editor.sub")}
-          </p>
-
-          {/* 완료된 할 일 — 일간 회고에서만 표시 */}
-          {isDailyEntry && (
-            <section className="section-card" style={{ marginBottom: 16 }}>
-              <div className="section-card-head">
-                <div className="avatar avatar-sm avatar-done">
-                  <CheckCircle size={14} strokeWidth={2.6} />
-                </div>
-                <p className="section-card-title">
-                  {t("retro.editor.completed")}
-                </p>
-              </div>
-
-              {completedTodos.length > 0 ? (
-                <ul style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {completedTodos.map((tdo) => (
-                    <li
-                      key={tdo.id}
-                      style={{
-                        padding: "10px 12px",
-                        borderRadius: "var(--r-sm)",
-                        background: "var(--color-tile-3)",
-                        fontSize: 16,
-                        display: "flex",
-                        gap: 10,
-                        alignItems: "center",
-                      }}>
-                      <CheckCircle
-                        size={14}
-                        style={{ color: "var(--color-status-done)" }}
-                      />
-                      <span style={{ flex: 1 }}>{tdo.title}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: 16,
-                    color: "var(--color-body-muted)",
-                  }}>
-                  {t("retro.editor.noCompleted")}
-                </p>
-              )}
-            </section>
-          )}
-
-          {/* 커밋 기록 (개발자 계정 + 일간 회고 + GitHub 연결 시 표시) */}
-          {isGithubEnabled && isGithubConnected && isDailyEntry ? (
-            <RetroCommitsSection
-              commits={commits}
-              loading={loadingCommits}
-              onRefresh={handleRefreshCommits}
-              githubConnectedAs={githubConnectedAs}
-              hasVerifiedEmails={hasVerifiedEmails}
-              isToday={isTodayDaily}
-            />
-          ) : null}
-
-          {/* 미완성 요약(GET /entries/paginated placeholder) 안내 배너 */}
-          {entry.isSummary && entry.status && entry.status !== "completed" ? (
-            <div
+      <div className="retro-doc">
+        <div className="retro-doc-main">
+          <div>
+            <p className="t-eyebrow" style={{ margin: "0 0 6px" }}>
+              {retroLabel}
+            </p>
+            <p
               style={{
-                padding: "10px 14px",
-                marginBottom: 12,
-                borderRadius: "var(--r-sm)",
-                background: "var(--color-tile-3)",
+                margin: 0,
                 fontSize: 16,
                 color: "var(--color-body-muted)",
               }}>
-              {entry.status === "failed"
-                ? t("retro.summary.statusFailed")
-                : t("retro.summary.statusPending")}
-            </div>
+              {formatFullDate(d)}
+            </p>
+          </div>
+
+          {isGithubEnabled && !isGithubConnected ? (
+            <DisconnectBanner message={t("retro.github.notConnected")} />
+          ) : isGithubEnabled && !pushTargetRepositoryId ? (
+            <DisconnectBanner message={t("settings.github.pushTargetHint")} />
           ) : null}
 
-          {/* 회고 본문 — AI 요약(isSummary)도 편집 가능(PATCH /summaries/{id}) */}
-          <section className="section-card section-card--retro-body">
-            {!entry.isSummary && (
-              <div className="section-card-head">
-                <div className="avatar avatar-sm avatar-tile">
-                  <BookOpen size={14} />
-                </div>
-                <p className="section-card-title">{t("retro.editor.learned")}</p>
-              </div>
-            )}
-            <EditorErrorBoundary
-              fallback={(error) => (
+          {/* 일반 모드 */}
+          {!expanded && (
+            <>
+              <input
+                value={entry.title}
+                onChange={(e) => onUpdate({ title: e.target.value })}
+                readOnly={entry.isSummary}
+                title={
+                  entry.isSummary ? t("retro.summary.titleReadOnly") : undefined
+                }
+                placeholder={t("retro.editor.titlePlaceholder")}
+                className="retro-title-input"
+              />
+              <p
+                style={{
+                  margin: "0 0 32px",
+                  fontSize: 19,
+                  color: "var(--color-body-muted)",
+                  lineHeight: 1.4,
+                }}>
+                {t("retro.editor.sub")}
+              </p>
+
+              {/* 완료된 할 일 — 일간 회고에서만 표시 */}
+              {isDailyEntry && (
+                <section className="section-card" style={{ marginBottom: 16 }}>
+                  <div className="section-card-head">
+                    <div className="avatar avatar-sm avatar-done">
+                      <CheckCircle size={14} strokeWidth={2.6} />
+                    </div>
+                    <p className="section-card-title">
+                      {t("retro.editor.completed")}
+                    </p>
+                  </div>
+
+                  {completedTodos.length > 0 ? (
+                    <ul
+                      style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      {completedTodos.map((tdo) => (
+                        <li
+                          key={tdo.id}
+                          style={{
+                            padding: "10px 12px",
+                            borderRadius: "var(--r-sm)",
+                            background: "var(--color-tile-3)",
+                            fontSize: 16,
+                            display: "flex",
+                            gap: 10,
+                            alignItems: "center",
+                          }}>
+                          <CheckCircle
+                            size={14}
+                            style={{ color: "var(--color-status-done)" }}
+                          />
+                          <span style={{ flex: 1 }}>{tdo.title}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: 16,
+                        color: "var(--color-body-muted)",
+                      }}>
+                      {t("retro.editor.noCompleted")}
+                    </p>
+                  )}
+                </section>
+              )}
+
+              {/* 커밋 기록 (개발자 계정 + 일간 회고 + GitHub 연결 시 표시) */}
+              {isGithubEnabled && isGithubConnected && isDailyEntry ? (
+                <RetroCommitsSection
+                  commits={commits}
+                  loading={loadingCommits}
+                  onRefresh={handleRefreshCommits}
+                  githubConnectedAs={githubConnectedAs}
+                  hasVerifiedEmails={hasVerifiedEmails}
+                  isToday={isTodayDaily}
+                />
+              ) : null}
+
+              {/* 미완성 요약(GET /entries/paginated placeholder) 안내 배너 */}
+              {entry.isSummary && entry.status && entry.status !== "completed" ? (
                 <div
                   style={{
-                    padding: 14,
-                    fontSize: 16,
-                    color: "var(--color-warn, #d9a23a)",
-                    background: "var(--color-tile-3)",
+                    padding: "10px 14px",
+                    marginBottom: 12,
                     borderRadius: "var(--r-sm)",
-                    fontFamily: "var(--font-mono, monospace)",
-                    whiteSpace: "pre-wrap",
+                    background: "var(--color-tile-3)",
+                    fontSize: 16,
+                    color: "var(--color-body-muted)",
                   }}>
-                  <strong>에디터를 불러오지 못했습니다.</strong>
-                  {"\n"}
-                  {error.message}
+                  {entry.status === "failed"
+                    ? t("retro.summary.statusFailed")
+                    : t("retro.summary.statusPending")}
                 </div>
-              )}>
-              <Suspense
-                fallback={
-                  <div
-                    style={{
-                      minHeight: 260,
-                      padding: 12,
-                      fontSize: 16,
-                      color: "var(--color-body-muted)",
-                    }}>
-                    에디터 로딩 중...
+              ) : null}
+
+              {/* 회고 본문 — AI 요약(isSummary)도 편집 가능(PATCH /summaries/{id}) */}
+              <section className="section-card section-card--retro-body">
+                {!entry.isSummary && (
+                  <div className="section-card-head">
+                    <div className="avatar avatar-sm avatar-tile">
+                      <BookOpen size={14} />
+                    </div>
+                    <p className="section-card-title">
+                      {t("retro.editor.learned")}
+                    </p>
                   </div>
-                }>
-                <RichEditor
-                  key={entry.id}
-                  value={entry.content}
-                  placeholder={t("retro.editor.learnedPlaceholder")}
-                  onChange={(md) => onUpdate({ content: md })}
-                  spellCheck={state.settings.spellCheck}
-                />
-              </Suspense>
-            </EditorErrorBoundary>
-          </section>
-        </>
-      )}
+                )}
+                <EditorErrorBoundary
+                  fallback={(error) => (
+                    <div
+                      style={{
+                        padding: 14,
+                        fontSize: 16,
+                        color: "var(--color-warn, #d9a23a)",
+                        background: "var(--color-tile-3)",
+                        borderRadius: "var(--r-sm)",
+                        fontFamily: "var(--font-mono, monospace)",
+                        whiteSpace: "pre-wrap",
+                      }}>
+                      <strong>에디터를 불러오지 못했습니다.</strong>
+                      {"\n"}
+                      {error.message}
+                    </div>
+                  )}>
+                  <Suspense
+                    fallback={
+                      <div
+                        style={{
+                          minHeight: 260,
+                          padding: 12,
+                          fontSize: 16,
+                          color: "var(--color-body-muted)",
+                        }}>
+                        에디터 로딩 중...
+                      </div>
+                    }>
+                    <RichEditor
+                      key={entry.id}
+                      value={entry.content}
+                      placeholder={t("retro.editor.learnedPlaceholder")}
+                      onChange={(md) => onUpdate({ content: md })}
+                      spellCheck={state.settings.spellCheck}
+                    />
+                  </Suspense>
+                </EditorErrorBoundary>
+              </section>
+            </>
+          )}
+        </div>
+
+        <aside className="retro-doc-rail">
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            {/* 자동 저장 안내 */}
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                fontSize: 12,
+                color: "var(--color-body-muted)",
+              }}>
+              <Save size={11} />
+              {t("retro.editor.autoSaved")}
+            </span>
+
+            {/* AI 요약 되돌리기(편집 해제 → AI 원본 복귀) — 요약 항목에만 노출 */}
+            {entry.isSummary && onRevertSummary ? (
+              <button
+                type="button"
+                className="btn btn-utility"
+                onClick={() => setRevertConfirmOpen(true)}
+                style={{ padding: "6px 12px", fontSize: 12 }}
+                title={t("retro.summary.revert")}>
+                <RotateCcw size={12} />
+                {t("retro.summary.revert")}
+              </button>
+            ) : null}
+
+            {/* 확장 버튼 */}
+            <button
+              type="button"
+              className="retro-expand-btn"
+              onClick={() => setExpanded(true)}
+              aria-label="회고록 확장"
+              title="회고록 확장 (Ctrl+Shift+F)">
+              <Maximize2 size={14} />
+            </button>
+
+            {isGithubEnabled && (
+              <>
+                {isGithubConnected ? (
+                  entry.synced ? (
+                    <Pill tone="green">
+                      <Check size={10} /> {t("retro.editor.synced")}
+                    </Pill>
+                  ) : (
+                    <Pill tone="warn">
+                      <Clock size={10} /> {t("retro.editor.pending")}
+                    </Pill>
+                  )
+                ) : (
+                  <Pill tone="ghost">
+                    <Lock size={10} /> {t("settings.github.notConnected")}
+                  </Pill>
+                )}
+
+                {/* Push 버튼 */}
+                <button
+                  type="button"
+                  onClick={() => void handlePush()}
+                  className="btn btn-primary"
+                  style={{ padding: "10px 22px" }}
+                  disabled={!canPush || pushing}
+                  title={
+                    !isGithubConnected
+                      ? t("retro.github.connectFromSettings")
+                      : !pushTargetRepositoryId
+                        ? t("settings.github.pushTargetHint")
+                        : ""
+                  }>
+                  <GitCommit size={14} />
+                  {pushing ? t("retro.editor.pushing") : t("retro.editor.save")}
+                </button>
+              </>
+            )}
+          </div>
+        </aside>
+      </div>
 
       {/* 확장 모드 — Portal (Notion 스타일 목차 포함) */}
       {expanded ? (

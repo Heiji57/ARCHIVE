@@ -460,3 +460,206 @@
   background: color-mix(in srgb, var(--color-warn) 18%, transparent);
   color: var(--color-warn);
 }
+
+/* ─── 문서형 회고 에디터 ─────────────────────────────────────────────── */
+.retro-doc {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--s-xl);
+}
+
+.retro-doc-main {
+  flex: 1 1 320px;
+  min-width: 0;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+}
+
+.retro-doc-rail {
+  flex: 1 1 240px;
+  min-width: 0;
+  max-width: 320px;
+  position: sticky;
+  top: var(--s-md);
+  align-self: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-lg);
+  padding-top: var(--s-xs);
+}
+
+.retro-doc-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-sm);
+  padding-bottom: var(--s-lg);
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.retro-doc-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s-xs);
+  font-size: 12px;
+  color: var(--color-body-muted);
+}
+
+.retro-doc-type {
+  padding: 4px 8px;
+  border-radius: var(--r-sm);
+  background: var(--color-tile-2);
+  border: 1px solid var(--color-hairline);
+  color: var(--color-ink);
+}
+
+.retro-doc-date {
+  font-family: var(--font-mono);
+  color: var(--color-ink-muted-48);
+}
+
+.retro-doc-title {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: clamp(32px, 3.4vw, 44px);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: var(--headline-tracking);
+  caret-color: var(--color-primary);
+}
+
+.retro-doc-title::placeholder {
+  color: var(--color-ink-muted-32);
+}
+
+.retro-doc-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-ink-muted-48);
+}
+
+.retro-doc-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-sm);
+  padding: var(--s-lg) 0;
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.retro-doc-section:last-child {
+  border-bottom: none;
+}
+
+.retro-doc-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-sm);
+  flex-wrap: wrap;
+}
+
+.retro-doc-section-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.retro-doc-section-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--s-xs);
+  font-size: 12px;
+  color: var(--color-ink-muted-48);
+}
+
+.retro-doc-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.retro-doc-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: var(--s-sm);
+  padding: var(--s-xs) 0;
+  border-bottom: 1px solid var(--color-divider-soft);
+}
+
+.retro-doc-row:last-child {
+  border-bottom: none;
+}
+
+.retro-doc-empty {
+  margin: 0;
+  font-size: 16px;
+  color: var(--color-ink-muted-48);
+}
+
+.retro-doc-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-sm);
+  padding: var(--s-sm) var(--s-md);
+  border-radius: var(--r-md);
+  background: color-mix(in srgb, var(--color-warn) 7%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-warn) 32%, transparent);
+  font-size: 12px;
+  color: var(--color-ink-muted-80);
+}
+
+.retro-doc-banner[data-tone="ai"] {
+  background: var(--color-chip-translucent);
+  border-color: color-mix(in srgb, var(--color-primary) 32%, transparent);
+}
+
+.retro-doc-banner[data-tone="danger"] {
+  background: color-mix(in srgb, var(--color-danger) 6%, transparent);
+  border-color: color-mix(in srgb, var(--color-danger) 30%, transparent);
+}
+
+.retro-rail-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-sm);
+}
+
+.retro-rail-label {
+  font-size: 12px;
+  letter-spacing: var(--eyebrow-tracking);
+  color: var(--color-ink-muted-48);
+}
+
+.retro-rail-stat {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-xs);
+  font-size: 12px;
+  color: var(--color-body-muted);
+}
+
+.retro-rail-stat > b {
+  font-weight: 500;
+  color: var(--color-ink-muted-80);
+}
+
+.retro-rail-divider {
+  height: 1px;
+  background: var(--color-hairline);
+}
+
+@media (max-width: 900px) {
+  .retro-doc-rail {
+    position: static;
+    max-width: none;
+  }
+}
