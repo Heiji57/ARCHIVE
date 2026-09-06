@@ -466,15 +466,26 @@
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
+  justify-content: center;
   gap: var(--s-xl);
+}
+
+/* 본문을 뷰포트 정중앙에 앉히기 위한 유령 컬럼 — 우측 레일과 flex 값이
+   같아야 본문 좌우 여백이 대칭이 된다. 레일 값 수정 시 함께 맞출 것. */
+.retro-doc::before {
+  content: "";
+  flex: 1 1 240px;
+  min-width: 0;
+  max-width: 320px;
 }
 
 .retro-doc-main {
   flex: 1 1 320px;
   min-width: 0;
-  max-width: 720px;
+  max-width: 900px;
   display: flex;
   flex-direction: column;
+
 }
 
 .retro-doc-rail {
@@ -663,6 +674,14 @@
 .retro-rail-divider {
   height: 1px;
   background: var(--color-hairline);
+}
+
+/* 3단(유령·본문·레일)이 한 줄에 못 들어가면 유령 컬럼이 줄바꿈을 유발하며
+   본문을 오른쪽으로 밀어낸다 — 그 전에 걷어내고 본문+레일만 가운데 정렬. */
+@media (max-width: 960px) {
+  .retro-doc::before {
+    display: none;
+  }
 }
 
 @media (max-width: 900px) {
