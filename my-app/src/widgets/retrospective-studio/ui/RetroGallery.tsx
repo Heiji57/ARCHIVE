@@ -343,23 +343,29 @@ export function RetroGallery({
       ) : (
         <div className="retro-gallery-grid">
           {/* 새 회고록 만들기 카드 — 일간(및 전체 탭)은 즉시 오늘자 생성, 주간/월간/
-              연간은 기간 선택 모달(PeriodPickerModal)을 그 종류로 바로 연다. */}
-          <button
-            type="button"
-            className="retro-card retro-card-new"
-            onClick={() =>
-              retroFilter === "daily" || retroFilter === "all" || retroFilter === "topics"
-                ? onNewDaily()
-                : onSummarize(retroFilter)
-            }
-          >
-            <span className="retro-card-new-icon">
-              <Plus size={18} />
-            </span>
-            <span className="retro-card-new-label">
-              {t("retro.gallery.newRetro")}
-            </span>
-          </button>
+              연간은 기간 선택 모달(PeriodPickerModal)을 그 종류로 바로 연다.
+              1페이지에만 — 페이지네이션이 "페이지당 size 개"를 약속하므로 매
+              페이지가 size+1 칸이 되면 안 된다. */}
+          {currentPage === 1 ? (
+            <button
+              type="button"
+              className="retro-card retro-card-new"
+              onClick={() =>
+                retroFilter === "daily" ||
+                retroFilter === "all" ||
+                retroFilter === "topics"
+                  ? onNewDaily()
+                  : onSummarize(retroFilter)
+              }
+            >
+              <span className="retro-card-new-icon">
+                <Plus size={18} />
+              </span>
+              <span className="retro-card-new-label">
+                {t("retro.gallery.newRetro")}
+              </span>
+            </button>
+          ) : null}
 
           {isFolderView
             ? folders.map((folder) => (

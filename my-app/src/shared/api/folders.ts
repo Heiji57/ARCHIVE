@@ -32,6 +32,11 @@ export async function apiCreateFolder(input: {
 /**
  * GET /folders/contents — 폴더 열람(직계 하위 폴더 + 직계 회고록).
  * folderId 생략 시 최상위. retroType 생략 시 4개 타입을 합친 "전체" 뷰.
+ *
+ * page/size 는 폴더와 회고록을 합친 하나의 시퀀스에 적용된다 —
+ * `[폴더: name ASC] ++ [회고록: dateKey DESC]` 에서 폴더 블록이 먼저 소진된 뒤
+ * 회고록이 이어진다. 따라서 folders 는 "이 페이지 구간의 조각"이지 직계 하위
+ * 폴더 전부가 아니고, total 은 폴더 총개수 + 회고록 총건수다.
  */
 export async function apiGetFolderContents(params: {
   folderId?: string;

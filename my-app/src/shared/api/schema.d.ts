@@ -1571,9 +1571,24 @@ export interface paths {
          *       weekly/monthly/yearly=`retro_summaries`).
          *     - `retroType` 생략 → 4개 타입을 모두 합쳐 최신순으로 정렬한 "전체" 뷰.
          *
-         *     응답은 `folders`(직계 하위 폴더)와 `entries`(직계 회고록)로 분리되어
-         *     내려온다 — 폴더와 회고록은 서로 다른 리소스라 하나의 배열로 합치지 않는다
-         *     (`GET /search` 의 `{todos, entries}` 분리와 동일한 이유).
+         *     **페이지네이션은 폴더와 회고록을 합친 하나의 시퀀스에 적용된다.**
+         *
+         *         seq = [폴더: name ASC, id ASC] ++ [회고록: dateKey DESC, id DESC]
+         *
+         *     `page`/`size` 는 이 `seq` 의 오프셋이다. 폴더 블록이 먼저 소진된 뒤
+         *     회고록이 이어진다 — 폴더 25개·회고록 100건·size 20 이면 1페이지는
+         *     폴더 20개, 2페이지는 폴더 5개 + 회고록 15건, 3페이지부터 회고록 20건씩.
+         *
+         *     `id` tie-break 는 필수다. "전체" 뷰는 두 테이블을 합치므로 같은
+         *     `dateKey` 가 여러 건 나오고, 정렬이 비결정적이면 페이지 경계에서
+         *     항목이 누락되거나 중복된다.
+         *
+         *     `retroType` 필터는 회고록에만 걸린다 — 폴더 목록·개수는 타입과 무관하다.
+         *
+         *     응답은 `folders`(이 페이지 구간의 폴더 조각)와 `entries`(폴더가 쓰고 남은
+         *     칸에 채운 회고록 조각)로 분리되어 내려온다 — 폴더와 회고록은 서로 다른
+         *     리소스라 하나의 배열로 합치지 않는다(`GET /search` 의 `{todos, entries}`
+         *     분리와 동일한 이유).
          */
         get: {
             parameters: {
@@ -4667,14 +4682,19 @@ export interface components {
             data?: components["schemas"]["FolderResponse"];
         };
         /**
-         * @description 폴더의 직계 하위 폴더와 직계 회고록을 타입별로 분리해서 반환한다
-         *     (`GET /search` 의 `{todos, entries}` 분리와 동일한 이유 — 서로 다른
-         *     리소스를 억지로 하나의 배열에 합치지 않는다).
+         * @description 폴더의 직계 하위 폴더와 직계 회고록을, 둘을 합친 단일 시퀀스에 대한
+         *     페이지 조각으로 반환한다(정렬 시퀀스는 `GET /folders/contents` 참고).
+         *     두 배열을 이어붙인 것이 그 페이지의 내용이며 `len(folders) +
+         *     len(entries) <= size` 를 항상 만족한다. 타입별 분리를 유지하는 이유는
+         *     `GET /search` 의 `{todos, entries}` 와 동일하다 — 서로 다른 리소스를
+         *     억지로 하나의 배열에 합치지 않는다.
          */
         FolderContentsResponse: {
+            /** @description 이 페이지 구간에 걸친 폴더 조각(직계 하위 폴더 전부가 아니다). */
             folders: components["schemas"]["FolderResponse"][];
+            /** @description 이 페이지에서 폴더가 쓰고 남은 칸에 채운 회고록 조각. */
             entries: components["schemas"]["EntryResponse"][];
-            /** @description entries 전체 매칭 건수(페이지 무관) */
+            /** @description 폴더 총개수 + 회고록 총건수(페이지 무관). 폴더 개수는 retroType 과 무관하고, 회고록 건수에는 retroType 필터가 적용된다. */
             total: number;
             page: number;
             size: number;
