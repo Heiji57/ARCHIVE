@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
+  CornerDownLeft,
   FolderPlus,
   Plus,
   Search,
@@ -66,6 +67,10 @@ export interface RetroGalleryProps {
     targetFolderId: string | null,
   ) => void;
   onDropFolderOnFolder: (draggedFolderId: string, targetFolderId: string | null) => void;
+  /** 검색·기간 필터를 모두 비워 폴더 뷰로 되돌린다(브레드크럼은 그대로 살아 있다). */
+  onClearSearchScope: () => void;
+  /** 카드에 붙일 소속 폴더 경로 조회. 폴더 뷰에서는 넘기지 않는다. */
+  folderPathOf?: (entry: JournalEntry) => string[];
 }
 
 const SUMMARY_KINDS: { kind: SummaryKind; labelKey: TranslationKey }[] = [
@@ -100,6 +105,8 @@ export function RetroGallery({
   onDeleteFolder,
   onDropEntryOnFolder,
   onDropFolderOnFolder,
+  onClearSearchScope,
+  folderPathOf,
 }: RetroGalleryProps) {
   const todayDateKey = useTodayKey();
   const { t } = useTranslation();
@@ -314,6 +321,30 @@ export function RetroGallery({
 
       {/* ── 폴더 경로(breadcrumb) — 최상위가 아닐 때만. 각 항목은 drop target 이라
           카드를 위쪽 경로로 드래그해 옮길 수 있다. ── */}
+      {/* 검색·기간 필터가 걸리면 검색은 폴더를 가로질러 전체를 훑는다. 브레드크럼을
+          그대로 두면 "이 폴더 안을 보고 있다"는 거짓말이 되므로, 폴더 경로를 현재
+          위치가 아니라 '돌아갈 곳'으로 제시한다. 루트에서 검색했으면(breadcrumb
+          비어 있음) 돌아갈 곳이 없어 그리지 않는다. */}
+      {!isFolderView && breadcrumb.length > 0 ? (
+        <div className="retro-search-scope">
+          <span className="retro-search-scope-label">
+            {debouncedSearch.trim() !== ""
+              ? t("retro.search.scopeGlobal")
+              : t("retro.search.scopeFiltered")}
+          </span>
+          <button
+            type="button"
+            className="retro-search-scope-back"
+            onClick={onClearSearchScope}
+          >
+            <CornerDownLeft size={13} />
+            {t("retro.search.backToFolder", {
+              path: breadcrumb.map((c) => c.name).join(" › "),
+            })}
+          </button>
+        </div>
+      ) : null}
+
       {isFolderView && breadcrumb.length > 0 ? (
         <div className="retro-breadcrumb">
           <FolderCrumbButton
@@ -393,6 +424,7 @@ export function RetroGallery({
               isToday={e.dateKey === todayDateKey}
               onSelect={onSelect}
               showSyncBadge={showSyncBadge}
+              folderPath={folderPathOf?.(e)}
             />
           ))}
         </div>

@@ -300,6 +300,15 @@ export interface ArchiveAppContextValue {
     size: number;
   }) => Promise<import("@/shared/api").FolderContents | null>;
   /**
+   * 전체 폴더 목록(GET /folders) — id·이름·부모만. 검색처럼 폴더를 가로지르는
+   * 목록에서 각 결과의 소속 경로를 조립하는 데 쓴다(GET /folders/contents 는
+   * 직계 하위만 주므로 조상을 알 수 없다).
+   * 데모/mock 모드에서는 null 을 반환한다 → 호출부는 state.folders 로 폴백한다.
+   */
+  loadAllFolders: () => Promise<
+    import("@/entities/folder/model/types").FolderSummary[] | null
+  >;
+  /**
    * 폴더 생성. parentFolderId 생략/null 이면 최상위. 데모/mock 은 로컬 상태에만
    * 반영(낙관적, 서버 없음).
    */

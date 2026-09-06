@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle } from "lucide-react";
 import type { RetroRouteParams } from "@/app/router/navigation";
 import { useArchiveApp } from "@/app/providers/useArchiveApp";
@@ -17,6 +17,8 @@ import { useTranslation } from "@/shared/lib/i18n";
 import { useDebouncedValue } from "@/shared/lib/useDebouncedValue";
 import { useLatestRef } from "@/shared/lib/useLatestRef";
 import { useFolderContents } from "../model/useFolderContents";
+import { useAllFolders } from "../model/useAllFolders";
+import { buildFolderPath } from "../model/buildFolderPath";
 import { useFolderNav, type FolderCrumb } from "../model/useFolderNav";
 import { useRetroEntriesPage } from "../model/useRetroEntriesPage";
 import { useRetroFilter } from "../model/useRetroFilter";
@@ -104,6 +106,20 @@ export function RetrospectiveStudio({ retroParams, onRetroNavigate }: { retroPar
     filterState.retroFilter,
     isFolderView && !isTopicsView,
   );
+  // 검색·기간 필터가 걸린 동안에만 전체 폴더를 lazy 로드한다 — 결과 카드에
+  // 소속 경로를 붙이기 위해서다(폴더 뷰에서는 전부 같은 폴더라 필요 없다).
+  const allFolders = useAllFolders(state.folders, !isFolderView && !isTopicsView);
+  const folderPathOf = useCallback(
+    (entry: JournalEntry) => buildFolderPath(allFolders.folders, entry.folderId),
+    [allFolders.folders],
+  );
+  const clearSearchScope = useCallback(() => {
+    filterState.setSearch("");
+    filterState.setYearFilter("all");
+    filterState.setMonthFilter("all");
+    filterState.setWeekFilter("all");
+  }, [filterState]);
+
   // 데모/mock 은 서버가 없어 serverMode=false → 클라이언트 목록(useRetroFilter)으로 폴백.
   const useServerList = entriesPage.serverMode;
 
@@ -194,6 +210,7 @@ export function RetrospectiveStudio({ retroParams, onRetroNavigate }: { retroPar
     }
     setFolderPrompt(null);
     folderContents.refetch();
+    allFolders.invalidate();
   };
 
   const confirmDeleteFolder = async () => {
@@ -202,6 +219,7 @@ export function RetrospectiveStudio({ retroParams, onRetroNavigate }: { retroPar
     setFolderDeleteTarget(null);
     const crumbIndex = folderNav.breadcrumb.findIndex((c) => c.id === target.id);
     await deleteFolder(target.id);
+    allFolders.invalidate();
     if (crumbIndex >= 0) {
       // 지금 보고 있는 경로 위쪽이 삭제됐으면 그 지점 이전으로 물러난다.
       if (crumbIndex === 0) folderNav.goToRoot();
@@ -226,7 +244,10 @@ export function RetrospectiveStudio({ retroParams, onRetroNavigate }: { retroPar
     targetFolderId: string | null,
   ) => {
     void updateFolder(draggedFolderId, { parentFolderId: targetFolderId }).then(
-      () => folderContents.refetch(),
+      () => {
+        folderContents.refetch();
+        allFolders.invalidate();
+      },
     );
   };
 
@@ -476,6 +497,8 @@ export function RetrospectiveStudio({ retroParams, onRetroNavigate }: { retroPar
           onDeleteFolder={setFolderDeleteTarget}
           onDropEntryOnFolder={handleDropEntryOnFolder}
           onDropFolderOnFolder={handleDropFolderOnFolder}
+          onClearSearchScope={clearSearchScope}
+          folderPathOf={isFolderView ? undefined : folderPathOf}
         />
       )}
 

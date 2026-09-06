@@ -304,6 +304,10 @@ export type TranslationKey =
   | "retro.gallery.newRetro"
   | "retro.gallery.aiSummary"
   | "retro.gallery.backToList"
+  | "retro.search.scopeGlobal"
+  | "retro.search.scopeFiltered"
+  | "retro.search.backToFolder"
+  | "retro.card.unfiled"
   | "retro.filter.periodFilter"
   // Topics
   | "retro.filter.topics"

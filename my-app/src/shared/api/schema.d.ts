@@ -1509,7 +1509,46 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * 전체 폴더 목록 — id·이름·부모만
+         * @description 사용자의 모든 폴더를 평평한 배열로 반환한다. 페이지네이션 없음.
+         *
+         *     용도는 **id → 이름 → 조상 사슬 해결**이다. 검색 결과처럼 폴더를
+         *     가로지르는 목록에서 각 항목의 소속 폴더 경로("A › B › C")를 조립할 때,
+         *     FE 는 한 번도 열어본 적 없는 폴더의 이름이 필요하다. `GET
+         *     /folders/contents` 는 직계 하위만 주므로 조상을 알 수 없다.
+         *
+         *     폴더 카드 뱃지용 개수(`folderCount`/`entryCount`)는 담지 않는다 —
+         *     전체 폴더에 대해 집계를 걸게 되는데 이 응답의 소비처는 그 값을 쓰지
+         *     않는다. 뱃지는 `GET /folders/contents` 가 주는 값을 그대로 쓴다.
+         *
+         *     정렬은 `name ASC, id ASC` — `GET /folders/contents` 의 폴더 정렬과 동일.
+         *
+         *     최대 2000개까지만 반환한다 — 페이지네이션 대신 두는 안전장치로,
+         *     병리적인 폴더 수에서 응답이 무한정 커지는 것만 막는다. 잘리면
+         *     클라이언트의 경로 조립이 모르는 id 에서 멈추고 부분 경로만 보여준다.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 조회 성공 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiResponseFolderList"];
+                    };
+                };
+                401: components["responses"]["Unauthorized_401"];
+            };
+        };
         put?: never;
         /**
          * 폴더 생성
@@ -4680,6 +4719,22 @@ export interface components {
         };
         ApiResponseFolder: components["schemas"]["ApiResponseEmpty"] & {
             data?: components["schemas"]["FolderResponse"];
+        };
+        /**
+         * @description 폴더의 최소 식별 정보. 경로 조립(id → 이름 → 조상)에만 쓰이므로
+         *     개수·타임스탬프를 담지 않는다. 뱃지가 필요하면 FolderResponse 를 쓸 것.
+         */
+        FolderSummaryResponse: {
+            id: string;
+            name: string;
+            /** @description 최상위 폴더면 null. */
+            parentFolderId?: string | null;
+        };
+        FolderListResponse: {
+            folders: components["schemas"]["FolderSummaryResponse"][];
+        };
+        ApiResponseFolderList: components["schemas"]["ApiResponseEmpty"] & {
+            data?: components["schemas"]["FolderListResponse"];
         };
         /**
          * @description 폴더의 직계 하위 폴더와 직계 회고록을, 둘을 합친 단일 시퀀스에 대한

@@ -195,6 +195,37 @@
   gap: 4px;
   margin: -8px 0 18px;
 }
+
+/* 검색·기간 필터 중 브레드크럼 자리를 대신한다. 검색은 폴더를 가로질러 전체를
+   훑으므로 폴더 경로를 현재 위치가 아니라 '돌아갈 곳'으로 제시한다. */
+.retro-search-scope {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s-xs);
+  margin: -8px 0 18px;
+}
+.retro-search-scope-label {
+  font-size: 12px;
+  color: var(--color-body-muted);
+}
+.retro-search-scope-back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-xxs);
+  padding: 5px 10px;
+  border-radius: var(--r-sm);
+  background: var(--color-tile-2);
+  border: 1px solid var(--color-hairline);
+  color: var(--color-ink-muted-80);
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 120ms ease, border-color 120ms ease;
+}
+.retro-search-scope-back:hover {
+  color: var(--color-ink);
+  border-color: var(--color-hairline-strong);
+}
 .retro-breadcrumb-item {
   padding: 5px 10px;
   border-radius: var(--r-sm);
@@ -355,8 +386,26 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: auto;
+}
+
+/* 검색 결과 카드의 소속 폴더 경로. margin-right:auto 로 날짜에 붙여 왼쪽에
+   두고, 남는 공간을 흡수해 sync 뱃지를 오른쪽 끝에 유지한다(3요소가 공간을
+   균등 분배해 칩이 가운데 뜨는 것을 막는다). */
+.retro-card-folder {
+  margin-right: auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 2px var(--s-xs);
+  border-radius: var(--r-sm);
+  background: var(--color-tile-3);
+  font-size: 12px;
+  color: var(--color-body-muted);
 }
 .retro-card-date {
   font-size: 13px;

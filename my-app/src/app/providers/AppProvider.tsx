@@ -140,6 +140,7 @@ import {
   streamSummary,
   apiCreateFolder,
   apiGetFolderContents,
+  apiListFolders,
   apiUpdateFolder,
   apiDeleteFolder,
   apiMoveEntryToFolder,
@@ -824,6 +825,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  // 전체 폴더 목록(GET /folders) — 경로 조립용. 응답을 state.folders 에 병합하지
+  // 않는다: FolderSummary 에는 folderCount/entryCount 가 없어서, 병합하면 폴더
+  // 카드 뱃지가 0 으로 덮인다. 호출부(useAllFolders)가 별도로 들고 있는다.
+  // 데모/mock 은 null(호출부가 state.folders 로 폴백). useCallback([]) 으로 안정화.
+  const loadAllFolders = useCallback(async () => {
+    if (!USE_API || isDemoMode()) return null;
+    return await apiListFolders();
+  }, []);
+
   // 통합검색(GET /search) — nav 빠른 이동용. 결과를 state 에 병합해 검색 결과를
   // 클릭했을 때(하이드레이션 범위 밖의 오래된 항목이어도) id 로 바로 조회 가능하게 한다.
   // 데모/mock 은 null(호출부가 로컬 필터로 폴백). useCallback([]) 으로 안정화.
@@ -1477,6 +1487,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     loadTodosForRange,
     loadEntriesPage,
     loadFolderContents,
+    loadAllFolders,
     // ─── Folders ────────────────────────────────────────────────────────────
     createFolder: async (name, parentFolderId) => {
       if (!apiActive) {

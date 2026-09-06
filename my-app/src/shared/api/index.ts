@@ -47,6 +47,7 @@ export {
 export type { EntryPage } from "./entries";
 export {
   apiCreateFolder,
+  apiListFolders,
   apiGetFolderContents,
   apiUpdateFolder,
   apiDeleteFolder,

@@ -14,6 +14,12 @@ export interface RetroCardProps {
   onSelect: (id: string) => void;
   /** GitHub 동기화 상태(synced/draft) 표시 여부 — 개발자 계정만 true. */
   showSyncBadge: boolean;
+  /**
+   * 소속 폴더 경로(루트→소속 순). 검색·기간 필터 모드에서만 넘긴다 — 폴더
+   * 뷰에서는 화면의 모든 카드가 같은 폴더라 정보량이 0 이다.
+   * 빈 배열은 미분류(폴더 밖)를 뜻한다. undefined 면 칩을 그리지 않는다.
+   */
+  folderPath?: string[];
 }
 
 /** 아이콘 스퀘어 팔레트 색상 수 (retro.css 의 .retro-card-icon-tone-N 와 일치). */
@@ -38,6 +44,7 @@ function RetroCardImpl({
   isToday,
   onSelect,
   showSyncBadge,
+  folderPath,
 }: RetroCardProps) {
   const { t, locale } = useTranslation();
   const isDraft = !entry.synced;
@@ -77,6 +84,18 @@ function RetroCardImpl({
         <span className="retro-card-date">
           {formatEntryDateRange(entry.retroType, entry.dateKey, locale)}
         </span>
+        {folderPath !== undefined ? (
+          <span
+            className="retro-card-folder"
+            title={folderPath.length > 0 ? folderPath.join(" › ") : undefined}
+          >
+            {folderPath.length > 0
+              ? // 길면 마지막 2단계만 — 전체 경로는 title 로 확인한다.
+                (folderPath.length > 2 ? "… › " : "") +
+                folderPath.slice(-2).join(" › ")
+              : t("retro.card.unfiled")}
+          </span>
+        ) : null}
         {showSyncBadge ? (
           <span
             className={`retro-card-sync ${isDraft ? "is-draft" : "is-synced"}`}
