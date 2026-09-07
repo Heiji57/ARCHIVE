@@ -336,14 +336,6 @@ export function toPeriodKey(
   }
 }
 
-/** True if a "done" todo should be hidden from the Todo board (24h after completion). */
-export function isHiddenAfterDone(completedAt: string | null | undefined, now = Date.now()) {
-  if (!completedAt) return false;
-  const t = new Date(completedAt).getTime();
-  if (Number.isNaN(t)) return false;
-  return now - t >= 24 * 60 * 60 * 1000;
-}
-
 /**
  * 현재 시각 기준으로 다음 30분 경계를 시작 시간으로, 1시간 후를 종료 시간으로 반환.
  * 예: 3:12 → { startTime: "03:30", endTime: "04:30" }

@@ -52,6 +52,7 @@ import {
 } from "@/entities/summary/model/types";
 import type { Todo } from "@/entities/todo/model/types";
 import type { Topic } from "@/entities/topic/model/types";
+import { boardRangeWindow } from "@/entities/todo/lib/boardRange";
 import { getTodosInRange, sortTodos } from "@/entities/todo/lib/selectors";
 import { getEntriesInRange } from "@/entities/entry/lib/selectors";
 import { DEMO_ANCHOR_DATE_KEY, isDemoMode } from "@/app/config/demo";
@@ -66,6 +67,7 @@ import {
   startOfMonth,
   startOfWeek,
   startOfYear,
+  todayKey,
   todayKeyInTz,
   toDateKey,
 } from "@/shared/lib/date";
@@ -740,14 +742,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // 할 일 보드 "전체" 보기 로드 — 오늘 기준 앞뒤로 rangeDays 를 나눈 구간을 조회한다.
   // 서버가 한 번에 최대 62일까지만 허용하므로(초과 시 422) 62일 이하 청크로 나눠
   // 병렬 조회한 뒤 id 기준으로 병합해 한 번에 hydrate 한다.
-  const loadTodosForRange = useCallback(async (rangeDays: number): Promise<Todo[]> => {
+  //
+  // 조회 창은 화면 필터와 같은 boardRangeWindow 를 쓴다 — 양쪽이 각자 계산하던 시절엔
+  // 받아온 경계 하루를 화면 필터가 도로 버렸다.
+  //
+  // extraDateKey: 창 밖의 특정 날짜를 함께 조회한다. hydrate/todos 는 목록을 통째로
+  // 교체하므로(삭제/이동된 항목이 남지 않게 하는 의도) 그 날짜만 따로 조회하면 창이
+  // 날아간다 — 같은 응답 집합에 실어 한 번에 hydrate 해야 한다.
+  const loadTodosForRange = useCallback(
+    async (rangeDays: number, extraDateKey?: string): Promise<Todo[]> => {
     // 데모(게스트) 모드는 시드 데이터만 사용 → 서버 호출 금지.
     if (!USE_API || isDemoMode()) return [];
-    const today = new Date();
-    const back = Math.floor(rangeDays / 2);
-    const fwd = rangeDays - back;
-    const start = addDays(today, -back);
-    const end = addDays(today, fwd);
+    const { from, to } = boardRangeWindow(rangeDays, todayKey());
+    const start = fromDateKey(from);
+    const end = fromDateKey(to);
 
     const chunks: Array<{ from: string; to: string }> = [];
     let cursor = start;
@@ -757,6 +765,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const chunkEnd = new Date(chunkEndMs);
       chunks.push({ from: toDateKey(cursor), to: toDateKey(chunkEnd) });
       cursor = addDays(chunkEnd, 1);
+    }
+    if (extraDateKey && (extraDateKey < from || extraDateKey > to)) {
+      chunks.push({ from: extraDateKey, to: extraDateKey });
     }
 
     try {
@@ -773,7 +784,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return [];
     }
 
-  }, []);
+    },
+    [],
+  );
 
   // 회고록 목록 페이지 조회 (GET /entries/paginated) — daily/weekly/monthly/yearly
   // 4개 탭 전부 이 엔드포인트 하나로 서버 페이지네이션+검색(q)한다. 받은 항목을

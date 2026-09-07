@@ -1,5 +1,5 @@
 import type { Todo } from "@/entities/todo/model/types";
-import { fromDateKey, isHiddenAfterDone } from "@/shared/lib/date";
+import { fromDateKey } from "@/shared/lib/date";
 
 /**
  * 1차: dateKey 오름차순
@@ -30,13 +30,6 @@ export function findTodoById(todos: Todo[], id: string) {
  */
 export function isRecurringTodo(todo: Todo): boolean {
   return todo.isVirtual || todo.seriesId !== null || todo.recurrenceRule !== null;
-}
-
-/** Filter todos that should appear on the Todo Board (hide done >24h). */
-export function getVisibleBoardTodos(todos: Todo[], now = Date.now()) {
-  return todos.filter(
-    (todo) => !(todo.status === "done" && isHiddenAfterDone(todo.completedAt, now)),
-  );
 }
 
 /** Filter todos by a specific date key. */
