@@ -148,9 +148,12 @@ import {
   apiMoveEntryToFolder,
   apiListTopics,
   apiCreateTopic,
+  apiUpdateTopic,
   apiDeleteTopic,
   apiGenerateDigest,
   apiGetDigest,
+  apiGetTopicStats,
+  apiGetTopicSources,
 } from "@/shared/api";
 import {
   MOCK_AVAILABLE_REPOS,
@@ -934,6 +937,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (name: string, description: string) => apiCreateTopic(name, description),
     [],
   );
+  const updateTopic = useCallback(
+    (id: string, patch: { name?: string; description?: string }) =>
+      apiUpdateTopic(id, patch),
+    [],
+  );
   const deleteTopic = useCallback((id: string) => apiDeleteTopic(id), []);
   const generateTopicDigest = useCallback(
     (topicId: string) => apiGenerateDigest(topicId),
@@ -941,6 +949,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
   const getTopicDigest = useCallback(
     (topicId: string) => apiGetDigest(topicId),
+    [],
+  );
+  const getTopicStats = useCallback(
+    (topicId: string) => apiGetTopicStats(topicId),
+    [],
+  );
+  const getTopicSources = useCallback(
+    (topicId: string, params: { page?: number; size?: number }) =>
+      apiGetTopicSources(topicId, params),
     [],
   );
 
@@ -1722,9 +1739,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // ─── Topics ───────────────────────────────────────────────────────────
     loadTopics,
     createTopic,
+    updateTopic,
     deleteTopic,
     generateTopicDigest,
     getTopicDigest,
+    getTopicStats,
+    getTopicSources,
     // ─── Templates ──────────────────────────────────────────────────────────
     addTemplate: (retroType, name, content) => {
       const localId = createId("template");
