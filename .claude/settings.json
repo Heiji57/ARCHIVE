@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=$(cat | jq -r '.tool_input.file_path // empty'); root=$(git rev-parse --show-toplevel 2>/dev/null); if [ -n \"$f\" ] && [ -n \"$root\" ] && [[ \"$f\" == \"$root\"/my-app/docs/* ]]; then echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Docs must live under <repo-root>/docs/, never my-app/docs/. Write under docs/ instead (e.g. docs/superpowers/plans/, docs/superpowers/specs/).\"}}'; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
