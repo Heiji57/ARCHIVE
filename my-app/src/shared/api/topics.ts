@@ -4,7 +4,7 @@
  *  - GET  /topics/{id}/digest/stream → SSE 로 완료 신호 수신
  *
  * 주제당 digest 는 1개뿐이며, 재생성은 watermark_date_key 이후 새 내용만
- * 반영해 기존 content 를 대체한다(누적 아님) — TopicDigestPane 에서 안내한다.
+ * 반영해 기존 content 를 대체한다(누적 아님) — TopicDocument 에서 안내한다.
  */
 import { ApiError } from "./errors";
 import { request, streamSSE } from "./client";
@@ -75,7 +75,7 @@ function toTopicSource(api: TopicSourceResponse): TopicSource {
  * `TOPIC_LIMIT_REACHED` 에러의 `details`는 다른 에러와 달리 표준
  * `{field,message}[]` shape 이 아니라 `[{"limit": number}]` 를 그대로 내려준다
  * (CLAUDE.md §8 계약 간극 6번). 이 비표준 shape 을 API 경계에서 한 번만
- * 캐스팅해 소비자(TopicSidebar 등)가 직접 캐스팅하지 않게 한다.
+ * 캐스팅해 소비자(TopicPillBar 등)가 직접 캐스팅하지 않게 한다.
  */
 export function getTopicLimitFromError(error: ApiError): number | undefined {
   if (error.code !== "TOPIC_LIMIT_REACHED") return undefined;
