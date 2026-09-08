@@ -4,12 +4,19 @@ import { isApiError, streamTopicDigest } from "@/shared/api";
 import { useTranslation } from "@/shared/lib/i18n";
 import type { TopicDigest } from "@/entities/topic/model/types";
 
+export interface TopicDigestProgress {
+  processed: number;
+  total: number;
+}
+
 export interface UseTopicDigestResult {
   digest: TopicDigest | null;
   loading: boolean;
   loadError: boolean;
-  /** 생성(재생성) 요청 진행 중 여부. */
+  /** 생성(재생성) 요청 진행 중 여부 — 이 세션에서 시작했든, 마운트 시 이어받았든. */
   generating: boolean;
+  /** generating 중 SSE 진행률. 아직 이벤트를 못 받았으면 null(불확정 스피너로 렌더). */
+  progress: TopicDigestProgress | null;
   generateError: boolean;
   generate: () => void;
 }
@@ -25,23 +32,20 @@ export function useTopicDigest(topicId: string | null): UseTopicDigestResult {
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [progress, setProgress] = useState<TopicDigestProgress | null>(null);
   const [generateError, setGenerateError] = useState(false);
 
   const pollTimerRef = useRef<number | null>(null);
   const stopSSERef = useRef<(() => void) | null>(null);
-  // 공유 boolean 대신 "세대" 토큰을 쓴다 — generate() 호출마다 토큰을 새로 발급해,
-  // 이전 generate() 의 비동기 후속 작업(폴링/SSE 콜백)이 이후의 generate() 호출로
-  // 인해 되살아나 잘못된 topicId 의 결과로 최신 호출을 완료시키는 걸 막는다
-  // (finishedRef 를 단일 boolean 으로 공유하면 이 문제가 생긴다 — 리뷰에서 발견).
+  // 세대 토큰 — generate()/resume 호출마다 새로 발급해, 이전 호출의 비동기
+  // 후속 작업(폴링/SSE 콜백)이 이후 호출로 되살아나 잘못된 결과로 최신 호출을
+  // 완료시키는 걸 막는다.
   const genTokenRef = useRef(0);
-  // topicId 변경 시 재조회 응답이 뒤바뀌어 도착해도(네트워크 순서 역전) 오래된
-  // 응답이 최신 화면을 덮어쓰지 않도록 하는 요청 순번 가드(useTopics.ts 의
-  // reqRef 패턴과 동일).
+  // topicId 변경 시 재조회 응답이 뒤바뀌어 도착해도 오래된 응답이 최신 화면을
+  // 덮어쓰지 않도록 하는 요청 순번 가드.
   const loadReqRef = useRef(0);
 
   const stopWatch = useCallback(() => {
-    // 진행 중이던 generate() 호출을 전부 무효화한다(이후 그 호출의 .then/interval/
-    // SSE 콜백이 도착해도 isStale() 이 true 가 되어 아무 것도 하지 않는다).
     genTokenRef.current += 1;
     if (pollTimerRef.current !== null) {
       window.clearInterval(pollTimerRef.current);
@@ -51,48 +55,13 @@ export function useTopicDigest(topicId: string | null): UseTopicDigestResult {
     stopSSERef.current = null;
   }, []);
 
-  // topicId 변경 시 상태 초기화 + 재조회, 언마운트/전환 시 진행 중이던 감시 정리.
-  useEffect(() => {
-    stopWatch();
-    setDigest(null);
-    setGenerateError(false);
-    // 진행 중이던 generate() 가 있었다면 stopWatch() 로 무효화됐으므로 다시는
-    // finish() 가 불리지 않는다 — 여기서 직접 풀어주지 않으면 버튼이 영구히
-    // "생성 중" 상태로 멈춘다(리뷰에서 발견된 버그).
-    setGenerating(false);
-    if (!topicId) return;
-
-    const reqId = ++loadReqRef.current;
-    setLoading(true);
-    setLoadError(false);
-    void getTopicDigest(topicId)
-      .then((d) => {
-        if (reqId !== loadReqRef.current) return; // stale 응답 무시
-        setDigest(d);
-      })
-      .catch(() => {
-        if (reqId === loadReqRef.current) setLoadError(true);
-      })
-      .finally(() => {
-        if (reqId === loadReqRef.current) setLoading(false);
-      });
-
-    return () => stopWatch();
-  }, [topicId, getTopicDigest, stopWatch]);
-
-  const generate = useCallback(() => {
-    if (!topicId || generating) return;
-    setGenerateError(false);
-    setGenerating(true);
-    // 마운트 시 시작된 초기 조회가 아직 진행 중이면 응답을 무효화한다 — 그렇지
-    // 않으면 그 조회가 생성 완료보다 늦게 도착해 방금 생성된 결과를 낡은
-    // 값으로 덮어쓸 수 있다(reqId 는 topicId 변경 시에만 갱신되므로, 같은
-    // topicId 안에서 generate() 를 시작하는 것만으로는 무효화되지 않았다).
-    ++loadReqRef.current;
-    setLoading(false);
-
-    const myToken = ++genTokenRef.current;
+  // 폴링+SSE 이중 감시 — generate() 새 호출과 마운트 시 진행 중 상태 복귀 둘 다
+  // 이 함수를 쓴다. 호출 전에 genTokenRef.current 를 이미 새로 발급해 뒀다고
+  // 가정한다(그 값을 이 호출의 세대로 캡처한다).
+  const startWatching = useCallback(() => {
+    const myToken = genTokenRef.current;
     const isStale = () => genTokenRef.current !== myToken;
+    if (isStale() || !topicId) return;
 
     const finish = (result: TopicDigest | null, failed: boolean) => {
       if (isStale()) return;
@@ -103,77 +72,125 @@ export function useTopicDigest(topicId: string | null): UseTopicDigestResult {
       stopSSERef.current?.();
       stopSSERef.current = null;
       setGenerating(false);
+      setProgress(null);
       if (result) setDigest(result);
       if (failed) setGenerateError(true);
     };
 
-    // POST 로 새로 시작한 작업이든, 409(TOPIC_DIGEST_ALREADY_IN_PROGRESS)로 확인된
-    // 기존 작업이든 — 이후엔 동일한 폴링+SSE 감시로 완료를 기다린다.
-    const startWatching = () => {
-      if (isStale()) return; // POST 응답 오는 사이 topicId 가 바뀜 — 타이머/SSE 를 새로 열지 않는다
+    let pollCount = 0;
+    pollTimerRef.current = window.setInterval(() => {
+      if (isStale()) {
+        if (pollTimerRef.current !== null) window.clearInterval(pollTimerRef.current);
+        pollTimerRef.current = null;
+        return;
+      }
+      if (++pollCount > MAX_POLLS) {
+        finish(null, true);
+        return;
+      }
+      void getTopicDigest(topicId)
+        .then((d) => {
+          if (isStale() || !d) return;
+          if (d.status === "completed") finish(d, false);
+          else if (d.status === "failed") finish(d, true);
+        })
+        .catch(() => {
+          // 일시적 조회 실패 — 다음 폴링 tick 에서 다시 시도한다.
+        });
+    }, POLL_INTERVAL_MS);
 
-      let pollCount = 0;
-      pollTimerRef.current = window.setInterval(() => {
-        if (isStale()) {
-          // stopWatch() 가 놓친 타이머가 없어야 하지만, 방어적으로 스스로도 정리한다.
-          if (pollTimerRef.current !== null) window.clearInterval(pollTimerRef.current);
-          pollTimerRef.current = null;
-          return;
-        }
-        if (++pollCount > MAX_POLLS) {
-          finish(null, true);
-          return;
-        }
+    stopSSERef.current = streamTopicDigest(topicId, {
+      onProgress: (processed, total) => {
+        if (!isStale()) setProgress({ processed, total });
+      },
+      onCompleted: () => {
+        if (isStale()) return;
         void getTopicDigest(topicId)
-          .then((d) => {
-            if (isStale() || !d) return;
-            if (d.status === "completed") finish(d, false);
-            else if (d.status === "failed") finish(d, true);
-          })
+          .then((d) => finish(d, false))
           .catch(() => {
-            // 일시적 조회 실패 — 다음 폴링 tick 에서 다시 시도한다.
+            // 조회 실패 — 진행 중인 폴링이 재시도를 이어받는다.
           });
-      }, POLL_INTERVAL_MS);
+      },
+      onFailed: () => finish(null, true),
+      onTimeout: () => {},
+      onError: () => {},
+    });
+  }, [topicId, getTopicDigest]);
 
-      stopSSERef.current = streamTopicDigest(topicId, {
-        onCompleted: () => {
-          if (isStale()) return;
-          void getTopicDigest(topicId)
-            .then((d) => finish(d, false))
-            .catch(() => {
-              // 조회 실패 — 진행 중인 폴링이 재시도를 이어받는다.
-            });
-        },
-        onFailed: () => finish(null, true),
-        // 타임아웃/오류는 폴링이 계속 담당 — 여기서는 상태를 건드리지 않음.
-        onTimeout: () => {},
-        onError: () => {},
+  // topicId 변경 시 상태 초기화 + 재조회, 언마운트/전환 시 진행 중이던 감시 정리.
+  useEffect(() => {
+    stopWatch();
+    setDigest(null);
+    setGenerateError(false);
+    setGenerating(false);
+    setProgress(null);
+    if (!topicId) return;
+
+    const reqId = ++loadReqRef.current;
+    setLoading(true);
+    setLoadError(false);
+    void getTopicDigest(topicId)
+      .then((d) => {
+        if (reqId !== loadReqRef.current) return;
+        setDigest(d);
+        // 마운트 시 진행 중 상태 복귀(§3.2 E) — POST 없이 감시만 이어받는다.
+        if (d && (d.status === "pending" || d.status === "in_progress")) {
+          genTokenRef.current += 1;
+          setGenerating(true);
+          startWatching();
+        }
+      })
+      .catch(() => {
+        if (reqId === loadReqRef.current) setLoadError(true);
+      })
+      .finally(() => {
+        if (reqId === loadReqRef.current) setLoading(false);
       });
-    };
+
+    return () => stopWatch();
+  }, [topicId, getTopicDigest, stopWatch, startWatching]);
+
+  const generate = useCallback(() => {
+    if (!topicId || generating) return;
+    setGenerateError(false);
+    setGenerating(true);
+    ++loadReqRef.current;
+    setLoading(false);
+
+    genTokenRef.current += 1;
+    const myToken = genTokenRef.current;
+    const isStale = () => genTokenRef.current !== myToken;
 
     void generateTopicDigest(topicId)
-      .then(() => startWatching())
+      .then(() => {
+        // POST 응답이 오는 사이 topicId 가 바뀌었을 수 있다(예: 사용자가 다른
+        // 주제를 선택) — 그 경우 genTokenRef 가 이미 더 새로운 감시로
+        // 넘어가 있으므로, 여기서 startWatching() 을 부르면 그 최신 감시의
+        // 타이머/SSE 를 가로채(orphan) 버린다. catch 분기는 이미 이 체크를
+        // 하고 있었는데 then 분기만 빠져 있었다(리뷰에서 발견된 회귀).
+        if (isStale()) return;
+        startWatching();
+      })
       .catch((e) => {
         if (isStale()) return;
         if (isApiError(e) && e.code === "TOPIC_DIGEST_ALREADY_IN_PROGRESS") {
-          // 실패가 아니라 이미 다른 요청이 만든 작업이 진행 중인 것 — 버튼은
-          // 계속 비활성 상태로 두고(설계 스펙) 그 작업을 이어서 지켜본다.
           pushNotification("info", t("topic.generate.alreadyInProgress"), "", {
             transient: true,
           });
           startWatching();
           return;
         }
-        finish(null, true);
+        setGenerating(false);
+        setGenerateError(true);
       });
   }, [
     topicId,
     generating,
     generateTopicDigest,
-    getTopicDigest,
+    startWatching,
     pushNotification,
     t,
   ]);
 
-  return { digest, loading, loadError, generating, generateError, generate };
+  return { digest, loading, loadError, generating, progress, generateError, generate };
 }
