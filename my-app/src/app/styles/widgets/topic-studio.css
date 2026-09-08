@@ -607,3 +607,10 @@
 .topic-doc-tag-more {
   color: var(--color-ink-muted-48);
 }
+
+/* ---------- 좁은 폭(<900px) ---------- */
+@media (max-width: 900px) {
+  .topic-pill-row {
+    flex-wrap: nowrap;
+  }
+}
