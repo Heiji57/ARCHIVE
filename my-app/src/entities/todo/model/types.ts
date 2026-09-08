@@ -56,8 +56,9 @@ export const MAX_TAG_LENGTH = 20;
 
 // ─── Dashboard stats (GET /todos/stats) ──────────────────────────────────────
 
-/** 대시보드 통계 집계 범위. */
-export type StatsRange = "today" | "week" | "month";
+/** 대시보드 통계 집계 범위. `all`은 전체 기간(2000-01-01~오늘, 상한은 오늘) — 주제 0개
+ *  첫 진입 화면의 "할 일 N개" 문구처럼 기간 필터 없는 총계가 필요할 때 쓴다. */
+export type StatsRange = "today" | "week" | "month" | "all";
 
 /** 이번 ISO주 하루치 완료 개수 (월~일 7칸). */
 export interface WeeklyTrendDay {
