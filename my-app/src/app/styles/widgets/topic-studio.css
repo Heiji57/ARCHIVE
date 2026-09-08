@@ -185,3 +185,84 @@
   line-height: 1.6;
   color: var(--color-body-muted);
 }
+
+/* ---------- 미선택 상태 (crumb B) ---------- */
+.topic-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-md);
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--s-xl) 0;
+}
+.topic-picker-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 260px;
+  padding: 9px 14px;
+  background: var(--color-tile-3);
+  border: 1px solid var(--color-divider-soft);
+  border-radius: var(--r-pill);
+}
+.topic-picker-search-icon {
+  color: var(--color-body-muted);
+}
+.topic-picker-search input {
+  flex: 1;
+  min-width: 0;
+  font-size: 16px;
+  background: transparent;
+}
+.topic-picker-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.topic-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-xs);
+}
+.topic-picker-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--s-sm) var(--s-md);
+  border-radius: var(--r-md);
+  border: 1px solid var(--color-divider-soft);
+  background: var(--color-tile-2);
+  text-align: left;
+}
+.topic-picker-card:hover {
+  background: var(--color-tile-3);
+}
+.topic-picker-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-sm);
+}
+.topic-picker-card-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.topic-picker-card-status {
+  font-size: 12px;
+  color: var(--color-ink-muted-48);
+  white-space: nowrap;
+}
+.topic-picker-card-desc {
+  font-size: 12px;
+  color: var(--color-body-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.topic-picker-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-ink-muted-48);
+}
