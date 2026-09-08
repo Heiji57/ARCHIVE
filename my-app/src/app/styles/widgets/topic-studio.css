@@ -434,3 +434,176 @@
   border-radius: var(--r-sm);
   color: var(--color-ink);
 }
+
+/* ---------- 문서 본문 (TopicDocument) ---------- */
+.topic-doc-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-xs);
+  padding-bottom: var(--s-lg);
+  border-bottom: 1px solid var(--color-hairline);
+}
+.topic-doc-title,
+.topic-doc-title-input {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(32px, 3.4vw, 44px);
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--color-ink);
+  cursor: text;
+}
+.topic-doc-title-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed var(--color-divider-soft);
+  outline: none;
+  padding: 0;
+}
+.topic-doc-desc,
+.topic-doc-desc-input {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-body-muted);
+  cursor: text;
+}
+.topic-doc-desc-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed var(--color-divider-soft);
+  outline: none;
+  padding: 0;
+}
+.topic-doc-edit-save-hint {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-ink-muted-48);
+}
+.topic-doc-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--s-sm);
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--color-body-muted);
+  padding-top: 4px;
+}
+.topic-doc-edit-hint {
+  color: var(--color-ink-muted-48);
+}
+.topic-doc-delete {
+  color: var(--color-danger);
+  margin-left: auto;
+}
+
+.topic-doc-state {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-sm);
+  padding: 44px var(--s-lg);
+}
+.topic-doc-state[data-tone="danger"] {
+  background: color-mix(in srgb, var(--color-danger) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-danger) 30%, transparent);
+  border-radius: var(--r-lg);
+}
+.topic-doc-state h3 {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.topic-doc-state p {
+  margin: 0;
+  max-width: 480px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-body-muted);
+}
+.topic-doc-state-actions {
+  display: flex;
+  gap: var(--s-xs);
+}
+.topic-doc-hint {
+  font-size: 12px;
+  color: var(--color-ink-muted-48);
+}
+.topic-doc-error {
+  padding: 10px 14px;
+  border-radius: var(--r-sm);
+  background: var(--color-tile-3);
+  color: var(--color-warn, #d9a23a);
+  font-size: 16px;
+}
+
+.topic-doc-progress-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-sm);
+  font-size: 16px;
+  color: var(--color-ink);
+}
+.topic-doc-spinner {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 2px solid var(--color-divider-soft);
+  border-top-color: var(--color-primary);
+  animation: topic-doc-spin 700ms linear infinite;
+}
+@keyframes topic-doc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.topic-doc-progress-bar {
+  width: 100%;
+  max-width: 420px;
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: var(--color-tile-3);
+  overflow: hidden;
+}
+.topic-doc-progress-bar > div {
+  height: 100%;
+  background: var(--color-primary);
+  transition: width 200ms ease;
+}
+
+.topic-doc-rail-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-xs);
+  padding: var(--s-sm) var(--s-md);
+  background: var(--color-tile-2);
+  border: 1px solid var(--color-divider-soft);
+  border-radius: var(--r-lg);
+}
+.topic-doc-rail-value {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-ink);
+}
+.topic-doc-rail-sub {
+  font-size: 12px;
+  color: var(--color-body-muted);
+}
+.topic-doc-tag-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.topic-doc-tag-chip {
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  background: var(--color-tile-3);
+  font-size: 12px;
+  color: var(--color-body-muted);
+}
+.topic-doc-tag-more {
+  color: var(--color-ink-muted-48);
+}
