@@ -119,9 +119,12 @@ export {
 export {
   apiListTopics,
   apiCreateTopic,
+  apiUpdateTopic,
   apiDeleteTopic,
   apiGenerateDigest,
   apiGetDigest,
+  apiGetTopicStats,
+  apiGetTopicSources,
   streamTopicDigest,
   getTopicLimitFromError,
   type TopicDigestStreamHandlers,

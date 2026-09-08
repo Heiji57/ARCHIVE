@@ -361,3 +361,11 @@ export function computeAutoTodoTime(): { startTime: string; endTime: string } {
     endTime: `${pad(endH)}:${pad(endM)}`,
   };
 }
+
+/**
+ * "YYYY-MM-DD" → "MM.DD" (예: "2026-09-01" → "09.01"). 주제 뷰의 watermark 배너·레일
+ * 카드 전용 축약 포맷 — Intl 포맷터를 새로 안 쓰고 date_key 문자열을 그대로 슬라이스한다.
+ */
+export function formatMonthDayFromDateKey(dateKey: string): string {
+  return dateKey.slice(5).replace("-", ".");
+}
