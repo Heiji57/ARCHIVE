@@ -19,6 +19,8 @@ export interface UseTopicDigestResult {
   progress: TopicDigestProgress | null;
   generateError: boolean;
   generate: () => void;
+  /** 조회 실패 후 재시도 — topicId 는 그대로 두고 마운트 이펙트를 다시 돈다. */
+  refetch: () => void;
 }
 
 const POLL_INTERVAL_MS = 5000;
@@ -34,6 +36,7 @@ export function useTopicDigest(topicId: string | null): UseTopicDigestResult {
   const [generating, setGenerating] = useState(false);
   const [progress, setProgress] = useState<TopicDigestProgress | null>(null);
   const [generateError, setGenerateError] = useState(false);
+  const [tick, setTick] = useState(0);
 
   const pollTimerRef = useRef<number | null>(null);
   const stopSSERef = useRef<(() => void) | null>(null);
@@ -148,7 +151,7 @@ export function useTopicDigest(topicId: string | null): UseTopicDigestResult {
       });
 
     return () => stopWatch();
-  }, [topicId, getTopicDigest, stopWatch, startWatching]);
+  }, [topicId, getTopicDigest, stopWatch, startWatching, tick]);
 
   const generate = useCallback(() => {
     if (!topicId || generating) return;
@@ -192,5 +195,7 @@ export function useTopicDigest(topicId: string | null): UseTopicDigestResult {
     t,
   ]);
 
-  return { digest, loading, loadError, generating, progress, generateError, generate };
+  const refetch = useCallback(() => setTick((n) => n + 1), []);
+
+  return { digest, loading, loadError, generating, progress, generateError, generate, refetch };
 }

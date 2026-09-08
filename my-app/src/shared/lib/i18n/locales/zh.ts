@@ -347,6 +347,7 @@ export const zh: Dict = {
   "topic.doc.editTrigger": "点击标题或描述即可编辑",
   "topic.doc.delete": "删除主题",
   "topic.doc.editSaveHint": "↵ 保存 · esc 取消",
+  "topic.doc.nameDuplicated": "已存在同名主题。",
   "topic.doc.bannerReflected": "本文档已反映截至 {date} 的回顾",
   "topic.doc.bannerUnreflected": "此后新写的 {count} 篇回顾尚未包含在内。重新整理会用新结果替换本文档 —— 不会在原有内容上追加。",
   "topic.doc.regenerate": "重新整理",

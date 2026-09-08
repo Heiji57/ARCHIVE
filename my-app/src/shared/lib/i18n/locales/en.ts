@@ -351,6 +351,7 @@ export const en: Dict = {
   "topic.doc.editTrigger": "Click the title or description to edit",
   "topic.doc.delete": "Delete topic",
   "topic.doc.editSaveHint": "↵ save · esc cancel",
+  "topic.doc.nameDuplicated": "A topic with this name already exists.",
   "topic.doc.bannerReflected": "This document reflects entries through {date}",
   "topic.doc.bannerUnreflected": "{count} entries written since then aren't included yet. Regenerating will replace this document with a new result — it won't be appended to.",
   "topic.doc.regenerate": "Regenerate",

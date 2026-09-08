@@ -347,6 +347,7 @@ export type TranslationKey =
   | "topic.doc.editTrigger"
   | "topic.doc.delete"
   | "topic.doc.editSaveHint"
+  | "topic.doc.nameDuplicated"
   | "topic.doc.bannerReflected"
   | "topic.doc.bannerUnreflected"
   | "topic.doc.regenerate"

@@ -614,3 +614,20 @@
     flex-wrap: nowrap;
   }
 }
+
+.topic-doc-edit-error {
+  font-size: 12px;
+  color: var(--color-danger);
+}
+
+.topic-doc-title-trigger,
+.topic-doc-desc-trigger {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}

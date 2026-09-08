@@ -349,6 +349,7 @@ export const ko: Dict = {
   "topic.doc.editTrigger": "제목·설명 클릭하면 편집",
   "topic.doc.delete": "주제 삭제",
   "topic.doc.editSaveHint": "↵ 저장 · esc 취소",
+  "topic.doc.nameDuplicated": "이미 같은 이름의 주제가 있어요.",
   "topic.doc.bannerReflected": "{date}까지의 회고가 반영된 문서입니다",
   "topic.doc.bannerUnreflected": "이후 작성된 회고 {count}개는 아직 포함되지 않았습니다. 다시 정리하면 이 문서는 새 결과로 대체됩니다 — 기존 내용에 덧붙지 않습니다.",
   "topic.doc.regenerate": "다시 정리하기",

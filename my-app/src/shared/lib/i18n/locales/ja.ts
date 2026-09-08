@@ -349,6 +349,7 @@ export const ja: Dict = {
   "topic.doc.editTrigger": "タイトル・説明をクリックすると編集できます",
   "topic.doc.delete": "トピックを削除",
   "topic.doc.editSaveHint": "↵ 保存 ・esc キャンセル",
+  "topic.doc.nameDuplicated": "同じ名前のトピックが既にあります。",
   "topic.doc.bannerReflected": "{date}までの振り返りが反映された文書です",
   "topic.doc.bannerUnreflected": "それ以降に書かれた振り返り{count}件はまだ含まれていません。再整理すると、この文書は新しい結果に置き換わります — 既存の内容には追記されません。",
   "topic.doc.regenerate": "再整理する",

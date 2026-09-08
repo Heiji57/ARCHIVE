@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState } from "react";
 import { Sparkles } from "lucide-react";
+import { isApiError } from "@/shared/api";
 import { useTranslation } from "@/shared/lib/i18n";
 import { EmptyState } from "@/shared/ui/empty-state/EmptyState";
 import { EditorErrorBoundary } from "@/shared/ui/rich-editor";
@@ -33,7 +34,7 @@ export function TopicDocument({
   requireLoginInDemo,
 }: TopicDocumentProps) {
   const { t } = useTranslation();
-  const { digest, loading, loadError, generating, progress, generateError, generate } =
+  const { digest, loading, loadError, generating, progress, generateError, generate, refetch } =
     useTopicDigest(topic.id);
   const { stats } = useTopicStats(topic.id);
 
@@ -44,7 +45,14 @@ export function TopicDocument({
   const [showPrevious, setShowPrevious] = useState(false);
 
   const hasContent = Boolean(digest?.content);
-  const docState: "loadError" | "generateError" | "generatingFirst" | "generatingRegen" | "empty" | "completed" =
+  const docState:
+    | "loadError"
+    | "generateError"
+    | "generatingFirst"
+    | "generatingRegen"
+    | "loading"
+    | "empty"
+    | "completed" =
     loadError
       ? "loadError"
       : generateError && !showPrevious
@@ -53,9 +61,11 @@ export function TopicDocument({
           ? hasContent
             ? "generatingRegen"
             : "generatingFirst"
-          : hasContent
-            ? "completed"
-            : "empty";
+          : loading
+            ? "loading"
+            : hasContent
+              ? "completed"
+              : "empty";
 
   const showBanner = docState === "completed" || docState === "generatingRegen";
   // 레일 카드 3개는 상태마다 노출 규칙이 다르다(§3.2 E 매트릭스):
@@ -65,7 +75,7 @@ export function TopicDocument({
   //  - completed/generatingRegen/loadError/generateError: "이전 값 있으면 유지" —
   //    아래 개별 카드의 null 체크가 자연스럽게 처리한다(따로 끌 필요 없음)
   const railAllowed =
-    docState === "generatingFirst"
+    docState === "generatingFirst" || docState === "loading"
       ? { reflected: false, source: false, tag: false }
       : docState === "empty"
         ? { reflected: false, source: true, tag: false }
@@ -75,25 +85,49 @@ export function TopicDocument({
     (railAllowed.source && stats != null) ||
     (railAllowed.tag && stats != null && stats.tagCounts.length > 0);
 
+  const [editError, setEditError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
   const startEdit = (field: "name" | "description") => {
     if (requireLoginInDemo()) return;
     setDraft(field === "name" ? topic.name : topic.description);
     setEditingField(field);
+    setEditError(null);
   };
   const commitEdit = async () => {
     if (!editingField) return;
     const field = editingField;
-    setEditingField(null);
     const trimmed = draft.trim();
-    if (field === "name" && (!trimmed || trimmed === topic.name)) return;
-    if (field === "description" && trimmed === topic.description) return;
-    await onUpdate(topic.id, field === "name" ? { name: trimmed } : { description: trimmed });
+    if (field === "name" && (!trimmed || trimmed === topic.name)) {
+      setEditingField(null);
+      return;
+    }
+    if (field === "description" && trimmed === topic.description) {
+      setEditingField(null);
+      return;
+    }
+    try {
+      await onUpdate(topic.id, field === "name" ? { name: trimmed } : { description: trimmed });
+      setEditingField(null);
+      setEditError(null);
+    } catch (e) {
+      setEditError(
+        isApiError(e) && e.code === "TOPIC_NAME_DUPLICATED"
+          ? t("topic.doc.nameDuplicated")
+          : t("topic.generate.failed"),
+      );
+    }
   };
 
   const confirmDelete = async () => {
-    setDeleteOpen(false);
-    await onDelete(topic.id);
-    onDeleted();
+    try {
+      await onDelete(topic.id);
+      setDeleteOpen(false);
+      setDeleteError(null);
+      onDeleted();
+    } catch {
+      setDeleteError(t("topic.generate.failed"));
+    }
   };
 
   const handleGenerate = () => {
@@ -118,13 +152,20 @@ export function TopicDocument({
               onBlur={() => void commitEdit()}
               onKeyDown={(e) => {
                 if (e.key === "Enter") void commitEdit();
-                if (e.key === "Escape") setEditingField(null);
+                if (e.key === "Escape") {
+                  setEditingField(null);
+                  setEditError(null);
+                }
               }}
             />
           ) : (
-            <h2 className="topic-doc-title" onClick={() => startEdit("name")}>
+            <button
+              type="button"
+              className="topic-doc-title topic-doc-title-trigger"
+              onClick={() => startEdit("name")}
+            >
               {topic.name}
-            </h2>
+            </button>
           )}
           {editingField === "description" ? (
             <input
@@ -135,19 +176,27 @@ export function TopicDocument({
               onBlur={() => void commitEdit()}
               onKeyDown={(e) => {
                 if (e.key === "Enter") void commitEdit();
-                if (e.key === "Escape") setEditingField(null);
+                if (e.key === "Escape") {
+                  setEditingField(null);
+                  setEditError(null);
+                }
               }}
             />
           ) : (
-            <p className="topic-doc-desc" onClick={() => startEdit("description")}>
+            <button
+              type="button"
+              className="topic-doc-desc topic-doc-desc-trigger"
+              onClick={() => startEdit("description")}
+            >
               {topic.description || t("topic.doc.editTrigger")}
-            </p>
+            </button>
           )}
           {editingField ? (
             <span className="topic-doc-edit-save-hint">{t("topic.doc.editSaveHint")}</span>
           ) : null}
+          {editError ? <span className="topic-doc-edit-error">{editError}</span> : null}
           <div className="topic-doc-meta">
-            {topic.entryCount != null && topic.todoCount != null && stats ? (
+            {stats ? (
               <span>
                 {t("topic.doc.statsLine", {
                   entries: stats.entryCounts.total,
@@ -184,7 +233,7 @@ export function TopicDocument({
                 </p>
               ) : null}
             </div>
-            <button type="button" className="btn btn-primary" onClick={handleGenerate}>
+            <button type="button" className="btn btn-primary" onClick={handleGenerate} disabled={generating}>
               {t("topic.doc.regenerate")}
             </button>
           </div>
@@ -195,7 +244,7 @@ export function TopicDocument({
             <h3>{t("topic.doc.loadErrorTitle")}</h3>
             <p>{t("topic.doc.loadErrorDesc")}</p>
             <div className="topic-doc-state-actions">
-              <button type="button" className="btn btn-utility" onClick={() => window.location.reload()}>
+              <button type="button" className="btn btn-utility" onClick={refetch}>
                 {t("topic.doc.loadErrorRetry")}
               </button>
               <button type="button" className="btn btn-utility" onClick={() => setSourceModal({ mode: "reflected" })}>
@@ -251,6 +300,8 @@ export function TopicDocument({
             </div>
             <p>{t("topic.doc.generatingHint")}</p>
           </div>
+        ) : docState === "loading" ? (
+          <EmptyState message={t("topic.source.loading")} minHeight={220} />
         ) : docState === "empty" ? (
           <div className="topic-doc-state">
             <h3>{t("topic.doc.emptyTitle")}</h3>
@@ -272,8 +323,6 @@ export function TopicDocument({
             </div>
             <span className="topic-doc-hint">{t("topic.doc.emptyHint")}</span>
           </div>
-        ) : loading ? (
-          <EmptyState message={t("topic.source.loading")} minHeight={220} />
         ) : (
           <EditorErrorBoundary
             fallback={(error) => <div className="topic-doc-error">{error.message}</div>}
@@ -344,11 +393,19 @@ export function TopicDocument({
           open
           tone="danger"
           title={t("topic.crud.deleteTitle", { name: topic.name })}
-          message={t("topic.crud.deleteMessage")}
+          message={
+            <span style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {t("topic.crud.deleteMessage")}
+              {deleteError ? <span style={{ color: "var(--color-danger)" }}>{deleteError}</span> : null}
+            </span>
+          }
           confirmLabel={t("common.delete")}
           cancelLabel={t("common.cancel")}
           onConfirm={() => void confirmDelete()}
-          onCancel={() => setDeleteOpen(false)}
+          onCancel={() => {
+            setDeleteOpen(false);
+            setDeleteError(null);
+          }}
         />
       ) : null}
 
