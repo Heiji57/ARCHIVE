@@ -2,12 +2,15 @@ import { useTranslation } from "@/shared/lib/i18n";
 import type { TranslationKey } from "@/shared/lib/i18n";
 import type { StatsRange, TodoStats } from "@/entities/todo/model/types";
 
+/** 대시보드 범위 토글은 `all`을 쓰지 않는다 — 그건 주제 뷰 빈 상태 전용 값(StatsRange 참고). */
+type DashboardRange = Exclude<StatsRange, "all">;
+
 interface StatCardsProps {
   stats: TodoStats;
-  range: StatsRange;
+  range: DashboardRange;
 }
 
-const DONE_LABEL: Record<StatsRange, TranslationKey> = {
+const DONE_LABEL: Record<DashboardRange, TranslationKey> = {
   today: "dashboard.stat.doneToday",
   week: "dashboard.stat.doneWeek",
   month: "dashboard.stat.doneMonth",

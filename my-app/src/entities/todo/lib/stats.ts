@@ -27,6 +27,9 @@ function rangeBounds(range: StatsRange, today: Date): { from: string; to: string
   if (range === "week") {
     return { from: toDateKey(startOfISOWeek(today)), to: toDateKey(endOfISOWeek(today)) };
   }
+  if (range === "all") {
+    return { from: toDateKey(new Date(2000, 0, 1, 12)), to: toDateKey(today) };
+  }
   return { from: toDateKey(startOfMonth(today)), to: toDateKey(endOfMonth(today)) };
 }
 

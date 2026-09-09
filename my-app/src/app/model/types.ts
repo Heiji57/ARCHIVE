@@ -418,6 +418,10 @@ export interface ArchiveAppContextValue {
     name: string,
     description: string,
   ) => Promise<import("@/entities/topic/model/types").Topic>;
+  updateTopic: (
+    id: string,
+    patch: { name?: string; description?: string },
+  ) => Promise<import("@/entities/topic/model/types").Topic>;
   deleteTopic: (id: string) => Promise<void>;
   generateTopicDigest: (
     topicId: string,
@@ -425,6 +429,13 @@ export interface ArchiveAppContextValue {
   getTopicDigest: (
     topicId: string,
   ) => Promise<import("@/entities/topic/model/types").TopicDigest | null>;
+  getTopicStats: (
+    topicId: string,
+  ) => Promise<import("@/entities/topic/model/types").TopicStats>;
+  getTopicSources: (
+    topicId: string,
+    params: { page?: number; size?: number },
+  ) => Promise<import("@/entities/topic/model/types").TopicSourcePage>;
   // ─── Templates ──────────────────────────────────────────────────────────
   addTemplate: (
     retroType: RetrospectiveType,

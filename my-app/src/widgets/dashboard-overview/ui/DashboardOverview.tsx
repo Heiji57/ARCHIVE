@@ -18,8 +18,11 @@ export interface DashboardOverviewProps {
   onNavigate: (route: AppRoute) => void;
 }
 
-const RANGES: StatsRange[] = ["today", "week", "month"];
-const RANGE_LABEL: Record<StatsRange, TranslationKey> = {
+/** 대시보드 범위 토글은 `all`을 쓰지 않는다 — 그건 주제 뷰 빈 상태 전용 값(StatsRange 참고). */
+type DashboardRange = Exclude<StatsRange, "all">;
+
+const RANGES: DashboardRange[] = ["today", "week", "month"];
+const RANGE_LABEL: Record<DashboardRange, TranslationKey> = {
   today: "dashboard.range.today",
   week: "dashboard.range.week",
   month: "dashboard.range.month",
@@ -29,7 +32,7 @@ export function DashboardOverview({ onNavigate }: DashboardOverviewProps) {
   const { state, requestFocus, loadTodosForView } = useArchiveApp();
   const { t } = useTranslation();
   const todayKey = useTodayKey();
-  const [range, setRange] = useState<StatsRange>("today");
+  const [range, setRange] = useState<DashboardRange>("today");
   const { stats } = useDashboardStats(range);
 
   // 오늘의 타임라인용 — 오늘 날짜 할 일을 조회(뷰 범위 = 오늘 단일).
