@@ -376,6 +376,10 @@ export type TranslationKey =
   | "topic.doc.generateErrorDesc"
   | "topic.doc.generateErrorRetry"
   | "topic.doc.generateErrorViewPrevious"
+  | "topic.doc.stalledTitle"
+  | "topic.doc.stalledDesc"
+  | "topic.doc.stalledRetry"
+  | "topic.doc.stalledViewPrevious"
   // ── source list modal ──
   | "topic.source.candidateTitle"
   | "topic.source.candidateDesc"

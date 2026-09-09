@@ -34,8 +34,17 @@ export function TopicDocument({
   requireLoginInDemo,
 }: TopicDocumentProps) {
   const { t } = useTranslation();
-  const { digest, loading, loadError, generating, progress, generateError, generate, refetch } =
-    useTopicDigest(topic.id);
+  const {
+    digest,
+    loading,
+    loadError,
+    generating,
+    progress,
+    generateError,
+    stalled,
+    generate,
+    refetch,
+  } = useTopicDigest(topic.id);
   const { stats } = useTopicStats(topic.id);
 
   const [editingField, setEditingField] = useState<"name" | "description" | null>(null);
@@ -47,6 +56,7 @@ export function TopicDocument({
   const hasContent = Boolean(digest?.content);
   const docState:
     | "loadError"
+    | "stalled"
     | "generateError"
     | "generatingFirst"
     | "generatingRegen"
@@ -55,17 +65,19 @@ export function TopicDocument({
     | "completed" =
     loadError
       ? "loadError"
-      : generateError && !showPrevious
-        ? "generateError"
-        : generating
-          ? hasContent
-            ? "generatingRegen"
-            : "generatingFirst"
-          : loading
-            ? "loading"
-            : hasContent
-              ? "completed"
-              : "empty";
+      : stalled && !showPrevious
+        ? "stalled"
+        : generateError && !showPrevious
+          ? "generateError"
+          : generating
+            ? hasContent
+              ? "generatingRegen"
+              : "generatingFirst"
+            : loading
+              ? "loading"
+              : hasContent
+                ? "completed"
+                : "empty";
 
   const showBanner = docState === "completed" || docState === "generatingRegen";
   // 레일 카드 3개는 상태마다 노출 규칙이 다르다(§3.2 E 매트릭스):
@@ -250,6 +262,21 @@ export function TopicDocument({
               <button type="button" className="btn btn-utility" onClick={() => setSourceModal({ mode: "reflected" })}>
                 {t("topic.doc.loadErrorViewSourcesOnly")}
               </button>
+            </div>
+          </div>
+        ) : docState === "stalled" ? (
+          <div className="topic-doc-state" data-tone="danger">
+            <h3>{t("topic.doc.stalledTitle")}</h3>
+            <p>{t("topic.doc.stalledDesc")}</p>
+            <div className="topic-doc-state-actions">
+              <button type="button" className="btn btn-primary" onClick={handleGenerate}>
+                {t("topic.doc.stalledRetry")}
+              </button>
+              {hasContent ? (
+                <button type="button" className="btn btn-utility" onClick={() => setShowPrevious(true)}>
+                  {t("topic.doc.stalledViewPrevious")}
+                </button>
+              ) : null}
             </div>
           </div>
         ) : docState === "generateError" ? (
